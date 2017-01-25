@@ -12,9 +12,12 @@
 */
 
 Route::get('/', function () {
-    return view('home');
+    $data = DB::table('ratables')->where('name', 'Green Bay Packers')->value('name');
+    return view('home', ['trend' => $data]);
 });
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+//Route::get('/home', 'HomeController@index');
+
+Route::get('search', 'SearchController@show');
