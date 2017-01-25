@@ -18,12 +18,12 @@
                     </form>
                 </div>
                 <div class="panel-body">
-                    Trending Now:<br>
-                    <a href='#'>{{ $trend1 }}</a> - 5.0 stars<br>
-                    <a href='#'>{{ $trend2 }}</a> - 1.2 stars<br>
-                    <a href='#'>{{ $trend3 }}</a> - 4.4 stars<br>
+                    {{ $data['name'] }}:<br>
+                    Rating: {{ $data['rating'] }} stars<br>
+                    Number of Ratings: {{ $data['numberOfRatings'] }}
                 </div>
 		</div>
     </div>
 </div>
 @endsection
+

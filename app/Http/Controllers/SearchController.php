@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Ratable;
 
 class SearchController extends Controller
 {
@@ -44,9 +45,15 @@ class SearchController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $ratable = $request->input('q');
+        $data = [];
+        $data['name'] = $ratable;
+        $data['rating'] = Ratable::where('name', $ratable)->value('Rating');
+        $data['numberOfRatings'] = Ratable::where('name', $ratable)->value('NumberOfRatings');
+        return view('ratable', ['data' => $data]);
+        
     }
 
     /**

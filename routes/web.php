@@ -12,8 +12,10 @@
 */
 
 Route::get('/', function () {
-    $data = DB::table('ratables')->where('name', 'Green Bay Packers')->value('name');
-    return view('home', ['trend' => $data]);
+    $trend1 = DB::table('Ratables')->where('name', 'Green Bay Packers')->value('name');
+    $trend2 = DB::table('Ratables')->where('id', '2')->value('name');
+    $trend3 = DB::table('Ratables')->where('id', '3')->value('name');
+    return view('home', ['trend1' => $trend1, 'trend2' => $trend2, 'trend3' => $trend3]);
 });
 
 Auth::routes();

@@ -278,6 +278,7 @@ class ComposerStaticInitad5f1d3c859bf94cc0cc9538c1c740e3
     );
 
     public static $classMap = array (
+        'AddColumnsToRatablesTable' => __DIR__ . '/../..' . '/database/migrations/2017_01_25_193816_add_columns_to_ratables_table.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
         'CreateRatablesTable' => __DIR__ . '/../..' . '/database/migrations/2017_01_25_182841_create_ratables_table.php',
         'CreateUsersTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_000000_create_users_table.php',

@@ -12,7 +12,10 @@ class RatablesTableSeeder extends Seeder
     public function run()
     {
         DB::table('ratables')->insert([
-            'name' => 'Green Bay Packers'            
+            'name' => 'New England Patriots'            
+        ]);
+        DB::table('ratables')->insert([
+            'name' => 'Netflix'            
         ]);
     }
 }
