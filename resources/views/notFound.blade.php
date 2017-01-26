@@ -18,9 +18,7 @@
                 </form>
             </div>
             <div class="panel-body">
-                {{ $model['name'] }}:<br>
-                     Rating: {{ $model['rating'] }} stars<br>
-                     Number of Ratings: {{ $model['numberOfRatings'] }}
+                Page not found...
             </div>
 	</div>
     </div>

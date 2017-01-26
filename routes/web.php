@@ -11,15 +11,13 @@
 |
 */
 
-Route::get('/', function () {
-    $trend1 = DB::table('Ratables')->where('name', 'Green Bay Packers')->value('name');
-    $trend2 = DB::table('Ratables')->where('id', '2')->value('name');
-    $trend3 = DB::table('Ratables')->where('id', '3')->value('name');
-    return view('home', ['trend1' => $trend1, 'trend2' => $trend2, 'trend3' => $trend3]);
-});
+Route::get('/', 'HomeController@index');
 
 Auth::routes();
 
-//Route::get('/home', 'HomeController@index');
-
 Route::get('search', 'SearchController@show');
+
+Route::get('{path}', 'GetPathController@index')->where('path', '.*');
+
+
+

@@ -18,9 +18,12 @@
                 </form>
             </div>
             <div class="panel-body">
-                {{ $model['name'] }}:<br>
-                     Rating: {{ $model['rating'] }} stars<br>
-                     Number of Ratings: {{ $model['numberOfRatings'] }}
+                @if ($notFound)
+                No search results matching <mark>{{ $searchString }}</mark>.
+                @else
+                Search Results:<br>
+                    {{ $model['name'] }} - {{ $model['rating'] }} stars ({{ $model['numberOfRatings'] }} ratings)
+                @endif
             </div>
 	</div>
     </div>
