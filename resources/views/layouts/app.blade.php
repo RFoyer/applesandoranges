@@ -12,7 +12,8 @@
 
     <!-- Styles -->
     <link href="/css/app.css" rel="stylesheet">
-
+    <link rel='stylesheet' href="/css/font-awesome.min.css">
+    <link rel='stylesheet' href='/css/applesandoranges-1.0.css'>
     <!-- Scripts -->
     <script>
         window.Laravel = <?php echo json_encode([
@@ -77,11 +78,31 @@
                 </div>
             </div>
         </nav>
-
-        @yield('content')
+        <div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel-heading">
+                @if (Auth::guest())
+                Please <a href="/login">login</a> to rate items.
+                @else
+                Hello, {{ Auth::user()->name }}.    
+                @endif
+            </div>
+                <div class="panel-body">
+                    <form>
+                        <input type='text' autofocus placeholder="Search Appples and Oranges..." name='q' size="50">                        
+                        <button id='btn-search' type='submit' formaction='/search' value="Submit"><i class='fa fa-search'></i></button><br>
+                    </form>
+                </div>
+            @yield('content')
+	</div>
+    </div>
+</div>
+        
     </div>
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
+    <script type='text/javascript' src='js/applesandoranges-1.0.js'></script>
 </body>
 </html>
