@@ -1,7 +1,22 @@
 $(document).ready(function() {
-    createStars();
-    createStarEventHandlers();
+    createTables();    
 });
+
+function createTables() {
+    
+    $.getJSON('json', function( json ) {
+        var i;
+        for (i = 0; i < json['load-data']['highest-rated'].length; i++) {
+            $('.highest-rated-body').append('<tr><td><a href="' + json['load-data']['highest-rated'][i]['name'] +
+                '">' + json['load-data']['highest-rated'][i]['name'] + 
+                '<a><td class="star-rate"></td>' + 
+                '</td><td>( ' + json['load-data']['highest-rated'][i]['rating'] + 
+                ' - ' + json['load-data']['highest-rated'][i]['numberOfRatings'] + ' ratings )</td></tr>');
+        }
+        createStars();
+        createStarEventHandlers();
+    });    
+}
 
 function createStars() {
     var idInd = 0;
@@ -25,7 +40,7 @@ function createStarEventHandlers() {
         if ($(this).attr('class') === 'btn-star fa fa-star-o') {
             var i;
             idInd = parseInt($(this).attr('id').substr(11), 10);
-            groupInd = parseInt(idInd.toString().substr(idInd.length - 1), 10);
+            groupInd = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
             if (groupInd > 4) {
                 groupInd -= 5;
             }
@@ -46,7 +61,7 @@ function createStarEventHandlers() {
         }
     }).click(function() {
         idInd = parseInt($(this).attr('id').substr(11), 10);
-        groupIndClicked = parseInt(idInd.toString().substr(idInd.length - 1), 10);
+        groupIndClicked = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
         if (groupIndClicked > 4) {
             groupIndClicked -= 5;
         }

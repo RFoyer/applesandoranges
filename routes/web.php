@@ -17,6 +17,8 @@ Auth::routes();
 
 Route::get('search', 'SearchController@show');
 
+Route::get('json', 'GetJsonController@index');
+
 Route::get('{path}', 'GetPathController@index')->where('path', '.*');
 
 

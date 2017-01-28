@@ -10,14 +10,8 @@
                             <th colspan="3">Highest Rated:</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($model['ranking'] as $item)
-                        <tr>
-                            <td>{{ $item['name'] }} </td>
-                            <td>{{ $item['rating'] }} </td>
-                            <td><span class='star-rate'></span> (4.9/5 - 25 Ratings)</td>
-                        </tr>
-                        @endforeach
+                    <tbody class='highest-rated-body guest'>
+                        
                     </tbody>
                 </table>
                 <br>
@@ -29,14 +23,8 @@
                             <th colspan="3">Things to rate:</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($model['ranking'] as $item)
-                        <tr>
-                            <td>Ratable -</td>
-                            <td><span class='star-rate'></span></td>
-                            <td>(no./5 no. ratings)</td>
-                        </tr>
-                        @endforeach
+                    <tbody class='things-to-rate-body user'>
+                        
                     </tbody>
                 </table>
                 <br>
@@ -46,14 +34,8 @@
                             <th colspan="3">Highest Rated:</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($model['ranking'] as $item)
-                        <tr>
-                            <td>{{ $item['name'] }} - </td>
-                            <td><span class='star-rate'></span></td>
-                            <td> (NA/5 - NA ratings)</td>
-                        </tr>
-                        @endforeach
+                    <tbody class='highest-rated-body'>
+                        
                     </tbody>
                 </table>                                    
                 @endif

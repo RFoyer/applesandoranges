@@ -10,7 +10,7 @@ class GetPathController extends Controller
 {
     public function index(Request $request)
     {
-        $path = $request->path();
+        $path = urldecode($request->path());
         if (Ratable::where('name', $path)->value('name') === $path)
         {
             $model = [];
