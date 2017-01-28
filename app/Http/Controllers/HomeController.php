@@ -26,11 +26,11 @@ class HomeController extends Controller
     public function index()
     {
         $model = [];
-        $viewData = [];
-        $viewData['guest'] = Auth::guest();
-        if ($viewData['guest'])       
+        if (Auth::guest())       
         {
-            //
+            $model['ranking'] = [ 0 => [ 'name' => '', 'rating' => '']];
+            $model['ranking'][0]['name'] = Ratable::where('name', 'Green Bay Packers')->value('name');
+            $model['ranking'][0]['rating'] = Ratable::where('name', 'Green Bay Packers')->value('Rating');
         }
         else
         {
@@ -38,6 +38,6 @@ class HomeController extends Controller
             $model['ranking'][0]['name'] = Ratable::where('name', 'Green Bay Packers')->value('name');
             $model['ranking'][0]['rating'] = Ratable::where('name', 'Green Bay Packers')->value('Rating');
         }
-        return view('home', ['model' => $model, 'viewData' => $viewData]);
+        return view('home', ['model' => $model]);
     }
 }

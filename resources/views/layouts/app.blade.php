@@ -36,8 +36,8 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a class="navbar-brand" href="{{ url('/') }}">
-                        Apples and Oranges
+                    <a id='logo' class="navbar-brand" href="{{ url('/') }}">
+                        <span id='apples'>Apples</span> <span id='and'>-and-</span> <span id='oranges'>Oranges</span>
                     </a>
                 </div>
 
@@ -90,7 +90,7 @@
             </div>
                 <div class="panel-body">
                     <form>
-                        <input type='text' autofocus placeholder="Search Appples and Oranges..." name='q' size="50">                        
+                        <input id='search-box' type='text' autofocus placeholder="Search Apples and Oranges..." name='q' size="50">                        
                         <button id='btn-search' type='submit' formaction='/search' value="Submit"><i class='fa fa-search'></i></button><br>
                     </form>
                 </div>

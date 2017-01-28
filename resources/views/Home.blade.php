@@ -2,31 +2,45 @@
 
 @section('content')
 <div class="panel-body">
-                @if ($viewData['guest'])
-                Highest Rated:<br>
-                    <a href='#'>Green Bay Packers</a> - 5.0 stars<br>
-                    <a href='#'>Netflix</a> - 4.4 stars<br>
-                    <a href='#'>New England Patriots</a> - 1.2 stars<br>
-                @else
+                @if (Auth::guest())
                 <br>
-                <table>
+                <table class='highest-rated guest'>
                     <thead>
                         <tr>
-                            <th colspan="3">Things you might want to rate:</th>
+                            <th colspan="3">Highest Rated:</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($model['ranking'] as $item)
                         <tr>
-                            <td>{{ $item['name'] }} - </td>
-                            <td>{{ $item['rating'] }} stars - </td>
-                            <td>Your Rating: <span class='star-rate'></span></td>
+                            <td>{{ $item['name'] }} </td>
+                            <td>{{ $item['rating'] }} </td>
+                            <td><span class='star-rate'></span> (4.9/5 - 25 Ratings)</td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
                 <br>
-                <table>
+                @else
+                <br>
+                <table class='things-to-rate user'>
+                    <thead>
+                        <tr>
+                            <th colspan="3">Things to rate:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($model['ranking'] as $item)
+                        <tr>
+                            <td>Ratable -</td>
+                            <td><span class='star-rate'></span></td>
+                            <td>(no./5 no. ratings)</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <br>
+                <table class='highest-rated user'>
                     <thead>
                         <tr>
                             <th colspan="3">Highest Rated:</th>
@@ -36,8 +50,8 @@
                         @foreach($model['ranking'] as $item)
                         <tr>
                             <td>{{ $item['name'] }} - </td>
-                            <td>{{ $item['rating'] }} stars - </td>
-                            <td>Your Rating: none</td>
+                            <td><span class='star-rate'></span></td>
+                            <td> (NA/5 - NA ratings)</td>
                         </tr>
                         @endforeach
                     </tbody>

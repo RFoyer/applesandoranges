@@ -12,3 +12,15 @@ and open the template in the editor.
     background-color: #f5f8fa;
     border: none;
 }
+
+#apples {
+    color: red;
+}
+
+#oranges {
+    color: orange;
+}
+#and {
+    font-size: 50%;
+    vertical-align: middle;
+}
