@@ -2,9 +2,12 @@
 
 @section('content')
 <div class="panel-body">
-                {{ $model['name'] }}:<br>
-                     Rating: {{ $model['rating'] }} stars<br>
-                     Number of Ratings: {{ $model['numberOfRatings'] }}
-            </div>
+    <div id='ratings-data'>
+        
+    </div>
+    <div id='reviews-data'>
+        
+    </div>
+</div>
 @endsection
 

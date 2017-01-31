@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\Ratable;
+use App\ratable;
 
 class RatableController extends Controller
 {
@@ -48,17 +48,7 @@ class RatableController extends Controller
      */
     public function show(Request $request)
     {
-        $path = $request->path();
-        if ($path === 'ratable'){
-            return view('home');
-        }
-        else{
-            $data = [];
-            $data['name'] = $path;
-            $data['rating'] = Ratable::where('name', $path)->value('Rating');
-            $data['numberOfRatings'] = Ratable::where('name', $path)->value('NumberOfRatings');
-            return view('ratable', ['data' => $data]);
-        }        
+                
     }
 
     /**
