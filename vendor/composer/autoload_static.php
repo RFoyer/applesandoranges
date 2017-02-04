@@ -305,7 +305,10 @@ class ComposerStaticInitad5f1d3c859bf94cc0cc9538c1c740e3
     );
 
     public static $classMap = array (
+        'ActuallyAddIdColumns' => __DIR__ . '/../..' . '/database/migrations/2017_02_04_202954_actually_add_id_columns.php',
         'AddColumnsToRatablesTable' => __DIR__ . '/../..' . '/database/migrations/2017_01_25_193816_add_columns_to_ratables_table.php',
+        'AddIdColumns' => __DIR__ . '/../..' . '/database/migrations/2017_02_04_201832_add_id_columns.php',
+        'AddTimestampsColumn' => __DIR__ . '/../..' . '/database/migrations/2017_02_04_200825_add_timestamps_column.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
         'CreateRatablesTable' => __DIR__ . '/../..' . '/database/migrations/2017_01_25_182841_create_ratables_table.php',
         'CreateRatingsTable' => __DIR__ . '/../..' . '/database/migrations/2017_01_30_220611_create_Ratings_table.php',
@@ -383,8 +386,11 @@ class ComposerStaticInitad5f1d3c859bf94cc0cc9538c1c740e3
         'Hamcrest\\Type\\IsString' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Type/IsString.php',
         'Hamcrest\\Util' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Util.php',
         'Hamcrest\\Xml\\HasXPath' => __DIR__ . '/..' . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Xml/HasXPath.php',
+        'ModifyRatingsTable' => __DIR__ . '/../..' . '/database/migrations/2017_02_04_181058_modify_Ratings_table.php',
+        'ModifyReviewsTable' => __DIR__ . '/../..' . '/database/migrations/2017_02_04_181258_modify_Reviews_table.php',
         'ModifyTables' => __DIR__ . '/../..' . '/database/migrations/2017_01_31_151031_modify_tables.php',
         'ModifyTables2' => __DIR__ . '/../..' . '/database/migrations/2017_01_31_171710_modify_tables_2.php',
+        'ModifyTables3' => __DIR__ . '/../..' . '/database/migrations/2017_02_01_181109_modify_tables_3.php',
         'PHPUnit\\Framework\\Assert' => __DIR__ . '/..' . '/phpunit/phpunit/src/ForwardCompatibility/Assert.php',
         'PHPUnit\\Framework\\BaseTestListener' => __DIR__ . '/..' . '/phpunit/phpunit/src/ForwardCompatibility/BaseTestListener.php',
         'PHPUnit\\Framework\\TestCase' => __DIR__ . '/..' . '/phpunit/phpunit/src/ForwardCompatibility/TestCase.php',
@@ -764,6 +770,7 @@ class ComposerStaticInitad5f1d3c859bf94cc0cc9538c1c740e3
         'PHP_Token_YIELD' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'PHP_Token_YIELD_FROM' => __DIR__ . '/..' . '/phpunit/php-token-stream/src/Token.php',
         'RatablesTableSeeder' => __DIR__ . '/../..' . '/database/seeds/RatablesTableSeeder.php',
+        'RatingsTableSeeder' => __DIR__ . '/../..' . '/database/seeds/RatingsTableSeeder.php',
         'SebastianBergmann\\CodeCoverage\\CodeCoverage' => __DIR__ . '/..' . '/phpunit/php-code-coverage/src/CodeCoverage.php',
         'SebastianBergmann\\CodeCoverage\\CoveredCodeNotExecutedException' => __DIR__ . '/..' . '/phpunit/php-code-coverage/src/Exception/CoveredCodeNotExecutedException.php',
         'SebastianBergmann\\CodeCoverage\\Driver\\Driver' => __DIR__ . '/..' . '/phpunit/php-code-coverage/src/Driver/Driver.php',

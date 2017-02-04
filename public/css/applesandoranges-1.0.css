@@ -24,3 +24,21 @@ and open the template in the editor.
     font-size: 60%;
     vertical-align: middle;
 }
+
+td {
+    vertical-align: center;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.ratable-name {
+    vertical-align: top;
+}
+
+input[name="ratable"], input[name="rating"] {
+    display: none;
+}
+
+form {
+    float: left;    
+}

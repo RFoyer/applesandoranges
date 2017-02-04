@@ -4,37 +4,36 @@
 <div class="panel-body">
                 @if (Auth::guest())
                 <br>
-                <table class='highest-rated guest'>
+                <table class='guest'>
                     <thead>
                         <tr>
                             <th colspan="3">Highest Rated:</th>
                         </tr>
                     </thead>
-                    <tbody class='highest-rated-body guest'>
+                    <tbody id='highest-rated-body'>
                         
                     </tbody>
                 </table>
                 <br>
                 @else
-                <br>
-                <table class='things-to-rate user'>
+                <table class='user'>
                     <thead>
                         <tr>
                             <th colspan="3">Things to rate:</th>
                         </tr>
                     </thead>
-                    <tbody class='things-to-rate-body user'>
+                    <tbody id='things-to-rate-body'>
                         
                     </tbody>
                 </table>
                 <br>
-                <table class='highest-rated user'>
+                <table class='user'>
                     <thead>
                         <tr>
                             <th colspan="3">Highest Rated:</th>
                         </tr>
                     </thead>
-                    <tbody class='highest-rated-body'>
+                    <tbody id='highest-rated-body'>
                         
                     </tbody>
                 </table>                                    

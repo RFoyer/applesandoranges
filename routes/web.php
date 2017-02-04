@@ -17,7 +17,11 @@ Auth::routes();
 
 Route::get('search', 'SearchController@show');
 
+Route::post('/', 'RatingController@store');
+
 Route::get('json', 'GetJsonController@index');
+
+Route::get('user', 'UserController@index');
 
 Route::get('{path}', 'GetPathController@index')->where('path', '.*');
 

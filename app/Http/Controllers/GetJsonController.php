@@ -4,26 +4,46 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Ratable;
+use App\User;
+use App\Rating;
+use Illuminate\Support\Facades\Auth;
 
 class GetJsonController extends Controller
 {
     public function index(Request $request)
     {
-        //$req = $request->input('req');
-        if (true)
-        {
-            return response()->json(['load-data' => 
-                ['highest-rated' => 
-                    [
-                        0 => ['name' => 'Green Bay Packers', 'rating' => 4.9, 'numberOfRatings' => 25],
-                        1 => ['name' => 'Netflix', 'rating' => 4.4, 'numberOfRatings' => 77]
-                    ]
-                ]
-            ]);
+        $page = $request->input('page');
+        $data = [];
+        
+        switch ($page) {
+            case 'home':
+                $things = Ratable::orderBy('name')->take(10)->get();
+                $data = ['things-to-rate' => array()];
+                $r;
+                $i = 0;
+                foreach ($things as $h) {
+                    $r = array('name' => $h['name'], 'img_src' => $h['img_src'], 'prevRating' => 0);
+                    $prevRating = Rating::where([
+                ['user_id', '=', Auth::id()],
+                ['ratable_id', '=', Ratable::where('name', $r['name'])->value('id')]
+                ])->first();
+                    if ($prevRating) {
+                        $r['prevRating'] = $prevRating->rating;
+                    }
+                    array_push($data['things-to-rate'], $r);                    
+                }
+                break;
+            case 'ratable':
+                
+                break;
+            case 'user':
+                //
+                break;
+            default:
+                $data = '';                
         }
-        else
-        {
-            return response()->json(['load-data' => '']);
-        }
+        
+        return response()->json($data);        
     }
 }

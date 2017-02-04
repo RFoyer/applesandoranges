@@ -6,7 +6,10 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ActuallyAddIdColumns' => $baseDir . '/database/migrations/2017_02_04_202954_actually_add_id_columns.php',
     'AddColumnsToRatablesTable' => $baseDir . '/database/migrations/2017_01_25_193816_add_columns_to_ratables_table.php',
+    'AddIdColumns' => $baseDir . '/database/migrations/2017_02_04_201832_add_id_columns.php',
+    'AddTimestampsColumn' => $baseDir . '/database/migrations/2017_02_04_200825_add_timestamps_column.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
     'CreateRatablesTable' => $baseDir . '/database/migrations/2017_01_25_182841_create_ratables_table.php',
     'CreateRatingsTable' => $baseDir . '/database/migrations/2017_01_30_220611_create_Ratings_table.php',
@@ -84,8 +87,11 @@ return array(
     'Hamcrest\\Type\\IsString' => $vendorDir . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Type/IsString.php',
     'Hamcrest\\Util' => $vendorDir . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Util.php',
     'Hamcrest\\Xml\\HasXPath' => $vendorDir . '/hamcrest/hamcrest-php/hamcrest/Hamcrest/Xml/HasXPath.php',
+    'ModifyRatingsTable' => $baseDir . '/database/migrations/2017_02_04_181058_modify_Ratings_table.php',
+    'ModifyReviewsTable' => $baseDir . '/database/migrations/2017_02_04_181258_modify_Reviews_table.php',
     'ModifyTables' => $baseDir . '/database/migrations/2017_01_31_151031_modify_tables.php',
     'ModifyTables2' => $baseDir . '/database/migrations/2017_01_31_171710_modify_tables_2.php',
+    'ModifyTables3' => $baseDir . '/database/migrations/2017_02_01_181109_modify_tables_3.php',
     'PHPUnit\\Framework\\Assert' => $vendorDir . '/phpunit/phpunit/src/ForwardCompatibility/Assert.php',
     'PHPUnit\\Framework\\BaseTestListener' => $vendorDir . '/phpunit/phpunit/src/ForwardCompatibility/BaseTestListener.php',
     'PHPUnit\\Framework\\TestCase' => $vendorDir . '/phpunit/phpunit/src/ForwardCompatibility/TestCase.php',
@@ -465,6 +471,7 @@ return array(
     'PHP_Token_YIELD' => $vendorDir . '/phpunit/php-token-stream/src/Token.php',
     'PHP_Token_YIELD_FROM' => $vendorDir . '/phpunit/php-token-stream/src/Token.php',
     'RatablesTableSeeder' => $baseDir . '/database/seeds/RatablesTableSeeder.php',
+    'RatingsTableSeeder' => $baseDir . '/database/seeds/RatingsTableSeeder.php',
     'SebastianBergmann\\CodeCoverage\\CodeCoverage' => $vendorDir . '/phpunit/php-code-coverage/src/CodeCoverage.php',
     'SebastianBergmann\\CodeCoverage\\CoveredCodeNotExecutedException' => $vendorDir . '/phpunit/php-code-coverage/src/Exception/CoveredCodeNotExecutedException.php',
     'SebastianBergmann\\CodeCoverage\\Driver\\Driver' => $vendorDir . '/phpunit/php-code-coverage/src/Driver/Driver.php',

@@ -4,31 +4,74 @@ $(document).ready(function() {
 
 function createTables() {
     
-    $.getJSON('json', function( json ) {
-        var i;
-        for (i = 0; i < json['load-data']['highest-rated'].length; i++) {
-            $('.highest-rated-body').append('<tr><td><a href="' + json['load-data']['highest-rated'][i]['name'] +
-                '">' + json['load-data']['highest-rated'][i]['name'] + 
-                '<a><td class="star-rate"></td>' + 
-                '</td><td>( ' + json['load-data']['highest-rated'][i]['rating'] + 
-                ' - ' + json['load-data']['highest-rated'][i]['numberOfRatings'] + ' ratings )</td></tr>');
-        }
-        createStars();
+    var path = location.pathname;
+    if (path === '/') {
+        $.getJSON('json?page=home', function( json ) {
+        //var tableIDsArr = ['highest-rated', 'things-to-rate'];
+        var tableIDsArr = ['things-to-rate'];
+        getTableData(tableIDsArr, json);
         createStarEventHandlers();
-    });    
+        getAsyncFormSubmits();
+        });
+    }
+    
+    else if (path === '/login' || path === '/register') {
+        
+    }
+    
+    else if (path === '/search') {
+        
+    }
+    else if (path === '/user') {
+        
+    }
+    else {
+        
+    }        
 }
 
-function createStars() {
-    var idInd = 0;
-    $('.star-rate').append(function() {
-        var html = '';
-        var i;
-        for (i = 0; i < 5; i++) {
-            html += '<button type="submit" id="star-index-' + idInd + '" class="btn-star fa fa-star-o"></button>';
-            idInd++;
+function getTableData(tableIDsArr, json) {    
+    var i;
+    var k;
+    var tableID;
+    var tr;
+    for (i = 0; i < tableIDsArr.length; i++) {
+        tableID = tableIDsArr[i]
+        for (k = 0; k < json[tableID].length; k++) {
+            tr = json[tableID][k];
+            $('#' + tableID + '-body').append(
+                '<tr><td><img src="' + tr['img_src'] + '" width="100"></td>' +  
+                '<td class="ratable-name"><a href="' + tr['name'] + '">' + tr['name'] + '</a></td>' + 
+                '<td>' + createFiveStarBtns(tr['name'], tr['prevRating']) + '</td></tr>'
+                );
         }
-        return html;
-    }).css({color: 'red'});   
+    }
+    $('.fa-star-o').css({color: 'red'});
+    $('.fa-star').css({color: 'orange'});
+}
+
+var starIdInd = 0;
+
+function createFiveStarBtns(ratableName, prevRating) {
+    var html = '';
+    var i;
+    var faStarFill;
+    prevRating;
+    for (i = 0; i < 5; i++) {
+        if (i < prevRating) {
+            faStarFill = '';
+        }
+        else {
+            faStarFill = '-o';
+        }
+        html += '<form name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + ratableName + '"/><input name="rating" value="' + i + '" />' + 
+        '<button type="submit" id="star-index-' + starIdInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form>';
+        starIdInd++;
+        }
+    return html;
+    /*$('.star-rate').append(function() {
+        
+    }).css({color: 'red'});*/
 }
 
 function createStarEventHandlers() {
@@ -93,5 +136,14 @@ function createStarEventHandlers() {
         else {
             skipMouseLeave = false;
         }                        
+    });
+}
+
+function getAsyncFormSubmits() {
+    $('form[name=star-form').submit(function(){
+        $.post("/", $(this).serialize(), function(res) {
+            console.log(res);
+        });
+        return false;
     });
 }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -89,7 +89,7 @@
                 @endif
             </div>
                 <div class="panel-body">
-                    <form>
+                    <form method='get'>
                         <input id='search-box' type='text' autofocus placeholder="Search Apples and Oranges..." name='q' size="50">                        
                         <button id='btn-search' type='submit' formaction='/search' value="Submit"><i class='fa fa-search'></i></button><br>
                     </form>

@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\ratable;
-use App\user;
+use App\Ratable;
+use App\User;
+use App\Rating;
 
-class RatingsController extends Controller
+use Illuminate\Support\Facades\Auth;
+
+class RatingController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -38,16 +41,27 @@ class RatingsController extends Controller
     public function store(Request $request)
     {
         if (Auth::check()) {
-            $rating = $request->input('rating');
-            $ratable = ratable::where('name', urldecode($request->input('ratable')))->first();
-            $ratable->RatingsSum += $rating;
-            $ratable->numberOfRatings++;
-            $ratable->Rating = $ratable->numberOfRatings / $ratable->RatingsSum;
-            //$ratable->save();
-            
-            //$user = User::where('name', Auth::user());
-            // figure out user!
-            
+            $ratable = $request->input('ratable');
+            $newRating = $request->input('rating') + 1;
+            $ratableID = Ratable::where('name', $ratable)->value('id');
+            $rtg = Rating::where([
+                ['user_id', '=', Auth::id()],
+                ['ratable_id', '=', $ratableID]
+                ])->first();
+            if ($rtg) {
+                if ($rtg->rating !== $newRating) {
+                    $rtg->rating = $newRating;
+                    $rtg->save();
+                }
+            }
+            else {
+                $rtg = new Rating;
+                $rtg->user_id = Auth::id();
+                $rtg->ratable_id = $ratableID;
+                $rtg->anonymous = false;
+                $rtg->rating = $newRating;
+                $rtg->save();
+            }
         }
     }
 
