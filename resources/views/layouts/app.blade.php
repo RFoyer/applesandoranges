@@ -14,6 +14,7 @@
     <link href="/css/app.css" rel="stylesheet">
     <link rel='stylesheet' href="/css/font-awesome.min.css">
     <link rel='stylesheet' href='/css/applesandoranges-1.0.css'>
+    
     <!-- Scripts -->
     <script>
         window.Laravel = <?php echo json_encode([

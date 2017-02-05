@@ -23,6 +23,7 @@ and open the template in the editor.
 #and {
     font-size: 60%;
     vertical-align: middle;
+    color: green;
 }
 
 td {
@@ -39,6 +40,21 @@ input[name="ratable"], input[name="rating"] {
     display: none;
 }
 
-form {
-    float: left;    
+form[name="star-form"] {
+    float: left;        
+}
+
+.td-star {
+    vertical-align: top;
+    padding: 5px;
+}
+
+.ratable-name {
+    padding: 5px;
+    font-size: large;
+}
+
+.tooltip-arrow, .tooltip-inner {
+    background-color: white;
+    color: black;
 }

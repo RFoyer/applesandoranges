@@ -1,17 +1,25 @@
 $(document).ready(function() {
-    createTables();    
+    if ($('#table-1').hasClass("guest")) {
+        isGuest = true;
+    }
+    createTables();        
 });
+
+var isGuest = false;
 
 function createTables() {
     
     var path = location.pathname;
     if (path === '/') {
         $.getJSON('json?page=home', function( json ) {
-        //var tableIDsArr = ['highest-rated', 'things-to-rate'];
         var tableIDsArr = ['things-to-rate'];
         getTableData(tableIDsArr, json);
         createStarEventHandlers();
         getAsyncFormSubmits();
+        $('a').tooltip();
+        if ($('.td-star').attr('data-toggle') === "tooltip") {
+            $('.td-star').tooltip();
+        }
         });
     }
     
@@ -35,14 +43,18 @@ function getTableData(tableIDsArr, json) {
     var k;
     var tableID;
     var tr;
+    var tdAttr = '';
+    if (isGuest) {
+        tdAttr = 'data-toggle="tooltip" title="Please login to rate items."';
+    }
     for (i = 0; i < tableIDsArr.length; i++) {
         tableID = tableIDsArr[i]
         for (k = 0; k < json[tableID].length; k++) {
             tr = json[tableID][k];
             $('#' + tableID + '-body').append(
                 '<tr><td><img src="' + tr['img_src'] + '" width="100"></td>' +  
-                '<td class="ratable-name"><a href="' + tr['name'] + '">' + tr['name'] + '</a></td>' + 
-                '<td>' + createFiveStarBtns(tr['name'], tr['prevRating']) + '</td></tr>'
+                '<td class="ratable-name"><a data-toggle="tooltip" data-placement="bottom" title="' + tr['desc'] + '" href="' + tr['name'] + '">' + tr['name'] + '</a><br></td>' + 
+                '<td class="td-star"' + tdAttr + '>' + createFiveStarBtns(tr['name'], tr['prevRating']) + '</td></tr>'
                 );
         }
     }
@@ -141,9 +153,11 @@ function createStarEventHandlers() {
 
 function getAsyncFormSubmits() {
     $('form[name=star-form').submit(function(){
-        $.post("/", $(this).serialize(), function(res) {
+        if (!isGuest) {
+            $.post("/", $(this).serialize(), function(res) {
             console.log(res);
-        });
+            });
+        }
         return false;
     });
 }
