@@ -47,7 +47,7 @@ class SearchController extends Controller
      */
     public function show(Request $request)
     {
-        $searchString = $request->input('q');
+        $searchString = $request->input('search');
         if (Ratable::where('name', $searchString)->value('name') === $searchString)
         {
             return view('search');

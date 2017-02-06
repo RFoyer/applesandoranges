@@ -2,6 +2,9 @@ $(document).ready(function() {
     if ($('#table-1').hasClass("guest")) {
         isGuest = true;
     }
+    $('#search-box').autocomplete({
+        source: 'autocomplete'
+    });
     createTables();        
 });
 

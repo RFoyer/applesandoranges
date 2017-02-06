@@ -15,7 +15,9 @@ Route::get('/', 'HomeController@index');
 
 Auth::routes();
 
-Route::get('search', 'SearchController@show');
+Route::get('search', 'SearchFormSubmitController@show');
+
+Route::get('autocomplete', 'SearchAutocompleteController@show');
 
 Route::post('/', 'RatingController@store');
 
