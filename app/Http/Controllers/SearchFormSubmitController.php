@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Ratable;
 
-class SearchController extends Controller
+class SearchFormSubmitController extends Controller
 {
     /**
      * Display a listing of the resource.

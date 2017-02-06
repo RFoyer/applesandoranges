@@ -3,8 +3,10 @@ $(document).ready(function() {
         isGuest = true;
     }
     $('#search-box').autocomplete({
-        source: 'autocomplete'
-    });
+        source: 'autocomplete'        
+    }).autocomplete('instance')._renderItem = function(ul, item) {
+            return $("<li>").append('<div><img class="search-img" width="60" src="' + item.img + '"/>' + item.value + '</div>').appendTo(ul);
+    };
     createTables();        
 });
 
@@ -48,7 +50,7 @@ function getTableData(tableIDsArr, json) {
     var tr;
     var tdAttr = '';
     if (isGuest) {
-        tdAttr = 'data-toggle="tooltip" title="Please login to rate items."';
+        tdAttr = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
     for (i = 0; i < tableIDsArr.length; i++) {
         tableID = tableIDsArr[i]
@@ -83,10 +85,7 @@ function createFiveStarBtns(ratableName, prevRating) {
         '<button type="submit" id="star-index-' + starIdInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form>';
         starIdInd++;
         }
-    return html;
-    /*$('.star-rate').append(function() {
-        
-    }).css({color: 'red'});*/
+    return html;    
 }
 
 function createStarEventHandlers() {

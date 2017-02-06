@@ -14,7 +14,8 @@
     <link href="/css/app.css" rel="stylesheet">
     <link rel='stylesheet' href="/css/font-awesome.min.css">
     <link rel='stylesheet' href='/css/applesandoranges-1.0.css'>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    
     
     <!-- Scripts -->    
     <script>
@@ -106,9 +107,8 @@
     <!-- Scripts -->
     <script src="/js/app.js"></script>
     <script type='text/javascript' src='js/applesandoranges-1.0.js'></script>
-    <script
-  src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
-  integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
-  crossorigin="anonymous"></script>
+    <script src="/custom-jquery-ui/jquery-ui.min.js"></script>
+    <!-- <script  src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"  integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="  crossorigin="anonymous"></script> -->
+  
 </body>
 </html>

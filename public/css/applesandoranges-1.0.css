@@ -58,3 +58,8 @@ form[name="star-form"] {
     background-color: white;
     color: black;
 }
+
+.search-img {
+    max-height: 100px;
+    padding: 5px;
+}
