@@ -13,19 +13,25 @@ $(document).ready(function() {
 var isGuest = false;
 
 function createTables() {
-    
+    var i;
+    var k = 1;
     var path = location.pathname;
     if (path === '/') {
-        $.getJSON('json?page=home', function( json ) {
-        var tableIDsArr = ['things-to-rate'];
-        getTableData(tableIDsArr, json);
-        createStarEventHandlers();
-        getAsyncFormSubmits();
-        $('a').tooltip();
-        if ($('.td-star').attr('data-toggle') === "tooltip") {
-            $('.td-star').tooltip();
-        }
+        $.getJSON('table?id=' + k.toString(), function(json) {
+            createTableRow(json);
+            createStarEventHandlers();
+            getAsyncFormSubmits();
+            $('a').tooltip();
+            if ($('.td-star').attr('data-toggle') === "tooltip") {
+                $('.td-star').tooltip();
+            }
         });
+        for (i = 0; i < 9; i++) {
+            k++;        
+            $.getJSON('table?id=' + k.toString(), function(json) {
+                createTableRow(json);                
+            });
+        }        
     }
     
     else if (path === '/login' || path === '/register') {
@@ -43,26 +49,17 @@ function createTables() {
     }        
 }
 
-function getTableData(tableIDsArr, json) {    
+function createTableRow(json) {    
     var i;
-    var k;
-    var tableID;
-    var tr;
     var tdAttr = '';
     if (isGuest) {
         tdAttr = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
-    for (i = 0; i < tableIDsArr.length; i++) {
-        tableID = tableIDsArr[i]
-        for (k = 0; k < json[tableID].length; k++) {
-            tr = json[tableID][k];
-            $('#' + tableID + '-body').append(
-                '<tr><td><img src="' + tr['img_src'] + '" width="100"></td>' +  
-                '<td class="ratable-name"><a data-toggle="tooltip" data-placement="bottom" title="' + tr['desc'] + '" href="' + tr['name'] + '">' + tr['name'] + '</a><br></td>' + 
-                '<td class="td-star"' + tdAttr + '>' + createFiveStarBtns(tr['name'], tr['prevRating']) + '</td></tr>'
-                );
-        }
-    }
+    $('#things-to-rate-body').append(
+        '<tr><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
+        '<td class="ratable-name"><a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
+        '<td class="td-star"' + tdAttr + '>' + createFiveStarBtns(json['name'], json['prevRating']) + '</td></tr>'
+    );            
     $('.fa-star-o').css({color: 'red'});
     $('.fa-star').css({color: 'orange'});
 }

@@ -21,7 +21,7 @@ Route::get('autocomplete', 'SearchAutocompleteController@show');
 
 Route::post('/', 'RatingController@store');
 
-Route::get('json', 'GetJsonController@index');
+Route::get('table', 'TableDataController@show');
 
 Route::get('user', 'UserController@index');
 
