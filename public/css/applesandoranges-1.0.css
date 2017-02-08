@@ -67,3 +67,11 @@ tr {
 td {
     padding: 5px;
 }
+
+.td-add-rows {
+    text-align: center;
+}
+
+#tr-add-rows {
+    border-style: hidden;
+}

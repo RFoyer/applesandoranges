@@ -13,22 +13,21 @@ $(document).ready(function() {
     };
     createStarEventHandlers();
     getAsyncFormSubmits();
-    createTables();        
+    $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div><button class="add-rows-btn">More</button></div></td></tr>');
+    $('.add-rows-btn').button();    
+    createRows();    
 });
 
-function createTables() {
+function createRows() {
     var i;
     var k = 1;
     var path = location.pathname;
     if (path === '/') {
-        $.getJSON('table?id=' + k.toString(), function(json) {
-            createTableRow(json);            
-        });
-        for (i = 0; i < 9; i++) {
-            k++;        
+        for (i = 0; i < 10; i++) {
             $.getJSON('table?id=' + k.toString(), function(json) {
                 createTableRow(json);                
             });
+            k++;                    
         }        
     }
     
@@ -60,7 +59,8 @@ function createTableRow(json) {
     );
     $('#star-group-' + groupInd).tooltip();
     $('#ratable-name-' + groupInd).tooltip();
-    groupInd++;    
+    groupInd++;
+    $('#tr-add-rows').appendTo('#things-to-rate-body');
     $('.fa-star-o').css({color: 'red'});
     $('.fa-star').css({color: 'orange'});
 }
