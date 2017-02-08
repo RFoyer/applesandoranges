@@ -1,3 +1,7 @@
+var isGuest = false;
+var starInd = 0;
+var groupInd = 0;
+
 $(document).ready(function() {
     if ($('#table-1').hasClass("guest")) {
         isGuest = true;
@@ -7,10 +11,10 @@ $(document).ready(function() {
     }).autocomplete('instance')._renderItem = function(ul, item) {
             return $("<li>").append('<div><img class="search-img" width="60" src="' + item.img + '"/>' + item.value + '</div>').appendTo(ul);
     };
+    createStarEventHandlers();
+    getAsyncFormSubmits();
     createTables();        
 });
-
-var isGuest = false;
 
 function createTables() {
     var i;
@@ -18,13 +22,7 @@ function createTables() {
     var path = location.pathname;
     if (path === '/') {
         $.getJSON('table?id=' + k.toString(), function(json) {
-            createTableRow(json);
-            createStarEventHandlers();
-            getAsyncFormSubmits();
-            $('a').tooltip();
-            if ($('.td-star').attr('data-toggle') === "tooltip") {
-                $('.td-star').tooltip();
-            }
+            createTableRow(json);            
         });
         for (i = 0; i < 9; i++) {
             k++;        
@@ -50,38 +48,38 @@ function createTables() {
 }
 
 function createTableRow(json) {    
-    var i;
     var tdAttr = '';
     if (isGuest) {
         tdAttr = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
     $('#things-to-rate-body').append(
         '<tr><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
-        '<td class="ratable-name"><a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
-        '<td class="td-star"' + tdAttr + '>' + createFiveStarBtns(json['name'], json['prevRating']) + '</td></tr>'
-    );            
+        '<td><a id="ratable-name-' + groupInd.toString() + '" data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
+        '<td><div id="star-group-' + groupInd.toString() + '"' + tdAttr + '>' + createFiveStarBtns(json['name'], json['userRating']) + '</div></td>' + 
+        '<td>(avg. ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ')</td></tr>'
+    );
+    $('#star-group-' + groupInd).tooltip();
+    $('#ratable-name-' + groupInd).tooltip();
+    groupInd++;    
     $('.fa-star-o').css({color: 'red'});
     $('.fa-star').css({color: 'orange'});
 }
 
-var starIdInd = 0;
-
-function createFiveStarBtns(ratableName, prevRating) {
+function createFiveStarBtns(ratableName, userRating) {
     var html = '';
     var i;
     var faStarFill;
-    prevRating;
     for (i = 0; i < 5; i++) {
-        if (i < prevRating) {
+        if (i < userRating) {
             faStarFill = '';
         }
         else {
             faStarFill = '-o';
         }
         html += '<form name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + ratableName + '"/><input name="rating" value="' + i + '" />' + 
-        '<button type="submit" id="star-index-' + starIdInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form>';
-        starIdInd++;
-        }
+        '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form>';
+        starInd++;        
+    }
     return html;    
 }
 
@@ -90,7 +88,7 @@ function createStarEventHandlers() {
     var groupInd;
     var groupIndClicked = null;
     var skipMouseLeave = false;
-    $('.btn-star').mouseenter(function() {
+    $('#table-1').on('mouseenter', ".btn-star", function() {
         if ($(this).attr('class') === 'btn-star fa fa-star-o') {
             var i;
             idInd = parseInt($(this).attr('id').substr(11), 10);
@@ -113,14 +111,16 @@ function createStarEventHandlers() {
         else {
             skipMouseLeave = true;
         }
-    }).click(function() {
+    });
+    $('#table-1').on('click', ".btn-star", function() {
         idInd = parseInt($(this).attr('id').substr(11), 10);
         groupIndClicked = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
         if (groupIndClicked > 4) {
             groupIndClicked -= 5;
         }
         skipMouseLeave = false;
-    }).mouseleave(function() {
+    });
+    $('#table-1').on('mouseleave', ".btn-star", function() {
         if (!skipMouseLeave) {
             if (groupIndClicked === null) {
                 var i;
@@ -147,11 +147,11 @@ function createStarEventHandlers() {
         else {
             skipMouseLeave = false;
         }                        
-    });
+    });    
 }
 
 function getAsyncFormSubmits() {
-    $('form[name=star-form').submit(function(){
+    $('#table-1').on('submit', 'form[name=star-form]', function(){
         if (!isGuest) {
             $.post("/", $(this).serialize(), function(res) {
             console.log(res);

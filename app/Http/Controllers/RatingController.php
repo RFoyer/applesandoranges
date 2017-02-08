@@ -61,7 +61,7 @@ class RatingController extends Controller
                 $rtg->anonymous = false;
                 $rtg->rating = $newRating;
                 $rtg->save();
-            }
+            }            
         }
     }
 

@@ -8,6 +8,10 @@ and open the template in the editor.
     Author     : Raymond
 */
 
+html {
+    font-family: serif;
+}
+
 #btn-search, .btn-star {
     background-color: #f5f8fa;
     border: none;
@@ -26,12 +30,6 @@ and open the template in the editor.
     color: green;
 }
 
-td {
-    vertical-align: center;
-    padding-bottom: 5px;
-    padding-top: 5px;
-}
-
 .ratable-name {
     vertical-align: top;
 }
@@ -42,11 +40,6 @@ input[name="ratable"], input[name="rating"] {
 
 form[name="star-form"] {
     float: left;        
-}
-
-.td-star {
-    vertical-align: top;
-    padding: 5px;
 }
 
 .ratable-name {
@@ -61,5 +54,16 @@ form[name="star-form"] {
 
 .search-img {
     max-height: 100px;
+    padding: 5px;
+}
+
+tr {
+    border-top-style: dotted;
+    border-width: thin;
+    border-color: gray;
+    vertical-align: top;
+}
+
+td {
     padding: 5px;
 }
