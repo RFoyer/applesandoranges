@@ -1,6 +1,8 @@
 var isGuest = false;
 var starInd = 0;
 var groupInd = 0;
+var rowInd = 1;
+var d;
 
 $(document).ready(function() {
     if ($('#table-1').hasClass("guest")) {
@@ -14,20 +16,30 @@ $(document).ready(function() {
     createStarEventHandlers();
     getAsyncFormSubmits();
     $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div><button class="add-rows-btn">More</button></div></td></tr>');
-    $('.add-rows-btn').button();    
-    createRows();    
+    $('.add-rows-btn').button();
+    createRows();
+    $('.add-rows-btn').click(function(){
+        d = $('.ratable-tr').detach();
+        createRows(); 
+    });   
 });
 
 function createRows() {
     var i;
-    var k = 1;
     var path = location.pathname;
     if (path === '/') {
         for (i = 0; i < 10; i++) {
-            $.getJSON('table?id=' + k.toString(), function(json) {
-                createTableRow(json);                
+            $.getJSON('table?id=' + rowInd.toString(), function(json) {
+                if (json['name']) {
+                    createTableRow(json);
+                }
+                else {
+                    i = 10;
+                    $('.add-rows-btn').detach();
+                    $('.td-add-rows').html('Nothing more to rate at this time. Thank you for trying Apples and Oranges!').css({color: 'red'});
+                }
             });
-            k++;                    
+            rowInd++;                    
         }        
     }
     
@@ -52,10 +64,10 @@ function createTableRow(json) {
         tdAttr = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
     $('#things-to-rate-body').append(
-        '<tr><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
+        '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
         '<td><a id="ratable-name-' + groupInd.toString() + '" data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
         '<td><div id="star-group-' + groupInd.toString() + '"' + tdAttr + '>' + createFiveStarBtns(json['name'], json['userRating']) + '</div></td>' + 
-        '<td>(avg. ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ')</td></tr>'
+        '<td> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td></tr>'
     );
     $('#star-group-' + groupInd).tooltip();
     $('#ratable-name-' + groupInd).tooltip();

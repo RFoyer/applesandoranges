@@ -23,7 +23,7 @@ Route::post('/', 'RatingController@store');
 
 Route::get('table', 'TableDataController@show');
 
-Route::get('user', 'UserController@index');
+//Route::get('admin', function(){return view('home');});
 
 Route::get('{path}', 'GetPathController@index')->where('path', '.*');
 
