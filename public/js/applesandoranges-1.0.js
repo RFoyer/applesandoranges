@@ -73,31 +73,43 @@ function createTableRow(json) {
     $('#things-to-rate-body').append(
         '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
         '<td><a id="ratable-name-' + groupInd.toString() + '" data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
-        '<td class="td-star"><div class="btn-star-group" id="star-group-' + groupInd.toString() + '" ' + tdAttr + '>' + createFiveStarBtns(json['name'], json['userRating']) + '</div></td>' + 
+        '<td class="td-star"><div class="btn-star-group" id="star-group-' + groupInd.toString() + '" ' + tdAttr + '>' + createFiveStarBtns(json) + '</div></td>' + 
         '<td> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
         '<td class="td-check">' + html + '</td></tr>'
     );
     $('[data-toggle="tooltip"]').tooltip();
     groupInd++;
     $('#tr-add-rows').appendTo('#things-to-rate-body');
-    $('.fa-star-o').css({color: 'red'});
-    $('.fa-star').css({color: 'red'});
-    $('.fa-2x').css({color: 'orange'});
+    /*$('.avg-pink').css({color: '#FED8B1'});
+    $('.avg-red').css({color: 'red'});
+    $('.orange').css({color: 'orange'});
+    $('.light-orange').css({color: '#FED8B1'});*/
 }
 
-function createFiveStarBtns(ratableName, userRating) {
+function createFiveStarBtns(json) {
     var html = '';
     var i;
-    var faStarFill;
+    var avgStarClass;
+    var userStarColor = 'light-orange';
     for (i = 0; i < 5; i++) {
-        if (i < userRating) {
-            faStarFill = '';
+        if (i < json['userRating'] && i < json['rating']) {
+            userStarColor = 'orange';
+            avgStarClass = 'avg-star fa fa-star fa-2x avg-red';
+        }
+        else if (i < json['userRating']) {
+            userStarColor = 'light-orange';
+            avgStarClass = 'avg-star fa fa-star fa-2x avg-red'
+        }
+        else if (i < json['rating']) {
+            userStarColor = 'orange';
+            avgStarClass = 'avg-star fa fa-star-o fa-2x avg-empty'
         }
         else {
-            faStarFill = '-o';
+            userStarColor = 'light-orange';
+            avgStarClass = 'avg-star fa fa-star-o fa-2x avg-empty'             
         }
-        html += '<span class="star-span"><i class="fa fa-star fa-2x"></i><form class="star-btn-form" name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + ratableName + '"/><input name="rating" value="' + i + '" />' + 
-        '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form></span>';
+        html += '<span class="star-span"><button disabled id="disabled-star-index-' + starInd + '" class="' + avgStarClass + '"></button><form class="star-btn-form" name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + json['name'] + '"/><input name="rating" value="' + i + '" />' + 
+        '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star-o fa-2x ' + userStarColor + '"></button></form></span>';
         starInd++;        
     }
     return html;    
@@ -109,22 +121,22 @@ function createStarEventHandlers() {
     var groupIndClicked = null;
     var skipMouseLeave = false;
     $('#table-1').on('mouseenter', ".btn-star", function() {
-        if ($(this).attr('class') === 'btn-star fa fa-star-o') {
+        idInd = parseInt($(this).attr('id').substr(11), 10);
+        if ($('#disabled-star-index-' + idInd).hasClass('avg-empty')) {
             var i;
-            idInd = parseInt($(this).attr('id').substr(11), 10);
             groupInd = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
             if (groupInd > 4) {
                 groupInd -= 5;
             }
             for (i = 0; i < groupInd + 1; i++) {
-                if ($('#star-index-' + (idInd - i)).attr('class') === 'btn-star fa fa-star') {
+                if ($('#disabled-star-index-' + (idInd - i)).hasClass('avg-red')) {
                     groupInd = i - 1;
                     break;
                 }
                 else {
-                    $('#star-index-' + (idInd - i)).attr({
-                        class: "btn-star fa fa-star" 
-                    }).css({color: 'red'});
+                    $('#disabled-star-index-' + (idInd - i)).attr({
+                        class: "avg-star fa fa-star fa-2x avg-red" 
+                    });
                 }
             }            
         }
@@ -148,21 +160,21 @@ function createStarEventHandlers() {
             if (groupIndClicked === null) {
                 var i;
                 for (i = 0; i < groupInd + 1; i++) {
-                    $('#star-index-' + (idInd - i)).attr({
-                        class: "btn-star fa fa-star-o" 
-                    }).css({color: 'red'});
+                    $('#disabled-star-index-' + (idInd - i)).attr({
+                        class: "avg-star fa fa-star-o fa-2x avg-empty" 
+                    });
                 }
             }
             else {
                 for (i = 0; i < groupIndClicked; i++) {
-                    $('#star-index-' + (idInd - i)).attr({
-                        class: 'btn-star fa fa-star'
-                    }).css({color: 'red'});
+                    $('#disabled-star-index-' + (idInd - i)).attr({
+                        class: 'avg-star fa fa-star fa-2x avg-red'
+                    });
                 }
                 for (i = 0; i < 4 - groupIndClicked; i++) {
-                    $('#star-index-' + (idInd + i + 1)).attr({
-                        class: "btn-star fa fa-star-o" 
-                    }).css({color: 'red'});
+                    $('#disabled-star-index-' + (idInd + i + 1)).attr({
+                        class: "avg-star fa fa-star-o fa-2x avg-empty" 
+                    });
                 }
                 groupIndClicked = null;
             }

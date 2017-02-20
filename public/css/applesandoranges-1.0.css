@@ -10,9 +10,10 @@ and open the template in the editor.
 
 * {
     font-family: Tahoma;
+    
 }
 
-#btn-search, .btn-star {
+#btn-search, .btn-star, .avg-star {
     background: rgba(10, 10, 10, 0.0);
     border: none;
 }
@@ -77,29 +78,44 @@ td {
 }
 
 .fa-check {
-    color: orange;
+    color: red;
 }
 
 .fa-check-square {
     color: pink;
 }
 
-.fa-2x {
+.avg-star {
     
     position: absolute;
-    padding: 4px;
+    z-index: 0;
+     
+    
 }
 
 .star-btn-form {
     position: relative;
     z-index: 1;
-    padding-top: 7px;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-bottom: 4px;
+    
 }
 
 .star-span {
     position: relative;
+}
+
+.avg-empty {
+    color: #FED8B1;
+}
+
+.avg-red {
+    color: red;
+}
+
+.light-orange {
+    color: #FED8B1;
+}
+
+.orange {
+    color: orange;
 }
 
