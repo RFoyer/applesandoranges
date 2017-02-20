@@ -20,7 +20,7 @@ $(document).ready(function() {
     createRows();
     $('.add-rows-btn').click(function(){
         d = $('.ratable-tr').detach();
-        createRows(); 
+        createRows();
     });   
 });
 
@@ -60,21 +60,29 @@ function createRows() {
 
 function createTableRow(json) {    
     var tdAttr = '';
+    var html = '';
     if (isGuest) {
         tdAttr = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
+    }
+    if (json['userRating']) {
+        html = '<i class="fa fa-check" data-toggle="tooltip" data-placement="right" title="You have rated this item!"></i>';
+    }
+    else {
+        html = '<i class="fa fa-check-square" data-toggle="tooltip" data-placement="right" title="You have not yet rated this item."></i>';
     }
     $('#things-to-rate-body').append(
         '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
         '<td><a id="ratable-name-' + groupInd.toString() + '" data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
-        '<td><div id="star-group-' + groupInd.toString() + '"' + tdAttr + '>' + createFiveStarBtns(json['name'], json['userRating']) + '</div></td>' + 
-        '<td> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td></tr>'
+        '<td class="td-star"><div class="btn-star-group" id="star-group-' + groupInd.toString() + '" ' + tdAttr + '>' + createFiveStarBtns(json['name'], json['userRating']) + '</div></td>' + 
+        '<td> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
+        '<td class="td-check">' + html + '</td></tr>'
     );
-    $('#star-group-' + groupInd).tooltip();
-    $('#ratable-name-' + groupInd).tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
     groupInd++;
     $('#tr-add-rows').appendTo('#things-to-rate-body');
     $('.fa-star-o').css({color: 'red'});
-    $('.fa-star').css({color: 'orange'});
+    $('.fa-star').css({color: 'red'});
+    $('.fa-2x').css({color: 'orange'});
 }
 
 function createFiveStarBtns(ratableName, userRating) {
@@ -88,8 +96,8 @@ function createFiveStarBtns(ratableName, userRating) {
         else {
             faStarFill = '-o';
         }
-        html += '<form name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + ratableName + '"/><input name="rating" value="' + i + '" />' + 
-        '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form>';
+        html += '<span class="star-span"><i class="fa fa-star fa-2x"></i><form class="star-btn-form" name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + ratableName + '"/><input name="rating" value="' + i + '" />' + 
+        '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star' + faStarFill + '"></button></form></span>';
         starInd++;        
     }
     return html;    
@@ -116,7 +124,7 @@ function createStarEventHandlers() {
                 else {
                     $('#star-index-' + (idInd - i)).attr({
                         class: "btn-star fa fa-star" 
-                    }).css({color: 'orange'});
+                    }).css({color: 'red'});
                 }
             }            
         }
@@ -131,6 +139,9 @@ function createStarEventHandlers() {
             groupIndClicked -= 5;
         }
         skipMouseLeave = false;
+        if(!isGuest) {
+            //$('.td-check').html('<i class="fa fa-check"></i>');
+        }
     });
     $('#table-1').on('mouseleave', ".btn-star", function() {
         if (!skipMouseLeave) {
@@ -146,7 +157,7 @@ function createStarEventHandlers() {
                 for (i = 0; i < groupIndClicked; i++) {
                     $('#star-index-' + (idInd - i)).attr({
                         class: 'btn-star fa fa-star'
-                    }).css({color: 'orange'});
+                    }).css({color: 'red'});
                 }
                 for (i = 0; i < 4 - groupIndClicked; i++) {
                     $('#star-index-' + (idInd + i + 1)).attr({

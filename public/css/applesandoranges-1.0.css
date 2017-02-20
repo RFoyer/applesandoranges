@@ -13,7 +13,7 @@ and open the template in the editor.
 }
 
 #btn-search, .btn-star {
-    background-color: #f5f8fa;
+    background: rgba(10, 10, 10, 0.0);
     border: none;
 }
 
@@ -75,3 +75,31 @@ td {
 #tr-add-rows {
     border-style: hidden;
 }
+
+.fa-check {
+    color: orange;
+}
+
+.fa-check-square {
+    color: pink;
+}
+
+.fa-2x {
+    
+    position: absolute;
+    padding: 4px;
+}
+
+.star-btn-form {
+    position: relative;
+    z-index: 1;
+    padding-top: 7px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+}
+
+.star-span {
+    position: relative;
+}
+
