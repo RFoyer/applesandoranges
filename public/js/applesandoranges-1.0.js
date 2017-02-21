@@ -98,15 +98,20 @@ function createFiveStarBtns(json) {
         }
         else if (i < json['userRating']) {
             userStarColor = 'light-orange';
-            avgStarClass = 'avg-star fa fa-star fa-2x avg-red'
+            avgStarClass = 'avg-star fa fa-star fa-2x avg-red';
         }
         else if (i < json['rating']) {
-            userStarColor = 'orange';
-            avgStarClass = 'avg-star fa fa-star-o fa-2x avg-empty'
+            if (parseFloat((i + 0.5).toFixed(1)) === parseFloat(parseFloat(json['rating']).toFixed(1))) {
+                avgStarClass = 'avg-star fa fa-star-half-o fa-2x avg-half';
+            }
+            else {
+                avgStarClass = 'avg-star fa fa-star fa-2x avg-full';
+            }
+            userStarColor = 'orange';            
         }
         else {
             userStarColor = 'light-orange';
-            avgStarClass = 'avg-star fa fa-star-o fa-2x avg-empty'             
+            avgStarClass = 'avg-star fa fa-star-o fa-2x avg-empty';             
         }
         html += '<span class="star-span"><button disabled id="disabled-star-index-' + starInd + '" class="' + avgStarClass + '"></button><form class="star-btn-form" name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + json['name'] + '"/><input name="rating" value="' + i + '" />' + 
         '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star-o fa-2x ' + userStarColor + '"></button></form></span>';
@@ -122,7 +127,7 @@ function createStarEventHandlers() {
     var skipMouseLeave = false;
     $('#table-1').on('mouseenter', ".btn-star", function() {
         idInd = parseInt($(this).attr('id').substr(11), 10);
-        if ($('#disabled-star-index-' + idInd).hasClass('avg-empty')) {
+        if (!$('#disabled-star-index-' + idInd).hasClass('avg-red')) {
             var i;
             groupInd = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
             if (groupInd > 4) {
@@ -134,9 +139,7 @@ function createStarEventHandlers() {
                     break;
                 }
                 else {
-                    $('#disabled-star-index-' + (idInd - i)).attr({
-                        class: "avg-star fa fa-star fa-2x avg-red" 
-                    });
+                    $('#disabled-star-index-' + (idInd - i)).removeClass('fa-star-o fa-star-half-o').addClass('fa-star avg-red');
                 }
             }            
         }
@@ -160,20 +163,38 @@ function createStarEventHandlers() {
             if (groupIndClicked === null) {
                 var i;
                 for (i = 0; i < groupInd + 1; i++) {
-                    $('#disabled-star-index-' + (idInd - i)).attr({
-                        class: "avg-star fa fa-star-o fa-2x avg-empty" 
+                    $('#disabled-star-index-' + (idInd - i)).removeClass('fa-star avg-red').toggleClass(function() {
+                        var toggle = '';
+                        if ($(this).hasClass('avg-empty')) {
+                            toggle = 'fa-star-0';
+                        }
+                        else if ($(this).hasClass('avg-half')) {
+                            toggle = 'fa-star-half-o';
+                        }
+                        else if ($(this).hasClass('avg-full')) {
+                            toggle = 'fa-star';
+                        }
+                        return toggle;
                     });
                 }
             }
             else {
                 for (i = 0; i < groupIndClicked; i++) {
-                    $('#disabled-star-index-' + (idInd - i)).attr({
-                        class: 'avg-star fa fa-star fa-2x avg-red'
-                    });
+                    $('#disabled-star-index-' + (idInd - i)).addClass('fa-star avg-red')
                 }
                 for (i = 0; i < 4 - groupIndClicked; i++) {
-                    $('#disabled-star-index-' + (idInd + i + 1)).attr({
-                        class: "avg-star fa fa-star-o fa-2x avg-empty" 
+                    $('#disabled-star-index-' + (idInd + i + 1)).removeClass('fa-star avg-red').toggleClass(function() {
+                        var toggle = '';
+                        if ($(this).hasClass('avg-empty')) {
+                            toggle = 'fa-star-0';
+                        }
+                        else if ($(this).hasClass('avg-half')) {
+                            toggle = 'fa-star-half-o';
+                        }
+                        else if ($(this).hasClass('avg-full')) {
+                            toggle = 'fa-star';
+                        }
+                        return toggle;
                     });
                 }
                 groupIndClicked = null;

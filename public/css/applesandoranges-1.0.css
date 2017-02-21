@@ -107,6 +107,10 @@ td {
     color: #FED8B1;
 }
 
+.avg-half, .avg-full {
+    color: orange;
+}
+
 .avg-red {
     color: red;
 }
