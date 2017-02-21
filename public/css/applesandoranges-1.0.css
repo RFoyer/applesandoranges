@@ -10,7 +10,6 @@ and open the template in the editor.
 
 * {
     font-family: Tahoma;
-    
 }
 
 #btn-search, .btn-star, .avg-star {
@@ -123,3 +122,6 @@ td {
     color: orange;
 }
 
+.td-star {
+    min-width: 200px;
+}

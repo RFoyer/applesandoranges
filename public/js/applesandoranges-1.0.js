@@ -3,6 +3,7 @@ var starInd = 0;
 var groupInd = 0;
 var rowInd = 1;
 var d;
+var firstTdStarWidth;
 
 $(document).ready(function() {
     if ($('#table-1').hasClass("guest")) {
@@ -80,10 +81,10 @@ function createTableRow(json) {
     $('[data-toggle="tooltip"]').tooltip();
     groupInd++;
     $('#tr-add-rows').appendTo('#things-to-rate-body');
-    /*$('.avg-pink').css({color: '#FED8B1'});
-    $('.avg-red').css({color: 'red'});
-    $('.orange').css({color: 'orange'});
-    $('.light-orange').css({color: '#FED8B1'});*/
+    if (!firstTdStarWidth) {
+        firstTdStarWidth = $('.td-star:first').width();
+    }
+    $('.td-star').width(firstTdStarWidth);
 }
 
 function createFiveStarBtns(json) {
@@ -91,6 +92,7 @@ function createFiveStarBtns(json) {
     var i;
     var avgStarClass;
     var userStarColor = 'light-orange';
+    var remain;
     for (i = 0; i < 5; i++) {
         if (i < json['userRating'] && i < json['rating']) {
             userStarColor = 'orange';
@@ -101,7 +103,8 @@ function createFiveStarBtns(json) {
             avgStarClass = 'avg-star fa fa-star fa-2x avg-red';
         }
         else if (i < json['rating']) {
-            if (parseFloat((i + 0.5).toFixed(1)) === parseFloat(parseFloat(json['rating']).toFixed(1))) {
+            remain = parseFloat(json['rating']) - i;
+            if (remain > 0.01 && remain < 0.99 ) {
                 avgStarClass = 'avg-star fa fa-star-half-o fa-2x avg-half';
             }
             else {
