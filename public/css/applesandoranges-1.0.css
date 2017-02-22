@@ -12,7 +12,7 @@ and open the template in the editor.
     font-family: Tahoma;
 }
 
-#btn-search, .btn-star, .avg-star {
+#btn-search, .btn-star {
     background: rgba(10, 10, 10, 0.0);
     border: none;
 }
@@ -65,7 +65,7 @@ tr {
 }
 
 td {
-    padding: 5px;
+    padding: 4px;
 }
 
 .td-add-rows {
@@ -84,46 +84,8 @@ td {
     color: pink;
 }
 
-.avg-star {
-    
-    position: absolute;
-    z-index: 0;
-     
-    
-}
-
-.star-btn-form {
-    position: relative;
-    z-index: 1;
-    
-}
-
-.star-span {
-    position: relative;
-}
-
-.avg-empty {
-    color: #FED8B1;
-}
-
-.avg-half, .avg-full {
-    color: orange;
-}
-
-.avg-red {
-    color: red;
-}
-
-.light-orange {
-    color: #FED8B1;
-}
-
-.orange {
-    color: orange;
-}
-
 .td-star {
-    min-width: 200px;
+    min-width: 215px;
 }
 
 svg {

@@ -1,14 +1,9 @@
 var isGuest = false;
-var starInd = 0;
-var groupInd = 0;
 var rowInd = 1;
-var d;
-var firstTdStarWidth;
-
+var detach;
 var gradId = 0;
 
 $(document).ready(function() {
-    //$('#table-1').before(createFiveStars());
     if ($('#table-1').hasClass("guest")) {
         isGuest = true;
     }
@@ -18,13 +13,12 @@ $(document).ready(function() {
             return $("<li>").append('<div><img class="search-img" width="60" src="' + item.img + '"/>' + item.value + '</div>').appendTo(ul);
     };
     createStarEvents();
-    //createStarEventHandlers();
     getAsyncFormSubmits();
     $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div><button class="add-rows-btn">More</button></div></td></tr>');
     $('.add-rows-btn').button();
     createRows();
     $('.add-rows-btn').click(function(){
-        d = $('.ratable-tr').detach();
+        detach = $('.ratable-tr').detach();
         createRows();
     });   
 });
@@ -36,7 +30,6 @@ function createRows() {
         for (i = 0; i < 10; i++) {
             $.getJSON('table?id=' + rowInd.toString(), function(json) {
                 if (json['name']) {
-                    //createTableRow(json);
                     createTr(json);
                 }
                 else {
@@ -85,38 +78,6 @@ function createTr(json) {
     );
     $('[data-toggle="tooltip"]').tooltip();
     $('#tr-add-rows').appendTo('#things-to-rate-body');
-    /*if (!firstTdStarWidth) {
-        firstTdStarWidth = $('.td-star:first').width();
-    }
-    $('.td-star').width(firstTdStarWidth);*/
-}
-
-function createTableRow(json) {    
-    var tdAttr = '';
-    var html = '';
-    if (isGuest) {
-        tdAttr = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
-    }
-    if (json['userRating']) {
-        html = '<i class="fa fa-check" data-toggle="tooltip" data-placement="right" title="You have rated this item!"></i>';
-    }
-    else {
-        html = '<i class="fa fa-check-square" data-toggle="tooltip" data-placement="right" title="You have not yet rated this item."></i>';
-    }
-    $('#things-to-rate-body').append(
-        '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
-        '<td><a id="ratable-name-' + groupInd.toString() + '" data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
-        '<td class="td-star"><div class="btn-star-group" id="star-group-' + groupInd.toString() + '" ' + tdAttr + '>' + createFiveStarBtns(json) + '</div></td>' + 
-        '<td> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
-        '<td class="td-check">' + html + '</td></tr>'
-    );
-    $('[data-toggle="tooltip"]').tooltip();
-    groupInd++;
-    $('#tr-add-rows').appendTo('#things-to-rate-body');
-    if (!firstTdStarWidth) {
-        firstTdStarWidth = $('.td-star:first').width();
-    }
-    $('.td-star').width(firstTdStarWidth);
 }
 
 function createFiveStars(json) {
@@ -178,53 +139,32 @@ function createFiveStars(json) {
     return html;
 }
 
-function createFiveStarBtns(json) {
-    var html = '';
-    var i;
-    var avgStarClass;
-    var userStarColor = 'light-orange';
-    var remain;
-    for (i = 0; i < 5; i++) {
-        if (i < json['userRating'] && i < json['rating']) {
-            userStarColor = 'orange';
-            avgStarClass = 'avg-star fa fa-star fa-2x avg-red';
-        }
-        else if (i < json['userRating']) {
-            userStarColor = 'light-orange';
-            avgStarClass = 'avg-star fa fa-star fa-2x avg-red';
-        }
-        else if (i < json['rating']) {
-            remain = parseFloat(json['rating']) - i;
-            if (remain > 0.01 && remain < 0.99 ) {
-                avgStarClass = 'avg-star fa fa-star-half-o fa-2x avg-half';
-            }
-            else {
-                avgStarClass = 'avg-star fa fa-star fa-2x avg-full';
-            }
-            userStarColor = 'orange';            
-        }
-        else {
-            userStarColor = 'light-orange';
-            avgStarClass = 'avg-star fa fa-star-o fa-2x avg-empty';             
-        }
-        html += '<span class="star-span"><button disabled id="disabled-star-index-' + starInd + '" class="' + avgStarClass + '"></button><form class="star-btn-form" name="star-form" method="post"><input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" /><input name="ratable" value="' + json['name'] + '"/><input name="rating" value="' + i + '" />' + 
-        '<button type="submit" id="star-index-' + starInd + '" class="btn-star fa fa-star-o fa-2x ' + userStarColor + '"></button></form></span>';
-        starInd++;        
-    }
-    return html;    
-}
-
-
 function createStarEvents() {
     var startFill = [];
     var clicked = false;
     $('#table-1').on('mouseenter', '.poly-star-btn', function() {
         startFill = [];
+        var stroke = '';
         var i;
         var length = parseInt($(this).parent().find('input[name="rating"]').val(), 10) + 1;
         for (i = 0; i < length; i++) {
             startFill[i] = $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill');
             $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill', 'red');
+        }
+        for (i = length; i < 5; i++) {
+            startFill[i] = $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill');
+            if (startFill[i] === 'red') {
+                stroke = $(this).parent().parent().find('.polygon-' + i.toString()).attr('stroke');
+                if (stroke === 'orange') {
+                    $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill', 'orange');
+                }
+                else if (stroke.slice(0, 1) === 'u') {
+                    $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill', "url(#" + $(this).parent().parent().find('.polygon-' + i.toString()).parent().find('.fill').attr('id') + ")");
+                }
+                else {
+                    $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill', 'white');
+                }                
+            }            
         }
     });
     $('#table-1').on('click', '.poly-star-btn', function() {
@@ -236,8 +176,7 @@ function createStarEvents() {
         var stroke = '';
         var restoreFill = '';
         if (!clicked) {
-            length = parseInt($(this).parent().find('input[name="rating"]').val(), 10) + 1;
-            for (i = 0; i < length; i++) {
+            for (i = 0; i < 5; i++) {
                 $(this).parent().parent().find('.polygon-' + i.toString()).attr('fill', startFill[i]);
             }
         }
@@ -259,93 +198,6 @@ function createStarEvents() {
             }
         }
     });
-}
-
-
-function createStarEventHandlers() {
-    var idInd;
-    var groupInd;
-    var groupIndClicked = null;
-    var skipMouseLeave = false;
-    $('#table-1').on('mouseenter', ".btn-star", function() {
-        idInd = parseInt($(this).attr('id').substr(11), 10);
-        if (!$('#disabled-star-index-' + idInd).hasClass('avg-red')) {
-            var i;
-            groupInd = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
-            if (groupInd > 4) {
-                groupInd -= 5;
-            }
-            for (i = 0; i < groupInd + 1; i++) {
-                if ($('#disabled-star-index-' + (idInd - i)).hasClass('avg-red')) {
-                    groupInd = i - 1;
-                    break;
-                }
-                else {
-                    $('#disabled-star-index-' + (idInd - i)).removeClass('fa-star-o fa-star-half-o').addClass('fa-star avg-red');
-                }
-            }            
-        }
-        else {
-            skipMouseLeave = true;
-        }
-    });
-    $('#table-1').on('click', ".btn-star", function() {
-        idInd = parseInt($(this).attr('id').substr(11), 10);
-        groupIndClicked = parseInt(idInd.toString().substr(idInd.toString().length - 1), 10);
-        if (groupIndClicked > 4) {
-            groupIndClicked -= 5;
-        }
-        skipMouseLeave = false;
-        if(!isGuest) {
-            //$('.td-check').html('<i class="fa fa-check"></i>');
-        }
-    });
-    $('#table-1').on('mouseleave', ".btn-star", function() {
-        if (!skipMouseLeave) {
-            if (groupIndClicked === null) {
-                var i;
-                for (i = 0; i < groupInd + 1; i++) {
-                    $('#disabled-star-index-' + (idInd - i)).removeClass('fa-star avg-red').toggleClass(function() {
-                        var toggle = '';
-                        if ($(this).hasClass('avg-empty')) {
-                            toggle = 'fa-star-0';
-                        }
-                        else if ($(this).hasClass('avg-half')) {
-                            toggle = 'fa-star-half-o';
-                        }
-                        else if ($(this).hasClass('avg-full')) {
-                            toggle = 'fa-star';
-                        }
-                        return toggle;
-                    });
-                }
-            }
-            else {
-                for (i = 0; i < groupIndClicked; i++) {
-                    $('#disabled-star-index-' + (idInd - i)).addClass('fa-star avg-red')
-                }
-                for (i = 0; i < 4 - groupIndClicked; i++) {
-                    $('#disabled-star-index-' + (idInd + i + 1)).removeClass('fa-star avg-red').toggleClass(function() {
-                        var toggle = '';
-                        if ($(this).hasClass('avg-empty')) {
-                            toggle = 'fa-star-0';
-                        }
-                        else if ($(this).hasClass('avg-half')) {
-                            toggle = 'fa-star-half-o';
-                        }
-                        else if ($(this).hasClass('avg-full')) {
-                            toggle = 'fa-star';
-                        }
-                        return toggle;
-                    });
-                }
-                groupIndClicked = null;
-            }
-        }
-        else {
-            skipMouseLeave = false;
-        }                        
-    });    
 }
 
 function getAsyncFormSubmits() {
