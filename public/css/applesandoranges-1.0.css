@@ -125,3 +125,14 @@ td {
 .td-star {
     min-width: 200px;
 }
+
+svg {
+    padding: 5px;
+    
+}
+
+.poly-star-btn {
+    background: rgba(10, 10, 10, 0.0);
+    border: none;
+    padding: 0px;
+}
