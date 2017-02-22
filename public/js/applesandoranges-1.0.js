@@ -1,60 +1,99 @@
 var isGuest = false;
 var rowInd = 1;
-var detach;
+var detachedRows = [];
+var detachedMoreBtn;
 var gradId = 0;
 
 $(document).ready(function() {
-    if ($('#table-1').hasClass("guest")) {
-        isGuest = true;
-    }
-    $('#search-box').autocomplete({
-        source: 'autocomplete'        
-    }).autocomplete('instance')._renderItem = function(ul, item) {
-            return $("<li>").append('<div><img class="search-img" width="60" src="' + item.img + '"/>' + item.value + '</div>').appendTo(ul);
-    };
-    createStarEvents();
-    getAsyncFormSubmits();
-    $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div><button class="add-rows-btn">More</button></div></td></tr>');
-    $('.add-rows-btn').button();
-    createRows();
-    $('.add-rows-btn').click(function(){
-        detach = $('.ratable-tr').detach();
-        createRows();
-    });   
-});
-
-function createRows() {
-    var i;
     var path = location.pathname;
+    setIsGuest();
+    createAutocomplete();
     if (path === '/') {
-        for (i = 0; i < 10; i++) {
-            $.getJSON('table?id=' + rowInd.toString(), function(json) {
-                if (json['name']) {
-                    createTr(json);
-                }
-                else {
-                    i = 10;
-                    $('.add-rows-btn').detach();
-                    $('.td-add-rows').html('Nothing more to rate at this time. Thank you for trying Apples and Oranges!').css({color: 'red'});
-                }
-            });
-            rowInd++;                    
-        }        
-    }
-    
+        readyTable1();
+        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button class="add-rows-btn">More</button></div></td></tr>');
+        $('.add-rows-btn').button();
+        createRows({'length': 10, 'path': 'table'});
+        $('.add-rows-btn').click(function(){
+            detachedRows.push($('.ratable-tr').detach());
+            createRows();
+        });
+    }    
     else if (path === '/login' || path === '/register') {
         
-    }
-    
+    }    
     else if (path === '/search') {
-        
+        readyTable1();
+        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr>');
+        createRows({'length': 3, 'path': 'autocomplete'});
     }
     else if (path === '/user') {
         
     }
     else {
         
-    }        
+    }       
+});
+
+function setIsGuest() {
+    if ($('#table-1').hasClass("guest")) {
+        isGuest = true;
+    }    
+}
+
+function createAutocomplete() {
+    $('#search-box').autocomplete({
+        source: 'autocomplete'        
+    }).autocomplete('instance')._renderItem = function(ul, item) {
+        return $("<li>").append('<div><img class="search-img" width="60" src="' + item.img + '"/>' + item.value + '</div>').appendTo(ul);
+    };
+}
+
+function readyTable1() {
+    createStarEvents();
+    getAsyncFormSubmits();    
+}
+
+function createRows(settings) {
+    var i;
+    var k = 0;
+    if (settings.path === 'table') {
+        for (i = 0; i < settings.length; i++) {
+            $.getJSON('table?id=' + rowInd.toString(), function(json) {
+                if (json['name']) {
+                    createTr(json);
+                    k++;
+                    if (k === (settings.length)) {
+                        $('.spinner').remove();
+                    }
+                }
+                else {
+                    i = 10;
+                    detachedMoreBtn = $('.add-rows-btn').detach();
+                    $('.td-add-rows').html('Nothing more to rate at this time. Thank you for trying Apples and Oranges!').css({color: 'red'});
+                }
+            });
+            rowInd++;
+        }
+    }
+    else if (settings.path === 'autocomplete') {
+        $.getJSON('autocomplete?term=' + $('#table-1 > thead').attr('id'), function(searchJson) {
+            var i;
+            if (searchJson.length) {
+                for (i = 0; i < searchJson.length; i++) {
+                    $.getJSON('table?id=' + searchJson[i].id, function(resultJson) {
+                        createTr(resultJson);
+                        k++;
+                        if (k === (searchJson.length)) {
+                            $('.spinner').remove();
+                        }
+                    });
+                }
+            }
+            else {
+                $('#table-1').after("Sorry, none found...");
+            }
+        });
+    }                
 }
 
 function createTr(json) {

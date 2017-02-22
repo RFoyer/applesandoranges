@@ -15,7 +15,7 @@
                 <br>
                 @else
                 Things to Rate:<br>
-                <table id='table-1' class='user btn-star a-tooltip'>
+                <table id='table-1' class='user'>
                     <thead>
                         
                     </thead>

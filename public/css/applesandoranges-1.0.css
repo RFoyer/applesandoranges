@@ -76,6 +76,10 @@ td {
     border-style: hidden;
 }
 
+.spinner {
+    padding: 4px;
+}
+
 .fa-check {
     color: red;
 }

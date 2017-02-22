@@ -47,17 +47,7 @@ class SearchFormSubmitController extends Controller
      */
     public function show(Request $request)
     {
-        $searchString = $request->input('search');
-        if (Ratable::where('name', $searchString)->value('name') === $searchString)
-        {
-            return view('search');
-        }
-        else
-        {
-            return view('notFound');
-        }
-        
-        
+        return view('search', ['searchTerm' => $request->input('q')]);
     }
 
     /**
