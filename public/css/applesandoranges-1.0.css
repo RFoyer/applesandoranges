@@ -57,27 +57,34 @@ form[name="star-form"] {
     padding: 5px;
 }
 
+#td-add-rows, #td-prev-rows {
+    text-align: center;
+}
+
+#td-add-rows {
+    border: hidden;
+}
+
+#td-prev-rows {
+    border-top: hidden;
+    border-left: hidden;
+    border-right: hidden;
+}
+
 tr {
-    border-top-style: dotted;
-    border-width: thin;
-    border-color: gray;
-    vertical-align: top;
+    border-top-style: solid;
+    border-top-width: thin;
+    border-top-color: orange;
+    vertical-align: top;    
 }
 
 td {
     padding: 4px;
 }
 
-.td-add-rows {
-    text-align: center;
-}
-
-#tr-add-rows {
-    border-style: hidden;
-}
-
 .spinner {
-    padding: 4px;
+    padding-bottom: 10px;
+    color: orange;
 }
 
 .fa-check {

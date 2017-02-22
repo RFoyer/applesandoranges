@@ -2,6 +2,7 @@ var isGuest = false;
 var rowInd = 1;
 var detachedRows = [];
 var detachedMoreBtn;
+var detachedSpinner;
 var gradId = 0;
 
 $(document).ready(function() {
@@ -10,12 +11,29 @@ $(document).ready(function() {
     createAutocomplete();
     if (path === '/') {
         readyTable1();
-        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button class="add-rows-btn">More</button></div></td></tr>');
-        $('.add-rows-btn').button();
+        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="5"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
+        $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         createRows({'length': 10, 'path': 'table'});
-        $('.add-rows-btn').click(function(){
+        $('#add-rows-btn').click(function(){
+            $('#add-rows-btn').button({disabled: true});
             detachedRows.push($('.ratable-tr').detach());
-            createRows();
+            $('#td-add-rows').prepend(detachedSpinner);
+            if ($('#prev-rows-btn').length) {
+                $('#prev-rows-btn').button({disabled: true});
+            }
+            else {
+                $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="5"><button id="prev-rows-btn">Previous</button></tr></td>');
+                $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
+                $('#prev-rows-btn').click(function() {
+                    $('.ratable-tr').remove();
+                    $('#tr-add-rows').before(detachedRows[detachedRows.length - 1]);
+                    detachedRows.pop();
+                    if (!detachedRows.length) {
+                        $('#prev-rows-btn').remove();
+                    }
+                });
+            }
+            createRows({'length': 10, 'path': 'table'});
         });
     }    
     else if (path === '/login' || path === '/register') {
@@ -23,7 +41,7 @@ $(document).ready(function() {
     }    
     else if (path === '/search') {
         readyTable1();
-        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td class="td-add-rows" colspan="4"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr>');
+        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="5"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr>');
         createRows({'length': 3, 'path': 'autocomplete'});
     }
     else if (path === '/user') {
@@ -63,7 +81,11 @@ function createRows(settings) {
                     createTr(json);
                     k++;
                     if (k === (settings.length)) {
-                        $('.spinner').remove();
+                        detachedSpinner = $('.spinner').detach();
+                        $('#add-rows-btn').button({disabled: false});
+                        if ($('#prev-rows-btn').length) {
+                            $('#prev-rows-btn').button({disabled: false});
+                        }
                     }
                 }
                 else {
