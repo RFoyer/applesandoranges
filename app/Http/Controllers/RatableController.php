@@ -52,7 +52,7 @@ class RatableController extends Controller
      */
     public function show(Request $request)
     {
-        $ratable = urldecode($request->input('name'));
+        $ratable = $request->input('name');
         $query = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($ratable)]);
         $data = [];
         if ($query)

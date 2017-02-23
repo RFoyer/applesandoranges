@@ -15,6 +15,8 @@ Route::get('/', 'HomeController@index');
 
 Route::post('/', 'RatingController@store');
 
+Route::post('review', 'ReviewController@store');
+
 Auth::routes();
 
 Route::get('search', 'SearchFormSubmitController@show');

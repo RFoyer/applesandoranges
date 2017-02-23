@@ -79,11 +79,7 @@ td {
 
 #ratings-data td {
     padding-left: 0px;
-    text-align: justify;    
-}
-
-#ratable-img {
-    
+    padding-top: 0px;
 }
 
 .spinner {
@@ -100,16 +96,45 @@ td {
 }
 
 .td-star {
-    min-width: 215px;
+    min-width: 205px;
 }
 
 svg {
-    padding: 5px;
-    
+    padding: 5px;    
 }
 
 .poly-star-btn {
     background: rgba(10, 10, 10, 0.0);
     border: none;
     padding: 0px;
+}
+
+.number-rating {
+    color: orange;
+}
+
+.number-of-ratings {
+    color: green;
+}
+
+.align-justify {
+    text-align: justify;
+    margin-top: -8px;
+}
+
+h3 {
+    margin: 0px;
+    margin-bottom: 4px;
+}
+
+.font-12px {
+    font-size: 12px;
+}
+
+.img-max-width {
+    max-width: 350px;
+}
+
+.align-right {
+    text-align: right;
 }

@@ -48,33 +48,60 @@ $(document).ready(function() {
         
     }
     else {
+        var pleaseLoginTooltip = '';
+        if (isGuest) {
+            pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
+        }    
         $('#ratings-data').append('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
         $.getJSON('ratable?name=' + path.slice(1), function(json) {
+            var tableWidth;
             if (json['name']) {
                 $('#ratings-data').append('<div>' + 
-                        '<h3>' + json['name'] + '</h3>' +
                         '<table id="table-1"><tr class="ratable-home-tr">' +
-                            '<td><div><img src="' + json['img_src'] + '"></div></td>' +
-                            '<td width="250">' + json['desc'] + '<br>' +
-                                '<div>' + createFiveStars(json) + '<br>' +
-                                    'Average rating: ' + json['rating'] + '/5<br>' + 
-                                    'Number of ratings: ' + json['numberOfRatings'] + '<br>' +
-                                    'Your rating: ' + json['userRating'] +
-                                '</div>' +
+                            '<td><div><img class="img-max-width" src="' + json['img_src'] + '"></div></td>' +
+                            '<td>' + 
+                                '<div>' +
+                                    '<table id="star-table">' +
+                                        '<th><h3>' + json['name'] + '</h3></th>' + 
+                                        '<tr>' +
+                                            '<td width="205" class="td-star"><div ' + pleaseLoginTooltip +'>' + createFiveStars(json) + '</div></td>' +
+                                            '<td>' +
+                                                '<div class="font-12px">' +
+                                                    '<span class="number-rating">' + json['rating'] + '/5 - </span>' + 
+                                                    '<span class="number-of-ratings">' + json['numberOfRatings'] + '</span><br>' +
+                                                '</div>' +
+                                            '</td>' +
+                                        '</tr>' +                                        
+                                    '</table>' +                                                                      
+                                '</div>' +                                
                             '</td>' +                            
-                        '</tr></table>' +
-                        'Reviews:' +
+                        '</tr></table>' +                                                
                     '</div>'
                 );
-                $('.spinner').remove();
+                tableWidth = $('#star-table').width();
+                $('#star-table').append('<tr><td colspan="2"><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>');
+                $('#star-table').css({'max-width': tableWidth});
+                detachedSpinner = $('.spinner').detach();
+                if (pleaseLoginTooltip) {
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
                 readyTable1();
+                getReviews(json['name']);
             }            
-        });
+        });        
     }       
 });
 
+function getReviews(ratableName) {
+    $('#ratings-data').append(detachedSpinner).after('<br>Reviews:<br>' + '<textarea rows="2" cols="50" placeholder="review ' + ratableName + '...(review feature coming soon)"></textarea>');
+    /*$.getJSON('reviews?name=' + ratableName, function(json) {
+        
+    });*/
+    detachedSpinner = $('.spinner').detach();
+}
+
 function setIsGuest() {
-    if ($('#table-1').hasClass("guest")) {
+    if ($('#table-1').hasClass("guest") || $('#ratings-data').hasClass('guest')) {
         isGuest = true;
     }    
 }
