@@ -48,7 +48,28 @@ $(document).ready(function() {
         
     }
     else {
-        
+        $('#ratings-data').append('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
+        $.getJSON('ratable?name=' + path.slice(1), function(json) {
+            if (json['name']) {
+                $('#ratings-data').append('<div>' + 
+                        '<h3>' + json['name'] + '</h3>' +
+                        '<table id="table-1"><tr class="ratable-home-tr">' +
+                            '<td><div><img src="' + json['img_src'] + '"></div></td>' +
+                            '<td width="250">' + json['desc'] + '<br>' +
+                                '<div>' + createFiveStars(json) + '<br>' +
+                                    'Average rating: ' + json['rating'] + '/5<br>' + 
+                                    'Number of ratings: ' + json['numberOfRatings'] + '<br>' +
+                                    'Your rating: ' + json['userRating'] +
+                                '</div>' +
+                            '</td>' +                            
+                        '</tr></table>' +
+                        'Reviews:' +
+                    '</div>'
+                );
+                $('.spinner').remove();
+                readyTable1();
+            }            
+        });
     }       
 });
 
@@ -150,17 +171,22 @@ function createFiveStars(json) {
     var fraction = parseFloat(parseFloat(json['rating'].substring(json['rating'].length - 2)).toFixed(1));
     var ratingFloor = Math.floor(parseFloat(json['rating']));
     for (i = 0; i < 5; i++) {
-        if (i < json['userRating'] && i < json['rating']) {
+        if ((i < json['userRating']) && (i < ratingFloor)) {
             stroke = 'orange';
-            starFill = 'red';
-        }
-        else if (i < json['userRating']) {
-            stroke = '#FED8B1';
             starFill = 'red';
         }
         else if (i < ratingFloor) {
             stroke = 'orange';
             starFill = 'orange';
+        }
+        else if ((i < json['userRating']) && (!fraction)) {
+            stroke = '#FED8B1';
+            starFill = 'red';
+        }
+        else if ((i < json['userRating']) && fraction && (i === ratingFloor)) {
+            offset = json['rating'].substring(json['rating'].length - 1) + '0%';
+            stroke = "url(#stroke-grad-" + gradId.toString() + ")";
+            starFill = "red";
         }
         else if ((i === ratingFloor) && fraction) {
             offset = json['rating'].substring(json['rating'].length - 1) + '0%';
@@ -262,7 +288,7 @@ function createStarEvents() {
 }
 
 function getAsyncFormSubmits() {
-    $('#table-1').on('submit', 'form[name=star-form]', function(){
+    $('#table-1').on('submit', 'form', function(){
         if (!isGuest) {
             $.post("/", $(this).serialize(), function(res) {
             console.log(res);

@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 use App\Ratable;
+use App\Rating;
 
 class RatableController extends Controller
 {
@@ -48,7 +52,38 @@ class RatableController extends Controller
      */
     public function show(Request $request)
     {
-                
+        $ratable = urldecode($request->input('name'));
+        $query = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($ratable)]);
+        $data = [];
+        if ($query)
+        {
+            foreach ($query as $q) {
+                $userRating = Rating::where([
+                    ['user_id', '=', Auth::id()],
+                    ['ratable_id', '=', $q->id]
+                ])->first();
+                if ($userRating) {
+                    $userRating = $userRating->rating;
+                }
+                else {        
+                    $userRating = 0;
+                }
+                $allRatings = Rating::where('ratable_id', $q->id);
+                if ($allRatings->count()) {
+                    foreach ($allRatings as $r) {
+                        $r->rating = (float)($r->rating.".0");
+                    }
+                    $rating = number_format($allRatings->avg('rating'), 1);
+                    $numberOfRatings = $allRatings->count();
+                }
+                else {
+                    $rating = number_format(0, 1);
+                    $numberOfRatings = 0;
+                }
+                $data = ['name' => $q->name, 'img_src' => $q->img_src, 'desc' => $q->desc, 'rating' => $rating, 'userRating' => $userRating, 'numberOfRatings' => $numberOfRatings];
+            }
+        }
+        return response()->json($data);
     }
 
     /**

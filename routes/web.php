@@ -13,19 +13,21 @@
 
 Route::get('/', 'HomeController@index');
 
+Route::post('/', 'RatingController@store');
+
 Auth::routes();
 
 Route::get('search', 'SearchFormSubmitController@show');
 
 Route::get('autocomplete', 'SearchAutocompleteController@show');
 
-Route::post('/', 'RatingController@store');
-
 Route::get('table', 'TableDataController@show');
 
 //Route::get('admin', function(){return view('home');});
 
-Route::get('{path}', 'GetPathController@index')->where('path', '.*');
+Route::get('ratable', 'RatableController@show');
+
+Route::get('{path}', function(){return view('ratable');})->where('path', '.*');
 
 
 

@@ -30,21 +30,12 @@ and open the template in the editor.
     color: green;
 }
 
-.ratable-name {
-    vertical-align: top;
-}
-
 input[name="ratable"], input[name="rating"] {
     display: none;
 }
 
 form[name="star-form"] {
     float: left;        
-}
-
-.ratable-name {
-    padding: 5px;
-    font-size: large;
 }
 
 .tooltip-arrow, .tooltip-inner {
@@ -71,7 +62,7 @@ form[name="star-form"] {
     border-right: hidden;
 }
 
-tr {
+.ratable-tr {
     border-top-style: solid;
     border-top-width: thin;
     border-top-color: orange;
@@ -80,6 +71,19 @@ tr {
 
 td {
     padding: 4px;
+}
+
+.ratable-home-tr {
+    vertical-align: top;
+}
+
+#ratings-data td {
+    padding-left: 0px;
+    text-align: justify;    
+}
+
+#ratable-img {
+    
 }
 
 .spinner {
