@@ -29,6 +29,12 @@ Route::get('table', 'TableDataController@show');
 
 Route::get('ratable', 'RatableController@show');
 
+Route::get('user/userdata/{id}', 'UserDataController@show')->where('id', '.*');
+
+Route::get('user/{id}', 'UserController@show')->where('id', '.*');
+
+Route::get('contributors', "ContributorsController@show");
+
 Route::get('{path}', function(){return view('ratable');})->where('path', '.*');
 
 

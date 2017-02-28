@@ -24,9 +24,11 @@
         ]); ?>
     </script>
 </head>
-<body>
+<body id='body'>
     <div id="app">
-        <nav class="navbar navbar-default navbar-static-top">
+        <div class="ad-space">Ad Space</div>
+        <div id='div-mid'>   
+        <nav class="navbar navbar-default">
             <div class="container">
                 <div class="navbar-header">
 
@@ -47,9 +49,17 @@
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        &nbsp;
+                        <div id='div-search'>
+                            <form method='get'>
+                                <input id='search-box' type='text' autofocus placeholder="Search Apples and Oranges..." name='q' size="50" autocomplete="off" required>                        
+                                <button id='btn-search' type='submit' formaction='/search' value="Submit"><i class='fa fa-search'></i></button><br>
+                            </form>
+                        </div>
                     </ul>
-
+                    <ul class="nav navbar-nav">
+                        <li><a href="{{ url('/contributors') }}">Contributors</a></li>
+                    </ul>
+                    
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
@@ -81,32 +91,28 @@
                 </div>
             </div>
         </nav>
-        <div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel-heading">
-                @if (Auth::guest())
-                Please <a href="/login">login</a> to rate items.
-                @else
-                Hello, {{ Auth::user()->name }}.    
-                @endif
-            </div>
-                <div class="panel-body">
-                    <form method='get'>
-                        <input id='search-box' type='text' autofocus placeholder="Search Apples and Oranges..." name='q' size="50" autocomplete="off" required>                        
-                        <button id='btn-search' type='submit' formaction='/search' value="Submit"><i class='fa fa-search'></i></button><br>
-                    </form>
+        <div id="main-body-container" class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <div class="panel-heading">
+                        @if (Auth::guest())
+                        Please <a href="/login">login</a> to rate items.
+                        @else
+                        Hello, {{ Auth::user()->name }}.    
+                        @endif
+                    </div>
+                    @yield('content')
                 </div>
-            @yield('content')
-	</div>
-    </div>
+            </div>
+        </div>
+                
+        </div>
+        <div class="ad-space">Ad Space</div>
 </div>
-        
-    </div>
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
-    <script type='text/javascript' src='js/applesandoranges-1.0.js'></script>
+    <script src='/js/applesandoranges-1.0.js'></script>
     <script src="/custom-jquery-ui/jquery-ui.min.js"></script>    
   
 </body>

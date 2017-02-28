@@ -44,8 +44,20 @@ $(document).ready(function() {
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="5"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr>');
         createRows({'length': 3, 'path': 'autocomplete'});
     }
-    else if (path === '/user') {
-        
+    else if (path.slice(0, 5) === '/user') {
+        $('#user-data').append('<tr id="tr-spinner"><td id="td-spinner" colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr><tr id="tr-add-rows"><td id="td-add-rows" colspan="2"><div><button id="add-rows-btn">More</button></div></td></tr>');
+        $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
+        $.getJSON('userdata/' + path.slice(5), function(json) {
+           if (json['username']) {
+                $('#user-data').before('<table><tr><th>User:</th></tr><tr><td>' + json['username'] + '</td></tr>');
+                $('#user-data thead').append('<tr><th>Ratings:</th></tr>');
+                createUserDataRows(json)
+           }
+           else {
+                detachedSpinner = $('.spinner').detach();
+                $('#user-data').after('<div>Sorry, this user does not seem to exist!</div>');
+           }
+        });
     }
     else {
         var pleaseLoginTooltip = '';
@@ -91,6 +103,34 @@ $(document).ready(function() {
         });        
     }       
 });
+
+function createUserDataRows(json) {
+    var i;
+    var length = 10;
+    if (json.ratings.length < 10) {
+        length = json.ratings.length;
+    }
+    for (i = 0; i < length; i++) {
+        if (!json['ratings'][i]['anonymous']) {
+            $('#tr-spinner').after('<tr><td><a href="/' + json['ratings'][i]['ratable'] + '">' + json['ratings'][i]['ratable'] + '</a></td><td>Stars: ' + json['ratings'][i]['rating'] + '</td></tr>');
+        }
+    }
+    if (json['reviews'].length) {
+        if (json.reviews.length < 10) {
+            length = json.reviews.length;
+        }
+        for (i = 0; i < length; i++) {
+            $('#user-data').after('<table id="review-data">' +
+                '<tr><td>' + json['reviews'] + '</td><tr>' +
+            '</table>');
+        }
+    }
+    else {
+        $('#user-data').after('<table><tr><th>Reviews:</th></tr><tr><td>none</td></tr></table>');
+    }
+    detachedSpinner = $('.spinner').detach();
+    //enable button
+}
 
 function getReviews(ratableName) {
     $('#ratings-data').append(detachedSpinner).after('<br>Reviews:<br>' + '<textarea rows="2" cols="50" placeholder="review ' + ratableName + '...(review feature coming soon)"></textarea>');

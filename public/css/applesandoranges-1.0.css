@@ -138,3 +138,49 @@ h3 {
 .align-right {
     text-align: right;
 }
+
+#body {
+    padding-left: 86px;
+    padding-right: 86px;
+    background: url('/images/your_ad_here.jpg') 50% 0px no-repeat fixed;
+    min-height: 100vh;
+}
+
+.container {
+    width: auto;
+    padding: 0px;
+}
+
+.navbar-right {
+    margin-right: 0px;
+}
+
+.navbar-collapse {
+    padding: 0px;
+}
+
+#logo {
+    margin-left: 0px;
+}
+
+#main-body-container {
+    background-color: white;
+    min-height: 685px;
+}
+
+.navbar-default {
+    margin-bottom: 0px;
+}
+
+.ad-space {
+    height: 86px;
+    font-size: 36px;
+    padding-top: 8px;
+    text-align: center;
+}
+
+#div-search {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 40px;
+}
