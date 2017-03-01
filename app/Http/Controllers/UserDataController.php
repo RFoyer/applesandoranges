@@ -13,7 +13,7 @@ use App\Ratable;
 class UserDataController extends Controller
 {
     public function show(Request $request) {
-        $userId = (int)substr($request->path(), 15);
+        $userId = (int)substr($request->path(), 14);
         $user = User::where('id', $userId)->first();
         $data = [];
         if ($user) {

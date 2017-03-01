@@ -28,8 +28,8 @@
     <div id="app">
         <div class="ad-space">Ad Space</div>
         <div id='div-mid'>   
-        <nav class="navbar navbar-default">
-            <div class="container">
+        <nav id="nav" class="navbar navbar-default">
+            <div id="nav-container" class="container">
                 <div class="navbar-header">
 
                     <!-- Collapsed Hamburger -->
@@ -41,44 +41,65 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a id='logo' class="navbar-brand" href="{{ url('/') }}">
-                        <span id='apples'>Apples</span> <span id='and'>-and-</span> <span id='oranges'>Oranges</span>
-                    </a>
+                    <div class="logo">
+                        <a id='logo' class="navbar-brand" href="{{ url('/') }}">
+                            <span id='apples'>Apples</span> <span id='and'>-and-</span> <span id='oranges'>Oranges</span>
+                        </a>
+                    </div>
                 </div>
 
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        <div id='div-search'>
-                            <form method='get'>
-                                <input id='search-box' type='text' autofocus placeholder="Search Apples and Oranges..." name='q' size="50" autocomplete="off" required>                        
-                                <button id='btn-search' type='submit' formaction='/search' value="Submit"><i class='fa fa-search'></i></button><br>
+                        <div id="div-form-search">
+                            <form>
+                                <div class="input-group">
+                                    <input type="text" id="search-box" class="form-control" autofocus placeholder="Search ratables..." name="q" autocomplete="off" required>
+                                    <div class="input-group-btn">
+                                        <button id="btn-search" type="submit" formmethod="get" class="btn btn-default" formaction="/search">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </ul>
                     <ul class="nav navbar-nav">
-                        <li><a href="{{ url('/contributors') }}">Contributors</a></li>
+                        <li class="dropdown">
+                            <a href="#" style="color:white;" class="dropdown-toggle nav-a" data-toggle="dropdown" role="button" aria-expanded="false">
+                                Contributors<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" style="background-color:white;">
+                                <li>
+                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/') }}">Proposed Ratables</a>
+                                </li>
+                                <li>
+                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/') }}">New Ratable Request</a>
+                                </li>
+                                <li>
+                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/contributors') }}">Top Contributors</a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                     
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
                         @if (Auth::guest())
-                            <li><a href="{{ url('/login') }}">Login</a></li>
-                            <li><a href="{{ url('/register') }}">Register</a></li>
+                            <li><a class="nav-a" style="color:white;" href="{{ url('/login') }}">Login</a></li>
+                            <li><a class="nav-a" style="color:white;" href="{{ url('/register') }}">Register</a></li>
                         @else
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                <a href="#" style="color:white;" class="dropdown-toggle nav-a" data-toggle="dropdown" role="button" aria-expanded="false">
                                     {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
-                                <ul class="dropdown-menu" role="menu">
+                                <ul id="ul-logout" class="dropdown-menu" role="menu" style="background-color:white;">
                                     <li>
-                                        <a href="{{ url('/logout') }}"
+                                        <a class="nav-a" style="color:#32a232;" href="{{ url('/logout') }}"
                                             onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                            Logout
-                                        </a>
+                                                     document.getElementById('logout-form').submit();">Logout</a>
 
                                         <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
                                             {{ csrf_field() }}
@@ -91,16 +112,9 @@
                 </div>
             </div>
         </nav>
-        <div id="main-body-container" class="container">
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2">
-                    <div class="panel-heading">
-                        @if (Auth::guest())
-                        Please <a href="/login">login</a> to rate items.
-                        @else
-                        Hello, {{ Auth::user()->name }}.    
-                        @endif
-                    </div>
+        <div id="main-body-container" class="container panel panel-default">
+            <div class="row panel-body">
+                <div class="col-md-8">
                     @yield('content')
                 </div>
             </div>

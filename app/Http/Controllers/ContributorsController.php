@@ -7,8 +7,11 @@ use App\Http\Controllers\Controller;
 
 class ContributorsController extends Controller
 {
-    public function show(Request $request) {
-        
+    public function index() {
         return view('contributors');
+    }
+    
+    public function show(Request $request) {        
+        return response()->json('it worked');
     }
 }

@@ -12,22 +12,55 @@ and open the template in the editor.
     font-family: Tahoma;
 }
 
-#btn-search, .btn-star {
+.btn-star {
     background: rgba(10, 10, 10, 0.0);
     border: none;
 }
 
+#nav-container, #main-body-container {
+    margin: 0px;
+    width: auto;
+    padding: 0px;
+}
+
+.input-group {
+    width: 250px;
+    background-color: white;
+    border: 1px solid;
+    border-radius: 4px;
+    border-color: #32a232;
+}
+ 
+#search-box, #btn-search {
+    border: 0px;
+    box-shadow: none;
+}
+
+#div-form-search {
+    height: 56px;
+    padding: 11px;
+}
+
 #apples {
     color: red;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 #oranges {
     color: orange;
+    display: table-cell;
+    vertical-align: middle;
 }
 #and {
     font-size: 60%;
-    vertical-align: middle;
     color: green;
+    font-style: italic;
+    padding-left: 4px;
+    padding-right: 6px;
+    padding-top: 2px;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 input[name="ratable"], input[name="rating"] {
@@ -140,8 +173,8 @@ h3 {
 }
 
 #body {
-    padding-left: 86px;
-    padding-right: 86px;
+    margin: auto;
+    width: 1100px;
     background: url('/images/your_ad_here.jpg') 50% 0px no-repeat fixed;
     min-height: 100vh;
 }
@@ -160,7 +193,16 @@ h3 {
 }
 
 #logo {
-    margin-left: 0px;
+    height: 28px;
+    padding: 0px;
+    margin: 0px;
+    display: table;
+}
+
+.logo {
+    padding: 14px;
+    height: 56px;
+    background-color: white;
 }
 
 #main-body-container {
@@ -168,19 +210,29 @@ h3 {
     min-height: 685px;
 }
 
-.navbar-default {
+#nav {
     margin-bottom: 0px;
 }
 
 .ad-space {
-    height: 86px;
-    font-size: 36px;
+    height: 250px;
+    width: 1100px;
+    font-size: 48px;
     padding-top: 8px;
     text-align: center;
+    display: table-cell;
+    vertical-align: middle;
 }
 
-#div-search {
-    padding-top: 14px;
-    padding-bottom: 14px;
-    padding-left: 40px;
+.navbar-nav > li {
+    display: table;
+}
+
+.navbar-collapse {
+    background-color: #32a232;
+}
+
+.dropdown-menu {
+    padding: 0px;
+    min-width: 0px;
 }

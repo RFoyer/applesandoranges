@@ -9,6 +9,32 @@ $(document).ready(function() {
     var path = location.pathname;
     setIsGuest();
     createAutocomplete();
+    $('#btn-search').mouseenter(function() {
+       $(this).css({'background-color': 'white'});
+    });
+    $('.nav-a').css({'height': '56px', 'display': 'table-cell', 'vertical-align': 'middle'});
+    $('.dropdown').mouseenter(function() {
+        $(this).addClass('open');
+        $(this).find('a').first().attr('aria-expanded', false);
+        $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
+        if (!isGuest) {
+            $('#ul-logout').width($('#ul-logout').parent().width());
+        }
+        $(this).find('ul').find('a').mouseenter(function() {
+           $(this).css({'background-color': '#32a232', 'color': 'white'});
+           $(this).parent().css({'background-color': '#32a232'});
+           $(this).mouseleave(function() {
+               $(this).css({'background-color': 'white', 'color': '#32a232'});
+               $(this).parent().css({'background-color': 'white'});
+           });
+        });
+        $(this).mouseleave(function() {
+            $(this).removeClass('open');
+            $(this).find('a').first().attr('aria-expanded', true);
+            $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
+            $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
+        });
+    });
     if (path === '/') {
         readyTable1();
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="5"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
@@ -47,7 +73,7 @@ $(document).ready(function() {
     else if (path.slice(0, 5) === '/user') {
         $('#user-data').append('<tr id="tr-spinner"><td id="td-spinner" colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr><tr id="tr-add-rows"><td id="td-add-rows" colspan="2"><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        $.getJSON('userdata/' + path.slice(5), function(json) {
+        $.getJSON('userdata/' + path.slice(6), function(json) {
            if (json['username']) {
                 $('#user-data').before('<table><tr><th>User:</th></tr><tr><td>' + json['username'] + '</td></tr>');
                 $('#user-data thead').append('<tr><th>Ratings:</th></tr>');
@@ -57,6 +83,11 @@ $(document).ready(function() {
                 detachedSpinner = $('.spinner').detach();
                 $('#user-data').after('<div>Sorry, this user does not seem to exist!</div>');
            }
+        });
+    }
+    else if (path === '/contributors') {
+        $.getJSON('contributors/retrieve/1', function(json) {
+            $('#contributors-data tbody').append('<tr><td>' + json + '</td></tr>');
         });
     }
     else {
@@ -100,7 +131,7 @@ $(document).ready(function() {
                 readyTable1();
                 getReviews(json['name']);
             }            
-        });        
+        });
     }       
 });
 
@@ -156,7 +187,9 @@ function createAutocomplete() {
 
 function readyTable1() {
     createStarEvents();
-    getAsyncFormSubmits();    
+    getAsyncFormSubmits();
+    $('#table-1 thead').append('<tr><th colspan="5">THINGS TO RATE</th></tr>');
+    $('#table-1 th').css({'padding-bottom': '10px'});
 }
 
 function createRows(settings) {

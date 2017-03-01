@@ -3,7 +3,6 @@
 @section('content')
 <div class="panel-body">
                 @if (Auth::guest())
-                Things to Rate:<br>
                 <table id='table-1' class='guest'>
                     <thead>
                         
@@ -14,7 +13,6 @@
                 </table>
                 <br>
                 @else
-                Things to Rate:<br>
                 <table id='table-1' class='user'>
                     <thead>
                         
