@@ -20,11 +20,19 @@ class TableDataController extends Controller
             if ($ratable->img_src === "#") {
                 $ratable->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";                    
             }
+            $region = '';
+            $substrStartIndex = strpos($ratable->class, '{');
+            if ($substrStartIndex !== false) {
+                $substrLength = strpos($ratable->class, '}') - $substrStartIndex - 1;
+                $region = substr($ratable->class, $substrStartIndex + 1, $substrLength);
+            }
             $userRating = Rating::where([
                     ['user_id', '=', Auth::id()],
                     ['ratable_id', '=', $ratable->id]
                 ])->first();
+            $isAnonymous = false;
             if ($userRating) {
+                $isAnonymous = $userRating->anonymous;
                 $userRating = $userRating->rating;
             }
             else {        
@@ -42,7 +50,7 @@ class TableDataController extends Controller
                 $rating = number_format(0, 1);
                 $numberOfRatings = 0;
             }
-            $data = ['name' => $ratable->name, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'userRating' => $userRating, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];        
+            $data = ['name' => $ratable->name, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];        
         }
         return response()->json($data);        
     }   

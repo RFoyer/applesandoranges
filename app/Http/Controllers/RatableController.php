@@ -80,6 +80,9 @@ class RatableController extends Controller
                     $rating = number_format(0, 1);
                     $numberOfRatings = 0;
                 }
+                if ($q->img_src === "#") {
+                $q->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";                    
+            }
                 $data = ['name' => $q->name, 'img_src' => $q->img_src, 'desc' => $q->desc, 'rating' => $rating, 'userRating' => $userRating, 'numberOfRatings' => $numberOfRatings];
             }
         }

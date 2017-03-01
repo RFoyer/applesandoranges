@@ -99,7 +99,7 @@ form[name="star-form"] {
     border-top-style: solid;
     border-top-width: thin;
     border-top-color: orange;
-    vertical-align: top;    
+    vertical-align: top;
 }
 
 td {
@@ -118,14 +118,6 @@ td {
 .spinner {
     padding-bottom: 10px;
     color: orange;
-}
-
-.fa-check {
-    color: red;
-}
-
-.fa-check-square {
-    color: pink;
 }
 
 .td-star {
@@ -235,4 +227,16 @@ h3 {
 .dropdown-menu {
     padding: 0px;
     min-width: 0px;
+}
+
+.fa-user-secret {
+    color: #7D7D7D;
+}
+
+.secret-empty {
+    color: #cbcbcb;
+}
+
+.fa-map-marker {
+    color: #6666ff;
 }

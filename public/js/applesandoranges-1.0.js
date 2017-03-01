@@ -1,9 +1,10 @@
 var isGuest = false;
-var rowInd = 1;
+var rowInd = 11;
 var detachedRows = [];
 var detachedMoreBtn;
 var detachedSpinner;
 var gradId = 0;
+var isFirstRow = true;
 
 $(document).ready(function() {
     var path = location.pathname;
@@ -37,7 +38,7 @@ $(document).ready(function() {
     });
     if (path === '/') {
         readyTable1();
-        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="5"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
+        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         createRows({'length': 10, 'path': 'table'});
         $('#add-rows-btn').click(function(){
@@ -48,7 +49,7 @@ $(document).ready(function() {
                 $('#prev-rows-btn').button({disabled: true});
             }
             else {
-                $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="5"><button id="prev-rows-btn">Previous</button></tr></td>');
+                $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="6"><button id="prev-rows-btn">Previous</button></tr></td>');
                 $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
                 $('#prev-rows-btn').click(function() {
                     $('.ratable-tr').remove();
@@ -188,8 +189,7 @@ function createAutocomplete() {
 function readyTable1() {
     createStarEvents();
     getAsyncFormSubmits();
-    $('#table-1 thead').append('<tr><th colspan="5">THINGS TO RATE</th></tr>');
-    $('#table-1 th').css({'padding-bottom': '10px'});
+    createIconEvents();
 }
 
 function createRows(settings) {
@@ -241,25 +241,46 @@ function createRows(settings) {
 
 function createTr(json) {
     var pleaseLoginTooltip = '';
-    var ratingTooltip = '';
+    var anonymousTooltip = '';
+    var mapMarker = '';
     if (isGuest) {
         pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
-    if (json['userRating']) {
-        ratingTooltip = '<i class="fa fa-check" data-toggle="tooltip" data-placement="right" title="You have rated this item!"></i>';
+    if (json['isAnonymous']) {
+        anonymousTooltip = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="rate this anonymously"></i>';
     }
     else {
-        ratingTooltip = '<i class="fa fa-check-square" data-toggle="tooltip" data-placement="right" title="You have not yet rated this item."></i>';
+        anonymousTooltip = '<i class="fa fa-user-secret secret-empty" data-toggle="tooltip" data-placement="top" title="rate this anonymously"></i>';
+    }
+    if (json['region'].length) {
+        mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="see on map <br> (located in ' + json['region'] + ')"></i>';
     }
     $('#things-to-rate-body').append(
-        '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" width="100"></td>' +  
-        '<td><a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
-        '<td class="td-star"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
-        '<td> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
-        '<td class="td-check">' + ratingTooltip + '</td></tr>'
+        '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
+        '<td style="min-width:250px;"><a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a><br></td>' + 
+        '<td class="td-star" style="box-sizing:content-box;"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
+        '<td style="padding-top:10px;box-sizing:content-box;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
+        '<td style="padding-top:10px;">' + anonymousTooltip + '</td>' +
+        '<td style="padding-top:8px;">' + mapMarker + '</td></tr>'
     );
-    $('[data-toggle="tooltip"]').tooltip();
     $('#tr-add-rows').appendTo('#things-to-rate-body');
+    if (isFirstRow) {
+        isFirstRow = false;
+        $('#table-1 thead').prepend('<tr><th></th><th></th><th></th><th></th><th></th><th></th></tr>');
+        $('#table-1').width($('#table-1').width());
+        $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="see on map <br> (located in ' + json['region'] + ')"></i>');
+        $('#table-1 .ratable-tr td').last().width($('#table-1 .ratable-tr td').last().width());        
+        $('#table-1 .ratable-tr td').each(function(i) {
+            var width = $(this).outerWidth();                
+            $(this).width(width);
+            $('#table-1 th').slice(i, i + 1).outerWidth(width);            
+        });
+        $('#table-1').css({'table-layout': 'fixed'});
+        $('#table-1 .ratable-tr td').last().empty();
+        $('#table-1 thead').append('<tr><th colspan="6">THINGS TO RATE</th></tr>');
+        $('#table-1 th').css({'padding-bottom': '10px'});
+    }    
+    $('[data-toggle="tooltip"]').tooltip();    
 }
 
 function createFiveStars(json) {
@@ -395,5 +416,23 @@ function getAsyncFormSubmits() {
             });
         }
         return false;
+    });
+}
+
+function createIconEvents() {
+    $('#table-1').on('mouseenter', '.fa-user-secret', function() {
+       $(this).addClass('fa-2x');
+       $(this).mouseleave(function() {
+          $(this).removeClass('fa-2x'); 
+       }); 
+    });
+    $('#table-1').on('mouseenter', '.fa-map-marker', function() {
+       $(this).addClass('fa-2x');
+       $(this).mouseleave(function() {
+          $(this).removeClass('fa-2x'); 
+       }); 
+    });
+    $('#table-1').on('click', '.fa-user-secret', function() {
+       $(this).toggleClass('secret-empty'); 
     });
 }
