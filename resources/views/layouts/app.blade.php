@@ -113,10 +113,8 @@
             </div>
         </nav>
         <div id="main-body-container" class="container panel panel-default">
-            <div class="row panel-body">
-                <div class="col-md-8">
-                    @yield('content')
-                </div>
+            <div>
+                @yield('content')
             </div>
         </div>
                 

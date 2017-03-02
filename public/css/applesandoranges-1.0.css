@@ -121,7 +121,8 @@ td {
 }
 
 .td-star {
-    min-width: 205px;
+    /*min-width: 205px;*/
+    white-space: nowrap;
 }
 
 svg {
