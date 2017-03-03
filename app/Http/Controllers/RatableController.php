@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Ratable;
 use App\Rating;
+use App\Review;
 
 class RatableController extends Controller
 {
@@ -18,9 +19,9 @@ class RatableController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($path)
     {
-        //
+        return view('ratable');
     }
 
     /**
@@ -30,7 +31,7 @@ class RatableController extends Controller
      */
     public function create()
     {
-        //
+        return view('create', ['newRatable' => 'create']);
     }
 
     /**
@@ -41,7 +42,23 @@ class RatableController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|unique:ratables|max:45',
+            'location' => 'max:60',
+            'desc' => 'required|max:450'
+        ]);
+        
+        if (!Auth::guest()) {
+            $ratable = new Ratable;
+            $ratable->name = $request->name;
+            if (!empty($request->location)) {
+                $ratable->class = 'region:{'.$request->location.'}';
+            }
+            $ratable->desc = $request->desc;
+            $ratable->creator_id = Auth::id();
+            $ratable->save();
+            return view('create', ['newRatable' => $ratable->name]);
+        }        
     }
 
     /**
@@ -58,6 +75,12 @@ class RatableController extends Controller
         if ($query)
         {
             foreach ($query as $q) {
+                $region = '';
+                $substrStartIndex = strpos($q->class, '{');
+                if (!empty($substrStartIndex)) {
+                    $substrLength = strpos($q->class, '}') - $substrStartIndex - 1;
+                    $region = 'located in: '.substr($q->class, $substrStartIndex + 1, $substrLength);
+                }
                 $userRating = Rating::where([
                     ['user_id', '=', Auth::id()],
                     ['ratable_id', '=', $q->id]
@@ -82,8 +105,8 @@ class RatableController extends Controller
                 }
                 if ($q->img_src === "#") {
                 $q->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";                    
-            }
-                $data = ['name' => $q->name, 'img_src' => $q->img_src, 'desc' => $q->desc, 'rating' => $rating, 'userRating' => $userRating, 'numberOfRatings' => $numberOfRatings];
+                }
+                $data = ['name' => $q->name, 'region' => $region, 'img_src' => $q->img_src, 'desc' => $q->desc, 'rating' => $rating, 'userRating' => $userRating, 'numberOfRatings' => $numberOfRatings];
             }
         }
         return response()->json($data);

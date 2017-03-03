@@ -122,7 +122,6 @@ td {
 
 .td-star {
     /*min-width: 205px;*/
-    white-space: nowrap;
 }
 
 svg {
@@ -240,4 +239,9 @@ h3 {
 
 .fa-map-marker {
     color: #6666ff;
+}
+
+caption {
+    text-align: left;
+    font-weight: bold;
 }

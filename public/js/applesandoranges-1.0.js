@@ -10,6 +10,17 @@ $(document).ready(function() {
     var path = location.pathname;
     setIsGuest();
     createAutocomplete();
+    $('#div-form-search form').submit(function() {
+       if (!$(this).find('#search-box').val().length) {
+            /*$(this).find('#search-box').attr({ 'data-toggle': "tooltip", 'data-placement': "bottom", 'title': "Please fill out first."});
+            $(this).find('#search-box').tooltip({container: 'body', trigger: 'manual'});
+            $(this).find('#search-box').tooltip('show');*/
+            //go here to fix arrow background: https://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
+            //events that get rid of tooltip: keydown, click
+            //also add timeout
+            return false;
+       }
+    });
     $('#btn-search').mouseenter(function() {
        $(this).css({'background-color': 'white'});
     });
@@ -72,7 +83,7 @@ $(document).ready(function() {
         createRows({'length': 3, 'path': 'autocomplete'});
     }
     else if (path.slice(0, 5) === '/user') {
-        $('#user-data').append('<tr id="tr-spinner"><td id="td-spinner" colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr><tr id="tr-add-rows"><td id="td-add-rows" colspan="2"><div><button id="add-rows-btn">More</button></div></td></tr>');
+        $('#user-data').append('<tr id="tr-spinner"><td id="td-spinner" colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div></td></tr><tr id="tr-add-rows"><td id="td-add-rows" colspan="2"><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         $.getJSON('userdata/' + path.slice(6), function(json) {
            if (json['username']) {
@@ -87,9 +98,37 @@ $(document).ready(function() {
         });
     }
     else if (path === '/contributors') {
-        $.getJSON('contributors/retrieve/1', function(json) {
-            $('#contributors-data tbody').append('<tr><td>' + json + '</td></tr>');
+        $('#contributors-data').after('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>');
+        $.getJSON('contributors/retrieve/0', function(json) {
+            $('.spinner').remove();
+            $('#contributors-data thead').append('<tr>' +
+                '<th>Name</th>' +
+                '<th>Ratings</th>' +
+                '<th>Reviews</th>' +
+                '<th>Ratables Proposed</th>' +
+                '<th>Ratables Approved</th>' +
+                //<th>Ratables Pending</th>
+                //<th>Ratables Rejected</th>
+            '</tr>');
+            $('#contributors-data th').css({'padding': '4px'});
+            json.forEach(function(data) {
+                $('#contributors-data tbody').append('<tr><td><a href="/user/' + data.id.toString() + '">' + data.name + '</a></td>' +
+                    '<td>' + data.numberOfRatings.toString() + '</td>' +
+                    '<td>' + data.numberOfReviews.toString() + '</td>' +
+                    '<td>' + data.numberOfProposedRatables.toString() + '</td>' +
+                    '<td>' + data.numberOfApprovedRatables.toString() + '</td>' +
+                    //'<td>' + data.numberOfPendingRatables.toString() + '</td>' +
+                    //'<td>' + data.numberOfRejectedRatables.toString() + '</td>' +                    
+                '</tr>');
+                $('#contributors-data tr').last().find('td').slice(1).css({'text-align': 'center'});
+            });            
         });
+    }
+    else if (path === '/ratable/create/new' || path === '/ratable/create/new/post') {
+        /*$.post('/ratable/create/new', function(json) {
+            $('#content-container').before('<div>' + JSON.stringify(json) + '</div>');
+            $('#content-container').remove();
+        });*/
     }
     else {
         var pleaseLoginTooltip = '';
@@ -123,7 +162,8 @@ $(document).ready(function() {
                     '</div>'
                 );
                 tableWidth = $('#star-table').width();
-                $('#star-table').append('<tr><td colspan="2"><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>');
+                $('#star-table').append('<tr><td colspan="2"><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>' +
+                        '<tr><td>' + json['region'] + '</td></tr>');
                 $('#star-table').css({'max-width': tableWidth});
                 detachedSpinner = $('.spinner').detach();
                 if (pleaseLoginTooltip) {
@@ -285,10 +325,10 @@ function createTr(json) {
             $('#table-1 .ratable-tr td').last().empty();
         }        
         $('#table-1 .ratable-tr td').first().next().html('<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>');
-        $('#table-1 thead').append('<tr><th colspan="6">THINGS TO RATE</th></tr>');
+        $('#table-1').prepend('<caption>THINGS TO RATE</caption>');
         $('#table-1 th').css({'padding-bottom': '10px'});
     }    
-    $('[data-toggle="tooltip"]').tooltip({containter: 'body'})
+    $('[data-toggle="tooltip"]').tooltip({containter: 'body', html: true})
     $('[data-toggle="tooltip"]').tooltip();    
 }
 
@@ -444,6 +484,12 @@ function createIconEvents() {
           $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
        }); 
     });
+    $('#table-1').on('click', '.fa-user-secret', function() {
+       $(this).toggleClass('secret-empty');
+       //have rating post check secret empty before post
+       //if polygon zero filled red, then...
+       //post anonymous to rating
+    });
     $('#table-1').on('mouseenter', '.fa-map-marker', function() {
        $(this).addClass('fa-2x');
        $(this).tooltip('show');
@@ -451,7 +497,7 @@ function createIconEvents() {
           $(this).removeClass('fa-2x'); 
        }); 
     });
-    $('#table-1').on('click', '.fa-user-secret', function() {
-       $(this).toggleClass('secret-empty'); 
+    $('#table-1').on('click', '.fa-map-marker', function() {
+       //open map in new window 
     });
 }

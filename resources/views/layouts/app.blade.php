@@ -52,9 +52,9 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
                         <div id="div-form-search">
-                            <form>
+                            <form novalidate>
                                 <div class="input-group">
-                                    <input type="text" id="search-box" class="form-control" autofocus placeholder="Search ratables..." name="q" autocomplete="off" required>
+                                    <input type="text" id="search-box" class="form-control" autofocus placeholder="Search ratables..." name="q" autocomplete="off">
                                     <div class="input-group-btn">
                                         <button id="btn-search" type="submit" formmethod="get" class="btn btn-default" formaction="/search">
                                             <i class="fa fa-search"></i>
@@ -74,7 +74,7 @@
                                     <a class="nav-a" style="color:#32a232;" href="{{ url('/') }}">Proposed Ratables</a>
                                 </li>
                                 <li>
-                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/') }}">New Ratable Request</a>
+                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/ratable/create/new') }}">New Ratable Request</a>
                                 </li>
                                 <li>
                                     <a class="nav-a" style="color:#32a232;" href="{{ url('/contributors') }}">Top Contributors</a>

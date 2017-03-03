@@ -29,12 +29,16 @@ Route::get('table', 'TableDataController@show');
 
 Route::get('ratable', 'RatableController@show');
 
-Route::get('user/{id}', 'UserController@show');
+Route::get('ratable/create/new', 'RatableController@create');
 
-Route::get('user/userdata/{id}', 'UserDataController@show');
+Route::post('ratable/create/new/post', 'RatableController@store');
+
+Route::get('user/{id}', 'UserController@index');
+
+Route::get('user/userdata/{id}', 'UserController@show');
 
 Route::get('contributors', "ContributorsController@index");
 
-Route::get('contributors/retrieve/{id}', "ContributorsController@show");
+Route::get('contributors/retrieve/{skip}', "ContributorsController@show");
 
-Route::get('{path}', function(){return view('ratable');});
+Route::get('{path}', "RatableController@index");
