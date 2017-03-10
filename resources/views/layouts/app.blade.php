@@ -71,7 +71,7 @@
                             </a>
                             <ul class="dropdown-menu" role="menu" style="background-color:white;">
                                 <li>
-                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/') }}">Proposed Ratables</a>
+                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/proposed') }}">Proposed Ratables</a>
                                 </li>
                                 <li>
                                     <a class="nav-a" style="color:#32a232;" href="{{ url('/ratable/create/new') }}">New Ratable Request</a>

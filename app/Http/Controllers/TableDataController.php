@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Auth;
 
 class TableDataController extends Controller
 {
-    public function show(Request $request)
+    public function show($table, $skip)
     {
-        $id = (int)$request->input('id');
+        $skip = (int)$skip;
         $data = [];
-        if (Ratable::count() >= $id) {
-            $ratable = Ratable::where('id', $id)->first();
+        if (($table === 'master') && ($skip < 50)) {
+            $ratable = Ratable::where('id', 1 + $skip)->first();
             if ($ratable->img_src === "#") {
                 $ratable->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";                    
             }
@@ -51,6 +51,9 @@ class TableDataController extends Controller
                 $numberOfRatings = 0;
             }
             $data = ['name' => $ratable->name, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];        
+        }
+        else if ($table === 'proposed') {
+            // create proposed index
         }
         return response()->json($data);        
     }   

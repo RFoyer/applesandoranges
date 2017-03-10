@@ -1,5 +1,5 @@
 var isGuest = false;
-var rowInd = 11;
+var rowInd = 45; // change to skipAmount
 var detachedRows = [];
 var detachedMoreBtn;
 var detachedSpinner;
@@ -51,7 +51,7 @@ $(document).ready(function() {
         readyTable1();
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        createRows({'length': 10, 'path': 'table'});
+        createRows({'length': 10, 'path': 'master'});
         $('#add-rows-btn').click(function(){
             $('#add-rows-btn').button({disabled: true});
             detachedRows.push($('.ratable-tr').detach());
@@ -71,9 +71,12 @@ $(document).ready(function() {
                     }
                 });
             }
-            createRows({'length': 10, 'path': 'table'});
+            createRows({'length': 10, 'path': 'master'});
         });
-    }    
+    }
+    else if (path === '/proposed') {
+        $('#things-to-rate-body').before('<div>this feature coming soon!</div>');
+    }
     else if (path === '/login' || path === '/register') {
         
     }    
@@ -235,30 +238,44 @@ function readyTable1() {
 function createRows(settings) {
     var i;
     var k = 0;
-    if (settings.path === 'table') {
+    var removeMoreBtn = false;
+    if (settings.path !== 'autocomplete') {
         for (i = 0; i < settings.length; i++) {
-            $.getJSON('table?id=' + rowInd.toString(), function(json) {
+            $.getJSON('table/' + settings.path + '/' + rowInd.toString(), function(json) {
+                k++;
                 if (json['name']) {
                     createTr(json);
-                    k++;
-                    if (k === (settings.length)) {
+                    if (k === settings.length) {
                         detachedSpinner = $('.spinner').detach();
-                        $('#add-rows-btn').button({disabled: false});
-                        if ($('#prev-rows-btn').length) {
+                        if (removeMoreBtn) {
+                            detachedMoreBtn = $('#add-rows-btn').detach();
+                        }
+                        else {
+                            $('#add-rows-btn').button({disabled: false});
+                        }
+                        if (detachedRows) {
                             $('#prev-rows-btn').button({disabled: false});
                         }
                     }
                 }
                 else {
-                    i = 10;
-                    detachedMoreBtn = $('.add-rows-btn').detach();
-                    $('.td-add-rows').html('Nothing more to rate at this time. Thank you for trying Apples and Oranges!').css({color: 'red'});
+                    if (!removeMoreBtn) {
+                        removeMoreBtn = true;
+                        $('#table-1').after("<div>*No more items to rate. Thank you for trying Apples and Oranges!</div>");
+                    }
+                    if (k === settings.length) {
+                        detachedMoreBtn = $('#add-rows-btn').detach();
+                        detachedSpinner = $('.spinner').detach();
+                        if (detachedRows) {
+                            $('#prev-rows-btn').button({disabled: false});
+                        }                        
+                    }                                       
                 }
             });
             rowInd++;
         }
     }
-    else if (settings.path === 'autocomplete') {
+    else {
         $.getJSON('autocomplete?term=' + $('#table-1 > thead').attr('id'), function(searchJson) {
             var i;
             if (searchJson.length) {
@@ -294,7 +311,7 @@ function createTr(json) {
         anonymousIcon = '<i class="fa fa-user-secret secret-empty"></i>';
     }
     if (json['region'].length) {
-        mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="see on map <br> (located in ' + json['region'] + ')"></i>';
+        mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(feature coming soon)<br>(located in ' + json['region'] + ')"></i>';
     }
     if (isFirstRow) {
         contents = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -312,7 +329,7 @@ function createTr(json) {
         isFirstRow = false;
         $('#table-1 thead').prepend('<tr><th></th><th></th><th></th><th></th><th></th><th></th></tr>');
         if (!mapMarker.length) {
-            $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="see on map <br> (located in ' + json['region'] + ')"></i>');
+            $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(feature coming soon)<br>see on map<br>(located in ' + json['region'] + ')"></i>');
         }
         $('#table-1 .ratable-tr td').each(function(i) {
             var width = $(this).outerWidth();
@@ -474,7 +491,7 @@ function createIconEvents() {
        $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
        $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
        if (!$(this).attr('data-toggle')) {
-           $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "rate this anonymously"});
+           $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'data-html': true, 'title': "(feature comming soon)<br>rate this anonymously"});
        }
        $(this).tooltip({container: 'body'});
        $(this).tooltip('show');

@@ -23,7 +23,7 @@ Route::get('search', 'SearchFormSubmitController@show');
 
 Route::get('autocomplete', 'SearchAutocompleteController@show');
 
-Route::get('table', 'TableDataController@show');
+Route::get('table/{table}/{skip}', 'TableDataController@show');
 
 //Route::get('admin', function(){return view('home');});
 
@@ -32,6 +32,8 @@ Route::get('ratable', 'RatableController@show');
 Route::get('ratable/create/new', 'RatableController@create');
 
 Route::post('ratable/create/new/post', 'RatableController@store');
+
+Route::get('proposed', 'HomeController@index');
 
 Route::get('user/{id}', 'UserController@index');
 
