@@ -1,6 +1,7 @@
 var isGuest = false;
-var rowInd = 45; // change to skipAmount
+var rowInd = 0; // change to skipAmount
 var detachedRows = [];
+var detachedRowsIndex = -1;
 var detachedMoreBtn;
 var detachedSpinner;
 var gradId = 0;
@@ -53,9 +54,6 @@ $(document).ready(function() {
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         createRows({'length': 10, 'path': 'master'});
         $('#add-rows-btn').click(function(){
-            $('#add-rows-btn').button({disabled: true});
-            detachedRows.push($('.ratable-tr').detach());
-            $('#td-add-rows').prepend(detachedSpinner);
             if ($('#prev-rows-btn').length) {
                 $('#prev-rows-btn').button({disabled: true});
             }
@@ -63,15 +61,34 @@ $(document).ready(function() {
                 $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="6"><button id="prev-rows-btn">Previous</button></tr></td>');
                 $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
                 $('#prev-rows-btn').click(function() {
-                    $('.ratable-tr').remove();
-                    $('#tr-add-rows').before(detachedRows[detachedRows.length - 1]);
-                    detachedRows.pop();
-                    if (!detachedRows.length) {
+                    if (detachedRowsIndex === 0) {
                         $('#prev-rows-btn').remove();
+                    }
+                    else if (detachedRowsIndex === (detachedRows.length - 1)) {
+                        detachedRows.push($('.ratable-tr').detach());
+                        $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
+                        detachedRowsIndex--;
+                    }
+                    else {
+                        $('.ratable-tr').remove();
+                        $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
+                        detachedRowsIndex--;
                     }
                 });
             }
-            createRows({'length': 10, 'path': 'master'});
+            detachedRowsIndex++;
+            if ((detachedRows.length && (detachedRowsIndex === detachedRows.length)) || !detachedRows.length) {
+                $('#td-add-rows').prepend(detachedSpinner);
+                $('#add-rows-btn').button({disabled: true});
+                detachedRows.push($('.ratable-tr').detach());
+                //detachedRowsIndex++;
+                createRows({'length': 10, 'path': 'master'});
+            }
+            else {
+                //detachedRowsIndex++;
+                $('.ratable-tr').remove();
+                $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
+            }            
         });
     }
     else if (path === '/proposed') {
@@ -253,7 +270,7 @@ function createRows(settings) {
                         else {
                             $('#add-rows-btn').button({disabled: false});
                         }
-                        if (detachedRows) {
+                        if ($('#prev-rows-btn').length) {
                             $('#prev-rows-btn').button({disabled: false});
                         }
                     }
@@ -266,7 +283,7 @@ function createRows(settings) {
                     if (k === settings.length) {
                         detachedMoreBtn = $('#add-rows-btn').detach();
                         detachedSpinner = $('.spinner').detach();
-                        if (detachedRows) {
+                        if ($('#prev-rows-btn').length) {
                             $('#prev-rows-btn').button({disabled: false});
                         }                        
                     }                                       
