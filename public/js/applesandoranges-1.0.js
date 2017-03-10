@@ -1,5 +1,5 @@
 var isGuest = false;
-var rowInd = 45; // change to skipAmount
+var rowInd = 0; // change to skipAmount
 var detachedRows = [];
 var detachedMoreBtn;
 var detachedSpinner;
