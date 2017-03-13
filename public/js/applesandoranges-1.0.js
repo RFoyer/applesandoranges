@@ -1,7 +1,8 @@
 var isGuest = false;
-var rowInd = 0; // change to skipAmount
+var rowInd = 30; // change to skipAmount
 var detachedRows = [];
-var detachedRowsIndex = -1;
+var detachedRowsIndex = 0;
+var noMoreRows = false;
 var detachedMoreBtn;
 var detachedSpinner;
 var gradId = 0;
@@ -53,43 +54,7 @@ $(document).ready(function() {
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         createRows({'length': 10, 'path': 'master'});
-        $('#add-rows-btn').click(function(){
-            if ($('#prev-rows-btn').length) {
-                $('#prev-rows-btn').button({disabled: true});
-            }
-            else {
-                $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="6"><button id="prev-rows-btn">Previous</button></tr></td>');
-                $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-                $('#prev-rows-btn').click(function() {
-                    if (detachedRowsIndex === 0) {
-                        $('#prev-rows-btn').remove();
-                    }
-                    else if (detachedRowsIndex === (detachedRows.length - 1)) {
-                        detachedRows.push($('.ratable-tr').detach());
-                        $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
-                        detachedRowsIndex--;
-                    }
-                    else {
-                        $('.ratable-tr').remove();
-                        $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
-                        detachedRowsIndex--;
-                    }
-                });
-            }
-            detachedRowsIndex++;
-            if ((detachedRows.length && (detachedRowsIndex === detachedRows.length)) || !detachedRows.length) {
-                $('#td-add-rows').prepend(detachedSpinner);
-                $('#add-rows-btn').button({disabled: true});
-                detachedRows.push($('.ratable-tr').detach());
-                //detachedRowsIndex++;
-                createRows({'length': 10, 'path': 'master'});
-            }
-            else {
-                //detachedRowsIndex++;
-                $('.ratable-tr').remove();
-                $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
-            }            
-        });
+        createBtnEvents();        
     }
     else if (path === '/proposed') {
         $('#things-to-rate-body').before('<div>this feature coming soon!</div>');
@@ -255,38 +220,34 @@ function readyTable1() {
 function createRows(settings) {
     var i;
     var k = 0;
-    var removeMoreBtn = false;
     if (settings.path !== 'autocomplete') {
         for (i = 0; i < settings.length; i++) {
             $.getJSON('table/' + settings.path + '/' + rowInd.toString(), function(json) {
                 k++;
                 if (json['name']) {
-                    createTr(json);
-                    if (k === settings.length) {
-                        detachedSpinner = $('.spinner').detach();
-                        if (removeMoreBtn) {
-                            detachedMoreBtn = $('#add-rows-btn').detach();
-                        }
-                        else {
-                            $('#add-rows-btn').button({disabled: false});
-                        }
-                        if ($('#prev-rows-btn').length) {
-                            $('#prev-rows-btn').button({disabled: false});
-                        }
-                    }
+                    createTr(json);                    
                 }
                 else {
-                    if (!removeMoreBtn) {
-                        removeMoreBtn = true;
-                        $('#table-1').after("<div>*No more items to rate. Thank you for trying Apples and Oranges!</div>");
-                    }
-                    if (k === settings.length) {
+                    $('#things-to-rate-body').append('<tr class="ratable-tr"></tr>');
+                    if (!noMoreRows) {
+                        noMoreRows = true;
+                        detachedRows.push($('.ratable-tr').clone());
+                    }                   
+                }
+                if (k === settings.length) {
+                    if ((detachedRowsIndex === detachedRows.length) && !noMoreRows) {
+                        detachedRows.push($('.ratable-tr').clone());
+                    }                    
+                    detachedSpinner = $('.spinner').detach();
+                    if (noMoreRows) {
                         detachedMoreBtn = $('#add-rows-btn').detach();
-                        detachedSpinner = $('.spinner').detach();
-                        if ($('#prev-rows-btn').length) {
-                            $('#prev-rows-btn').button({disabled: false});
-                        }                        
-                    }                                       
+                    }
+                    else {
+                        $('#add-rows-btn').button({disabled: false});
+                    }
+                    if ($('#prev-rows-btn').length) {
+                        $('#prev-rows-btn').button({disabled: false});
+                    }                        
                 }
             });
             rowInd++;
@@ -533,5 +494,46 @@ function createIconEvents() {
     });
     $('#table-1').on('click', '.fa-map-marker', function() {
        //open map in new window 
+    });
+}
+
+function createBtnEvents() {
+    $('#table-1').on('click', '#add-rows-btn', function(){
+        $('#add-rows-btn').button({disabled: true});
+        detachedRowsIndex++;
+        $('.ratable-tr').remove();
+        if (!$('#prev-rows-btn').length) {
+            $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="6"><button id="prev-rows-btn">Previous</button></tr></td>');
+        }
+        $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
+        if ((detachedRowsIndex === detachedRows.length) && !noMoreRows) {
+            $('#td-add-rows').prepend(detachedSpinner);                
+            createRows({'length': 10, 'path': 'master'});
+        }
+        else {
+            $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
+            if ((detachedRowsIndex < detachedRows.length) && !((detachedRowsIndex === (detachedRows.length - 1)) && noMoreRows)) {
+                $('#add-rows-btn').button({disabled: false});            
+            }
+            else {
+                $('#add-rows-btn').remove();
+            }
+            $('#prev-rows-btn').button({disabled: false});
+        }            
+    });
+    
+    $('#table-1').on('click', '#prev-rows-btn', function() {
+        $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
+        detachedRowsIndex--;
+        if (detachedRowsIndex === 0) {
+            $('#tr-prev-rows').remove();
+        }
+        $('.ratable-tr').remove();
+        if (!$('#add-rows-btn').length) {
+            $('#td-add-rows').append('<div><button id="add-rows-btn">More</button></div>');
+            $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
+        }
+        $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
+        $('#add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     });
 }
