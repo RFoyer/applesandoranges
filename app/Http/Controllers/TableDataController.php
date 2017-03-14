@@ -15,8 +15,16 @@ class TableDataController extends Controller
     {
         $skip = (int)$skip;
         $data = [];
-        if (($table === 'master') && ($skip < 50)) {
-            $ratable = Ratable::where('id', 1 + $skip)->first();
+        if ($table === 'proposed') {
+            // create proposed index
+        }
+        else if ($skip < 50) {
+            if ($table === 'master') {
+                $ratable = Ratable::where('id', 1 + $skip)->first();
+            }
+            else {
+                $ratable = Ratable::where('id', $table)->first();
+            }            
             if ($ratable->img_src === "#") {
                 $ratable->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";                    
             }
@@ -50,11 +58,9 @@ class TableDataController extends Controller
                 $rating = number_format(0, 1);
                 $numberOfRatings = 0;
             }
-            $data = ['name' => $ratable->name, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];        
+            $data = ['id' => $ratable->id, 'name' => $ratable->name, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];        
         }
-        else if ($table === 'proposed') {
-            // create proposed index
-        }
+        
         return response()->json($data);        
     }   
 }

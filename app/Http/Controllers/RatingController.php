@@ -43,6 +43,7 @@ class RatingController extends Controller
         if (Auth::check()) {
             $ratable = $request->input('ratable');
             $newRating = $request->input('rating') + 1;
+            $newAnonymous = (bool)$request->input('anonymous');
             $ratableID = Ratable::where('name', $ratable)->value('id');
             $rtg = Rating::where([
                 ['user_id', '=', Auth::id()],
@@ -50,15 +51,16 @@ class RatingController extends Controller
                 ])->first();
             if ($rtg) {
                 if ($rtg->rating !== $newRating) {
-                    $rtg->rating = $newRating;
-                    $rtg->save();
+                    $rtg->rating = $newRating;                    
                 }
+                $rtg->anonymous = $newAnonymous;
+                $rtg->save();
             }
             else {
                 $rtg = new Rating;
                 $rtg->user_id = Auth::id();
                 $rtg->ratable_id = $ratableID;
-                $rtg->anonymous = false;
+                $rtg->anonymous = $newAnonymous;
                 $rtg->rating = $newRating;
                 $rtg->save();
             }            
@@ -96,7 +98,14 @@ class RatingController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if (Auth::check()) {
+            $rating = Rating::where([
+                ['user_id', '=', Auth::id()],
+                ['ratable_id', '=', (int)$id]
+            ])->first();
+            $rating->anonymous = (bool)$request->input('anonymous');
+            $rating->save();
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 var isGuest = false;
-var rowInd = 30; // change to skipAmount
+var rowInd = 1; // change to skipAmount
 var detachedRows = [];
 var detachedRowsIndex = 0;
 var noMoreRows = false;
@@ -12,43 +12,8 @@ $(document).ready(function() {
     var path = location.pathname;
     setIsGuest();
     createAutocomplete();
-    $('#div-form-search form').submit(function() {
-       if (!$(this).find('#search-box').val().length) {
-            /*$(this).find('#search-box').attr({ 'data-toggle': "tooltip", 'data-placement': "bottom", 'title': "Please fill out first."});
-            $(this).find('#search-box').tooltip({container: 'body', trigger: 'manual'});
-            $(this).find('#search-box').tooltip('show');*/
-            //go here to fix arrow background: https://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
-            //events that get rid of tooltip: keydown, click
-            //also add timeout
-            return false;
-       }
-    });
-    $('#btn-search').mouseenter(function() {
-       $(this).css({'background-color': 'white'});
-    });
-    $('.nav-a').css({'height': '56px', 'display': 'table-cell', 'vertical-align': 'middle'});
-    $('.dropdown').mouseenter(function() {
-        $(this).addClass('open');
-        $(this).find('a').first().attr('aria-expanded', false);
-        $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
-        if (!isGuest) {
-            $('#ul-logout').width($('#ul-logout').parent().width());
-        }
-        $(this).find('ul').find('a').mouseenter(function() {
-           $(this).css({'background-color': '#32a232', 'color': 'white'});
-           $(this).parent().css({'background-color': '#32a232'});
-           $(this).mouseleave(function() {
-               $(this).css({'background-color': 'white', 'color': '#32a232'});
-               $(this).parent().css({'background-color': 'white'});
-           });
-        });
-        $(this).mouseleave(function() {
-            $(this).removeClass('open');
-            $(this).find('a').first().attr('aria-expanded', true);
-            $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
-            $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
-        });
-    });
+    createSearchEventHandlers();    
+    createNavbarEventHandlers();    
     if (path === '/') {
         readyTable1();
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
@@ -110,10 +75,7 @@ $(document).ready(function() {
         });
     }
     else if (path === '/ratable/create/new' || path === '/ratable/create/new/post') {
-        /*$.post('/ratable/create/new', function(json) {
-            $('#content-container').before('<div>' + JSON.stringify(json) + '</div>');
-            $('#content-container').remove();
-        });*/
+        //
     }
     else {
         var pleaseLoginTooltip = '';
@@ -258,7 +220,7 @@ function createRows(settings) {
             var i;
             if (searchJson.length) {
                 for (i = 0; i < searchJson.length; i++) {
-                    $.getJSON('table?id=' + searchJson[i].id, function(resultJson) {
+                    $.getJSON('table/' + searchJson[i].id + '/0', function(resultJson) {
                         createTr(resultJson);
                         k++;
                         if (k === (searchJson.length)) {
@@ -277,17 +239,21 @@ function createRows(settings) {
 function createTr(json) {
     var pleaseLoginTooltip = '';
     var anonymousIcon = '';
+    var secretEmpty = '';
     var mapMarker = '';
     var contents = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
     if (isGuest) {
         pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
-    if (json['isAnonymous']) {
-        anonymousIcon = '<i class="fa fa-user-secret"></i>';
+    if (!json['isAnonymous']) {
+        secretEmpty = ' secret-empty';
     }
-    else {
-        anonymousIcon = '<i class="fa fa-user-secret secret-empty"></i>';
-    }
+    anonymousIcon = '<form class="anon-form" name="anon-form" method="post">' +
+                        '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                        '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
+                        '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
+                    '</form>' +
+                    '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
     if (json['region'].length) {
         mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(feature coming soon)<br>(located in ' + json['region'] + ')"></i>';
     }
@@ -364,7 +330,9 @@ function createFiveStars(json) {
         }
         html += '<form class="star-btn-form" name="star-form" method="post">' +
                     '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
-                    '<input name="ratable" value="' + json['name'] + '"/><input name="rating" value="' + i + '" />' +
+                    '<input type="hidden" name="ratable" value="' + json['name'] + '"/>' +
+                    '<input type="hidden" name="rating" value="' + i + '"/>' +
+                    '<input type="hidden" name="anonymous" value="' + json['isAnonymous'].toString() + '"/>' +
                     '<button class="poly-star-btn">' +
                         '<svg width="40" height="40" viewBox="0 0 262 250" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
                             '<defs>' +
@@ -464,12 +432,21 @@ function getAsyncFormSubmits() {
 }
 
 function createIconEvents() {
+    $('#table-1').on('submit', '.anon-form', function() {
+        if ($(this).closest('tr').find('.star-btn-form').first().find('polygon').attr('fill') === "red") {
+            var id = $(this).find('input[name="id"]').val().toString();
+            $.post('anonymous/' + id, $(this).serialize(), function(res) {
+                console.log(res);
+            });
+        }
+        return false;
+    });
     $('#table-1').on('mouseenter', '.fa-user-secret', function() {
        $(this).addClass('fa-2x');
        $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
        $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
        if (!$(this).attr('data-toggle')) {
-           $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'data-html': true, 'title': "(feature comming soon)<br>rate this anonymously"});
+           $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'data-html': true, 'title': "rate this anonymously"});
        }
        $(this).tooltip({container: 'body'});
        $(this).tooltip('show');
@@ -480,10 +457,17 @@ function createIconEvents() {
        }); 
     });
     $('#table-1').on('click', '.fa-user-secret', function() {
+       var isAnonymous = false;
        $(this).toggleClass('secret-empty');
-       //have rating post check secret empty before post
-       //if polygon zero filled red, then...
-       //post anonymous to rating
+       if (!isGuest) {
+            if (!$(this).hasClass('secret-empty')) {
+                isAnonymous = true;
+            }
+            $(this).siblings('.anon-form').find('input[name="anonymous"]').val(isAnonymous.toString());
+            $(this).closest('tr').find('.star-btn-form input[name="anonymous"]').val(isAnonymous.toString());
+            $(this).siblings('.anon-form').trigger('submit');            
+       }
+       return false;       
     });
     $('#table-1').on('mouseenter', '.fa-map-marker', function() {
        $(this).addClass('fa-2x');
@@ -535,5 +519,48 @@ function createBtnEvents() {
         }
         $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
         $('#add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    });
+}
+
+function createSearchEventHandlers() {
+    $('#div-form-search form').submit(function() {
+       if (!$(this).find('#search-box').val().length) {
+            /*$(this).find('#search-box').attr({ 'data-toggle': "tooltip", 'data-placement': "bottom", 'title': "Please fill out first."});
+            $(this).find('#search-box').tooltip({container: 'body', trigger: 'manual'});
+            $(this).find('#search-box').tooltip('show');*/
+            //go here to fix arrow background: https://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
+            //events that get rid of tooltip: keydown, click
+            //also add timeout
+            return false;
+       }
+    });
+    $('#btn-search').mouseenter(function() {
+       $(this).css({'background-color': 'white'});
+    });
+}
+
+function createNavbarEventHandlers() {
+    $('.nav-a').css({'height': '56px', 'display': 'table-cell', 'vertical-align': 'middle'});
+    $('.dropdown').mouseenter(function() {
+        $(this).addClass('open');
+        $(this).find('a').first().attr('aria-expanded', false);
+        $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
+        if (!isGuest) {
+            $('#ul-logout').width($('#ul-logout').parent().width());
+        }
+        $(this).find('ul').find('a').mouseenter(function() {
+           $(this).css({'background-color': '#32a232', 'color': 'white'});
+           $(this).parent().css({'background-color': '#32a232'});
+           $(this).mouseleave(function() {
+               $(this).css({'background-color': 'white', 'color': '#32a232'});
+               $(this).parent().css({'background-color': 'white'});
+           });
+        });
+        $(this).mouseleave(function() {
+            $(this).removeClass('open');
+            $(this).find('a').first().attr('aria-expanded', true);
+            $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
+            $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
+        });
     });
 }

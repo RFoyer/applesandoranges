@@ -74,7 +74,7 @@
                                     <a class="nav-a" style="color:#32a232;" href="{{ url('/proposed') }}">Proposed Ratables</a>
                                 </li>
                                 <li>
-                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/ratable/create/new') }}">New Ratable Request</a>
+                                    <a class="nav-a" style="color:#32a232;" href="{{ url('/ratable/create/new') }}">Request New Ratable</a>
                                 </li>
                                 <li>
                                     <a class="nav-a" style="color:#32a232;" href="{{ url('/contributors') }}">Top Contributors</a>

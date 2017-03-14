@@ -43,4 +43,6 @@ Route::get('contributors', "ContributorsController@index");
 
 Route::get('contributors/retrieve/{skip}', "ContributorsController@show");
 
+Route::post('anonymous/{id}', "RatingController@update");
+
 Route::get('{path}', "RatableController@index");
