@@ -1,5 +1,5 @@
 var isGuest = false;
-var rowInd = 1; // change to skipAmount
+var rowInd = 0; // change to skipAmount
 var detachedRows = [];
 var detachedRowsIndex = 0;
 var noMoreRows = false;
@@ -7,6 +7,9 @@ var detachedMoreBtn;
 var detachedSpinner;
 var gradId = 0;
 var isFirstRow = true;
+var borderTopColor = 'orange';
+var avgStarColor = 'orange';
+var avgStarFadedColor = '#FED8B1';
 
 $(document).ready(function() {
     var path = location.pathname;
@@ -19,10 +22,21 @@ $(document).ready(function() {
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         createRows({'length': 10, 'path': 'master'});
-        createBtnEvents();        
+        createBtnEvents();
+        $('#table-1').prepend('<caption>THINGS TO RATE</caption>');
     }
     else if (path === '/proposed') {
-        $('#things-to-rate-body').before('<div>this feature coming soon!</div>');
+        readyTable1();
+        $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
+        $('.spinner').css({'color': 'green'});
+        $('#add-rows-btn').button({disabled: true}).css({'border-color': 'green', 'color': 'green'});
+        borderTopColor = 'green';
+        avgStarColor = 'green';
+        avgStarFadedColor = '#90EE90';
+        createRows({'length': 10, 'path': 'proposed'});
+        createBtnEvents();
+        $('#table-1').prepend('<caption>PROPOSED RATABLES (APPROVAL PENDING)</caption>');
+        //css
     }
     else if (path === '/login' || path === '/register') {
         
@@ -74,49 +88,89 @@ $(document).ready(function() {
             });            
         });
     }
-    else if (path === '/ratable/create/new' || path === '/ratable/create/new/post') {
-        //
+    else if (path === '/ratable/create' || path === '/ratable/create/post') {
+        
     }
     else {
+        readyTable1();
         var pleaseLoginTooltip = '';
         if (isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }    
         $('#ratings-data').append('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
-        $.getJSON('ratable?name=' + path.slice(1), function(json) {
-            var tableWidth;
+        $.getJSON('ratable/home/0?name=' + path.slice(1), function(json) {
+            var approvalPending = '';
+            var anonymousIcon = '';
+            var secretEmpty = '';
+            var mapMarkerTd = '<td id="td-map-marker" style="vertical-align:top;padding-left:2px;padding-right:2px;padding-top:14px;text-align:center;width:34px;"><i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(feature coming soon)<br>(located in ' + json['region'] + ')"></i></td>';
+            var eraserIcon = '';
+            if (!json['isAnonymous']) {
+                secretEmpty = ' secret-empty';
+            }
+            if (!isGuest) {
+                eraserIcon = '<form class="eraser-form" name="eraser-form" method="post">' +
+                                '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                                '<input type="hidden" name="id" value="' + json['id'] + '"/>' +                                
+                             '</form>' +
+                             '<i style="color:pink;" class="fa fa-eraser" data-toggle="tooltip" data-placement="top" title="delete your rating"></i>';
+            }
+            anonymousIcon = '<form class="anon-form" name="anon-form" method="post">' +
+                                '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                                '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
+                                '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
+                            '</form>' +
+                            '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
+            if (!json['isApproved']) {
+                approvalPending = '<strong><em>*approval is pending on this ratable</em></strong>';
+                avgStarColor = 'green';
+                avgStarFadedColor = '#90EE90';
+            }
             if (json['name']) {
-                $('#ratings-data').append('<div>' + 
-                        '<table id="table-1"><tr class="ratable-home-tr">' +
-                            '<td><div><img class="img-max-width" src="' + json['img_src'] + '"></div></td>' +
-                            '<td>' + 
-                                '<div>' +
-                                    '<table id="star-table">' +
-                                        '<th><h3>' + json['name'] + '</h3></th>' + 
-                                        '<tr>' +
-                                            '<td width="205" class="td-star"><div ' + pleaseLoginTooltip +'>' + createFiveStars(json) + '</div></td>' +
-                                            '<td>' +
-                                                '<div class="font-12px">' +
-                                                    '<span class="number-rating">' + json['rating'] + '/5 - </span>' + 
-                                                    '<span class="number-of-ratings">' + json['numberOfRatings'] + '</span><br>' +
-                                                '</div>' +
-                                            '</td>' +
-                                        '</tr>' +                                        
-                                    '</table>' +                                                                      
-                                '</div>' +                                
-                            '</td>' +                            
-                        '</tr></table>' +                                                
-                    '</div>'
+                $('#table-1 tbody').append('<tr class="ratable-home-tr">' +
+                                                '<td><div><img class="img-max-width" src="' + json['img_src'] + '"></div></td>' +
+                                                '<td>' + 
+                                                    '<div>' +
+                                                        '<table id="star-table">' +
+                                                            '<thead>' +
+                                                                '<tr><th colspan="5" style="padding-left:4px;"><h3>' + json['name'] + '</h3></th></tr>' +
+                                                                '<tr><th colspan="5">' + approvalPending + '</th></tr>' +
+                                                            '</thead>' +
+                                                            '<tbody>' +
+                                                                '<tr>' +
+                                                                    '<td class="td-star"><div style="width:205px;" ' + pleaseLoginTooltip +'>' + createFiveStars(json) + '</div></td>' +
+                                                                    '<td>' +
+                                                                        '<div class="font-12px">' +
+                                                                            '<span class="number-rating">' + json['rating'] + '/5 - </span>' + 
+                                                                            '<span class="number-of-ratings">' + json['numberOfRatings'] + '</span><br>' +
+                                                                        '</div>' +
+                                                                    '</td>' +
+                                                                    '<td style="vertical-align:top;padding-right:2px;padding-top:15px;text-align:center;width:34px;">' + anonymousIcon + '</td>' +
+                                                                    mapMarkerTd +
+                                                                    '<td style="vertical-align:top;padding-left:2px;padding-right:2px;padding-top:14px;text-align:center;width:34px;">' + eraserIcon + '</td>' +
+                                                                '</tr>' +
+                                                            '</tbody>' +
+                                                        '</table>' +                                                                      
+                                                    '</div>' +                                
+                                                '</td>' +                            
+                                            '</tr>'
                 );
-                tableWidth = $('#star-table').width();
-                $('#star-table').append('<tr><td colspan="2"><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>' +
-                        '<tr><td>' + json['region'] + '</td></tr>');
-                $('#star-table').css({'max-width': tableWidth});
+                $('#star-table thead').prepend('<tr><th width="205"></th><th></th><th></th><th></th><th></th></tr>');
+                $('#star-table tbody tr').first().find('td').each(function(i) {
+                    var width = $(this).outerWidth();
+                    $(this).innerWidth(width);
+                    $('#star-table thead tr').first().find('th').slice(i, i + 1).innerWidth(width);            
+                });
+                if (!json['region'].length) {
+                    $('#td-map-marker').remove();
+                }
+                $('#star-table').width($('#star-table').width());        
+                $('#star-table').css({'table-layout': 'fixed'});
+                                
+                $('#star-table').append('<tr><td><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>');
                 detachedSpinner = $('.spinner').detach();
                 if (pleaseLoginTooltip) {
                     $('[data-toggle="tooltip"]').tooltip();
                 }
-                readyTable1();
                 getReviews(json['name']);
             }            
         });
@@ -184,7 +238,7 @@ function createRows(settings) {
     var k = 0;
     if (settings.path !== 'autocomplete') {
         for (i = 0; i < settings.length; i++) {
-            $.getJSON('table/' + settings.path + '/' + rowInd.toString(), function(json) {
+            $.getJSON('ratable/' + settings.path + '/' + rowInd.toString(), function(json) {
                 k++;
                 if (json['name']) {
                     createTr(json);                    
@@ -220,7 +274,7 @@ function createRows(settings) {
             var i;
             if (searchJson.length) {
                 for (i = 0; i < searchJson.length; i++) {
-                    $.getJSON('table/' + searchJson[i].id + '/0', function(resultJson) {
+                    $.getJSON('ratable/search/0?id=' + searchJson[i].id.toString(), function(resultJson) {
                         createTr(resultJson);
                         k++;
                         if (k === (searchJson.length)) {
@@ -261,12 +315,14 @@ function createTr(json) {
         contents = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
     }
     $('#things-to-rate-body').append(
-        '<tr class="ratable-tr"><td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
-        '<td>' + contents + '</td>' + 
-        '<td class="td-star"><div style="width:205px;" class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
-        '<td style="padding-top:10px;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
-        '<td style="padding-top:10px;">' + anonymousIcon + '</td>' +
-        '<td style="padding-top:8px;">' + mapMarker + '</td></tr>'
+        '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
+            '<td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
+            '<td>' + contents + '</td>' + 
+            '<td class="td-star"><div style="width:205px;" class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
+            '<td style="padding-top:10px;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
+            '<td style="padding-right:2px;padding-top:10px;text-align:center;width:34px;">' + anonymousIcon + '</td>' +
+            '<td style="padding-left:2px;padding-right:2px;padding-top:9px;text-align:center;width:34px;">' + mapMarker + '</td>' +
+        '</tr>'
     );
     $('#tr-add-rows').appendTo('#things-to-rate-body');
     if (isFirstRow) {
@@ -286,7 +342,6 @@ function createTr(json) {
             $('#table-1 .ratable-tr td').last().empty();
         }        
         $('#table-1 .ratable-tr td').first().next().html('<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>');
-        $('#table-1').prepend('<caption>THINGS TO RATE</caption>');
         $('#table-1 th').css({'padding-bottom': '10px'});
     }    
     $('[data-toggle="tooltip"]').tooltip({containter: 'body', html: true})
@@ -303,15 +358,15 @@ function createFiveStars(json) {
     var ratingFloor = Math.floor(parseFloat(json['rating']));
     for (i = 0; i < 5; i++) {
         if ((i < json['userRating']) && (i < ratingFloor)) {
-            stroke = 'orange';
+            stroke = avgStarColor;
             starFill = 'red';
         }
         else if (i < ratingFloor) {
-            stroke = 'orange';
-            starFill = 'orange';
+            stroke = avgStarColor;
+            starFill = avgStarColor;
         }
         else if ((i < json['userRating']) && (!fraction)) {
-            stroke = '#FED8B1';
+            stroke = avgStarFadedColor;
             starFill = 'red';
         }
         else if ((i < json['userRating']) && fraction && (i === ratingFloor)) {
@@ -325,7 +380,7 @@ function createFiveStars(json) {
             starFill = "url(#fill-grad-" + gradId.toString() + ")";            
         }
         else {
-            stroke = '#FED8B1';
+            stroke = avgStarFadedColor;
             starFill = 'white';
         }
         html += '<form class="star-btn-form" name="star-form" method="post">' +
@@ -338,14 +393,14 @@ function createFiveStars(json) {
                             '<defs>' +
                                 '<linearGradient id="fill-grad-' + gradId.toString() + '" class="fill">' +
                                     '<stop offset="0%" stop-color="orange" />' +
-                                    '<stop offset="' + offset + '" stop-color="orange" />' +
+                                    '<stop offset="' + offset + '" stop-color="' + avgStarColor + '" />' +
                                     '<stop offset="' + offset + '" stop-color="white" />' +
                                     '<stop offset="100%" stop-color="white" />' +
                                 '</linearGradient>' +
                                 '<linearGradient id="stroke-grad-' + gradId.toString() + '" class="stroke">' +
                                     '<stop offset="0%" stop-color="orange" />' +
-                                    '<stop offset="' + offset + '" stop-color="orange" />' +
-                                    '<stop offset="' + offset + '" stop-color="#FED8B1" />' +
+                                    '<stop offset="' + offset + '" stop-color="' + avgStarColor + '" />' +
+                                    '<stop offset="' + offset + '" stop-color="' + avgStarFadedColor + '" />' +
                                     '<stop offset="100%" stop-color="#FED8B1" />' +
                                 '</linearGradient>' +
                             '</defs>' +
@@ -421,7 +476,7 @@ function createStarEvents() {
 }
 
 function getAsyncFormSubmits() {
-    $('#table-1').on('submit', 'form', function(){
+    $('#table-1').on('submit', '.star-btn-form', function(){
         if (!isGuest) {
             $.post("/", $(this).serialize(), function(res) {
             console.log(res);
@@ -435,11 +490,37 @@ function createIconEvents() {
     $('#table-1').on('submit', '.anon-form', function() {
         if ($(this).closest('tr').find('.star-btn-form').first().find('polygon').attr('fill') === "red") {
             var id = $(this).find('input[name="id"]').val().toString();
-            $.post('anonymous/' + id, $(this).serialize(), function(res) {
+            $.post('rating/' + id, $(this).serialize(), function(res) {
                 console.log(res);
             });
         }
         return false;
+    });
+    $('#table-1').on('submit', '.eraser-form', function() {
+        if ($(this).closest('tr').find('.star-btn-form').first().find('polygon').attr('fill') === "red") {
+            $(this).closest('tr').find('.star-btn-form').find('polygon').attr('fill', 'white');
+            var id = $(this).find('input[name="id"]').val().toString();
+            $.ajax('rating/destroy/' + id, {data: $(this).serialize(), method: "DELETE"}); 
+        }
+        return false;
+    });
+    $('#table-1').on('mouseenter', '.fa-eraser', function() {
+       $(this).addClass('fa-2x');
+       $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
+       $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
+       $(this).tooltip({container: 'body'});
+       $(this).tooltip('show');
+       $(this).mouseleave(function() {
+          $(this).removeClass('fa-2x');
+          $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
+          $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
+       }); 
+    });
+    $('#table-1').on('click', '.fa-eraser', function() {
+       if (!isGuest) {
+            $(this).siblings('.eraser-form').trigger('submit');            
+       }
+       return false;       
     });
     $('#table-1').on('mouseenter', '.fa-user-secret', function() {
        $(this).addClass('fa-2x');

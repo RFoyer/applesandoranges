@@ -23,15 +23,13 @@ Route::get('search', 'SearchFormSubmitController@show');
 
 Route::get('autocomplete', 'SearchAutocompleteController@show');
 
-Route::get('table/{table}/{skip}', 'TableDataController@show');
+Route::get('ratable/create', 'RatableController@create');
+
+Route::post('ratable/create/success', 'RatableController@store');
+
+Route::get('ratable/{table}/{skip}', 'RatableController@show');
 
 //Route::get('admin', function(){return view('home');});
-
-Route::get('ratable', 'RatableController@show');
-
-Route::get('ratable/create/new', 'RatableController@create');
-
-Route::post('ratable/create/new/post', 'RatableController@store');
 
 Route::get('proposed', 'HomeController@index');
 
@@ -43,6 +41,8 @@ Route::get('contributors', "ContributorsController@index");
 
 Route::get('contributors/retrieve/{skip}', "ContributorsController@show");
 
-Route::post('anonymous/{id}', "RatingController@update");
+Route::delete('rating/destroy/{id}', "RatingController@destroy");
+
+Route::post('rating/{id}', "RatingController@update");
 
 Route::get('{path}', "RatableController@index");

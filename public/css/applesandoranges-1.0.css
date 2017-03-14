@@ -98,8 +98,15 @@ form[name="star-form"] {
 .ratable-tr {
     border-top-style: solid;
     border-top-width: thin;
-    border-top-color: orange;
     vertical-align: top;
+}
+
+.border-top-orange {
+    border-top-color: orange;
+}
+
+.border-top-green {
+    border-top-color: green;
 }
 
 td {
@@ -108,11 +115,6 @@ td {
 
 .ratable-home-tr {
     vertical-align: top;
-}
-
-#ratings-data td {
-    padding-left: 0px;
-    padding-top: 0px;
 }
 
 .spinner {
@@ -143,7 +145,7 @@ svg {
 }
 
 .align-justify {
-    text-align: justify;
+    /*text-align: justify;*/
     margin-top: -8px;
 }
 
