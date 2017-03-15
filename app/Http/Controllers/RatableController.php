@@ -48,7 +48,7 @@ class RatableController extends Controller
             'desc' => 'required|max:450'
         ]);
         
-        if (!Auth::guest()) {
+        if (Auth::check()) {
             $ratable = new Ratable;
             $ratable->name = $request->name;
             if (!empty($request->location)) {

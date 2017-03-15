@@ -5,6 +5,7 @@ var detachedRowsIndex = 0;
 var noMoreRows = false;
 var detachedMoreBtn;
 var detachedSpinner;
+var detachedReviewForm;
 var gradId = 0;
 var isFirstRow = true;
 var borderTopColor = 'orange';
@@ -206,11 +207,34 @@ function createUserDataRows(json) {
 }
 
 function getReviews(ratableName) {
-    $('#ratings-data').append(detachedSpinner).after('<br>Reviews:<br>' + '<textarea rows="2" cols="50" placeholder="review ' + ratableName + '...(review feature coming soon)"></textarea>');
-    /*$.getJSON('reviews?name=' + ratableName, function(json) {
-        
-    });*/
-    detachedSpinner = $('.spinner').detach();
+    $('#reviews-data').before(detachedSpinner);
+    $('#table-2').prepend('<caption>Reviews:</caption>');
+    $('.review-form').append('<input type="hidden" name="ratable" value="' + ratableName + '">');
+    $('.review-form').append('<input type="hidden" name="anonymous" value="false">');
+    if (!isGuest) {
+        detachedReviewForm = $('.review-form').detach();
+        $.getJSON('review', {'ratable': ratableName, 'userId': "useAuthId", 'skip': 0 }, function(json) {
+            if (!json['review']) {
+                $('#td-review').append(detachedReviewForm);
+            }
+            else {
+                $('#td-review').append('<strong>' + json['headline'] + '</strong><br>By <a href="#">' + json['user'] + '</a> on ' + json['date'] + '<br><br>' + json['review']);
+                $('#table-2 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
+            }
+            detachedSpinner = $('.spinner').detach();
+        });
+    }
+    else {
+        detachedSpinner = $('.spinner').detach();
+    }
+    
+    //add anonymous icon
+    $('#table-2').on('focus', 'textarea', function() {
+       $(this).attr('rows', '10'); 
+    });
+    $('#table-2').on('blur', 'textarea', function() {
+       $(this).attr('rows', '2'); 
+    });    
 }
 
 function setIsGuest() {
@@ -478,7 +502,7 @@ function createStarEvents() {
 function getAsyncFormSubmits() {
     $('#table-1').on('submit', '.star-btn-form', function(){
         if (!isGuest) {
-            $.post("/", $(this).serialize(), function(res) {
+            $.post("rating", $(this).serialize(), function(res) {
             console.log(res);
             });
         }

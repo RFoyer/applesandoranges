@@ -13,9 +13,21 @@
 
 Route::get('/', 'HomeController@index');
 
-Route::post('/', 'RatingController@store');
+Route::get('rating/{id}/{skip}', "RatingController@show");
+
+Route::post('rating', 'RatingController@store');
+
+Route::post('rating/{id}', "RatingController@update");
+
+Route::delete('rating/destroy/{id}', "RatingController@destroy");
+
+Route::get('review', 'ReviewController@show');
 
 Route::post('review', 'ReviewController@store');
+
+Route::post('review/{id}', "ReviewController@update");
+
+Route::delete('review/destroy/{id}', "ReviewController@destroy");
 
 Auth::routes();
 
@@ -40,9 +52,5 @@ Route::get('user/userdata/{id}', 'UserController@show');
 Route::get('contributors', "ContributorsController@index");
 
 Route::get('contributors/retrieve/{skip}', "ContributorsController@show");
-
-Route::delete('rating/destroy/{id}', "RatingController@destroy");
-
-Route::post('rating/{id}', "RatingController@update");
 
 Route::get('{path}', "RatableController@index");

@@ -47,22 +47,20 @@ class RatingController extends Controller
             if ($request->input('anonymous') === "true") {
                 $newAnonymous = true;
             }
-            $ratableID = Ratable::where('name', $ratable)->value('id');
+            $ratableId = Ratable::where('name', $ratable)->value('id');
             $rtg = Rating::where([
                 ['user_id', '=', Auth::id()],
-                ['ratable_id', '=', $ratableID]
+                ['ratable_id', '=', $ratableId]
                 ])->first();
             if ($rtg) {
-                if ($rtg->rating !== $newRating) {
-                    $rtg->rating = $newRating;                    
+                if (($rtg->rating !== $newRating) || ($rtg->anonymous !== $newAnonymous)) {
+                    $this->update($request, $ratableId);                  
                 }
-                $rtg->anonymous = $newAnonymous;
-                $rtg->save();
             }
             else {
                 $rtg = new Rating;
                 $rtg->user_id = Auth::id();
-                $rtg->ratable_id = $ratableID;
+                $rtg->ratable_id = $ratableId;
                 $rtg->anonymous = $newAnonymous;
                 $rtg->rating = $newRating;
                 $rtg->save();
@@ -76,9 +74,14 @@ class RatingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, $skip)
     {
-        //
+        if ((int)$id !== 0) {
+            //get specific
+        }
+        else {
+            //take 1 with skip
+        }
     }
 
     /**
@@ -99,19 +102,32 @@ class RatingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $ratableId)
     {
         if (Auth::check()) {
             $rating = Rating::where([
                 ['user_id', '=', Auth::id()],
-                ['ratable_id', '=', (int)$id]
-            ])->first();
-            $anonymous = false;
-            if ($request->input('anonymous') === "true") {
-                $anonymous = true;
+                ['ratable_id', '=', $ratableId]
+                ])->first();
+            if ($rating) {
+                if ($request->input('rating')) {
+                    $rating->rating = $request->input('rating');
+                    $anonymous = false;
+                    if ($request->input('anonymous') === "true") {
+                        $anonymous = true;
+                    }
+                    $rating->anonymous = $anonymous;
+                    $rating->save();
+                }
+                else if ($request->input('anonymous')) {
+                    $anonymous = false;
+                    if ($request->input('anonymous') === "true") {
+                        $anonymous = true;
+                    }
+                    $rating->anonymous = $anonymous;
+                    $rating->save();
+                }
             }
-            $rating->anonymous = $anonymous;
-            $rating->save();
         }
     }
 

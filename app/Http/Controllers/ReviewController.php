@@ -41,27 +41,33 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'review' => 'required|max:4500',
+            'headline' => 'max:100'
+        ]);
+        
         if (Auth::check()) {
-            $ratable = $request->input('ratable');
             $newReview = $request->input('review');
-            $ratableID = Review::where('name', $ratable)->value('id');
-            $rvw = Review::where([
+            $isAnonymous = $request->input('anonymous');
+            $newHeadline = $request->input('headline');
+            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
+            $oldReview = Review::where([
                 ['user_id', '=', Auth::id()],
-                ['ratable_id', '=', $ratableID]
+                ['ratable_id', '=', $ratableId]
                 ])->first();
-            if ($rvw) {
-                if ($rvw->review !== $newReview) {
-                    $rvw->review = $newReview;
-                    $rvw->save();
-                }
+            if ($oldReview) {
+                if (($oldReview->review !== $newReview) || ($oldReview->headline !== $newHeadline)) {
+                    $this->update($request, $ratableId);
+                }                
             }
             else {
-                $rvw = new Review;
-                $rvw->user_id = Auth::id();
-                $rvw->ratable_id = $ratableID;
-                $rvw->anonymous = false;
-                $rvw->review = $newReview;
-                $rvw->save();
+                $review = new Review;
+                $review->user_id = Auth::id();
+                $review->ratable_id = $ratableId;
+                $review->anonymous = $isAnonymous;
+                $review->headline = $newHeadline;
+                $review->review = $newReview;
+                $review->save();
             }            
         }
     }
@@ -72,9 +78,26 @@ class ReviewController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $data = [];
+        if ($request->input('userId') === 'useAuthId') {
+            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
+            $review = Review::where([
+                ['user_id', '=', Auth::id()],
+                ['ratable_id', '=', $ratableId]
+            ])->first();
+            if ($review) {
+                $data = ['review' => $review->review, 'headline' => $review->headline, 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at))];
+            }
+        }
+        else if ($request->input('userId') === 'useSkip') {
+            ////take 1 with skip
+        }
+        else {
+            //get specific userId review
+        }
+        return response()->json($data);
     }
 
     /**
@@ -95,9 +118,34 @@ class ReviewController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $ratableId)
     {
-        //
+        if (Auth::check()) {
+            $review = Review::where([
+                ['user_id', '=', Auth::id()],
+                ['ratable_id', '=', $ratableId]
+                ])->first();
+            if ($review) {
+                if ($request->input('review')) {
+                    $review->review = $request->input('review');
+                    $anonymous = false;
+                    if ($request->input('anonymous') === "true") {
+                        $anonymous = true;
+                    }
+                    $review->anonymous = $anonymous;
+                    $review->headline = $request->input('headline');
+                    $review->save();
+                }
+                else if ($request->input('anonymous')) {
+                    $anonymous = false;
+                    if ($request->input('anonymous') === "true") {
+                        $anonymous = true;
+                    }
+                    $review->anonymous = $anonymous;
+                    $review->save();
+                }
+            }
+        }
     }
 
     /**
@@ -108,6 +156,14 @@ class ReviewController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if (Auth::check()) {
+            $review = Review::where([
+                ['user_id', '=', Auth::id()],
+                ['ratable_id', '=', (int)$id]
+            ])->first();
+            if ($review) {
+                $review->delete();
+            }
+        }
     }
 }
