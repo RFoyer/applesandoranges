@@ -218,8 +218,9 @@ function getReviews(ratableName) {
                 $('#td-review').append(detachedReviewForm);
             }
             else {
-                $('#td-review').append('<strong>' + json['headline'] + '</strong><br>By <a href="#">' + json['user'] + '</a> on ' + json['date'] + '<br><br>' + json['review']);
+                $('#td-review').append('<div style="display:table;margin-bottom:-6px">' + createSmallReadOnlyStars(json['rating']) + ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong></div><div style="padding-left:4px;">By <a href="#">' + json['user'] + '</a> on ' + json['date'] + '</div><div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>');
                 $('#table-2 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
+                $('#table-2 svg').css({'padding': '2px'});
             }
             detachedSpinner = $('.spinner').detach();
         });
@@ -235,6 +236,30 @@ function getReviews(ratableName) {
     $('#table-2').on('blur', 'textarea', function() {
        $(this).attr('rows', '2'); 
     });    
+}
+
+function createSmallReadOnlyStars(rating) {
+    var html = '';
+    var i;
+    var starFill;
+    var stroke;
+    for (i = 0; i < 5; i++) {
+        if (rating > i) {
+            starFill = 'red';
+            stroke = 'red';
+        }
+        else {
+            starFill = 'white';
+            stroke = 'red';
+        }
+        html += '<span>' +
+                    '<svg width="22" height="22" viewBox="0 0 262 250" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
+                           '<polygon class="polygon-' + i + '" fill="' + starFill + '" stroke="' + stroke + '" stroke-width="20"'  +
+                            'points="123,4 152,90 242,90 170,144 196,230 123,179 50,230 76,144 4,90 94,90" />' +
+                        '</svg>' + 
+                '</span>';
+    }
+    return html;
 }
 
 function setIsGuest() {

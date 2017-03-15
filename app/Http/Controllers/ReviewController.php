@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Ratable;
 use App\User;
 use App\Review;
+use App\Rating;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -88,7 +89,22 @@ class ReviewController extends Controller
                 ['ratable_id', '=', $ratableId]
             ])->first();
             if ($review) {
-                $data = ['review' => $review->review, 'headline' => $review->headline, 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at))];
+                $rating = Rating::where([
+                    ['user_id', '=', Auth::id()],
+                    ['ratable_id', '=', $ratableId]
+                ])->first();
+                if ($rating) {
+                    if (!$rating->anonymous) {
+                        $rating = $rating->rating;
+                    }
+                    else {
+                        $rating = 0;
+                    }
+                }
+                else {
+                    $rating = 0;
+                }
+                $data = ['review' => $review->review, 'headline' => $review->headline, 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
             }
         }
         else if ($request->input('userId') === 'useSkip') {

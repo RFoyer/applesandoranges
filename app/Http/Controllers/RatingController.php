@@ -111,7 +111,7 @@ class RatingController extends Controller
                 ])->first();
             if ($rating) {
                 if ($request->input('rating')) {
-                    $rating->rating = $request->input('rating');
+                    $rating->rating = $request->input('rating') + 1;
                     $anonymous = false;
                     if ($request->input('anonymous') === "true") {
                         $anonymous = true;
