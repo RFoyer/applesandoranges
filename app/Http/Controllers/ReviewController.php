@@ -108,10 +108,48 @@ class ReviewController extends Controller
             }
         }
         else if ($request->input('userId') === 'useSkip') {
-            ////take 1 with skip
+            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
+            $review = Review::where('ratable_id', $ratableId)->skip($request->input('skip'))->first();
+            if ($review) {
+                if ($review->anonymous) {
+                    $user = "";
+                }
+                else {
+                    $user = User::where('id', $review->user_id)->value('name');
+                }
+                $rating = Rating::where([
+                    ['user_id', '=', $review->user_id],
+                    ['ratable_id', '=', $ratableId],
+                    ['anonymous', '=', false]
+                ])->first();
+                if ($rating) {
+                    $rating = $rating->rating;
+                }
+                else {
+                    $rating = 0;
+                }
+                $data = ['review' => $review->review, 'headline' => $review->headline, 'user' => $user, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+            }
         }
         else {
-            //get specific userId review
+            $review = Review::where([
+                ['user_id', '=', (int)$request->input('userId')],
+                ['anonymous', '=', false]
+            ])->skip($request->input('skip'))->first();
+            if ($review) {
+                $rating = Rating::where([
+                    ['user_id', '=', $review->user_id],
+                    ['ratable_id', '=', $review->ratable_id],
+                    ['anonymous', '=', false]
+                ])->first();
+                if ($rating) {
+                    $rating = $rating->rating;
+                }
+                else {
+                    $rating = 0;
+                }
+                $data = ['review' => $review->review, 'headline' => $review->headline, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+            }
         }
         return response()->json($data);
     }

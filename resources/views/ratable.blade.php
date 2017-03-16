@@ -26,7 +26,7 @@
             <table id='table-2' class='user'>
                 <thead></thead>
                 <tbody>
-                    <tr>
+                    <tr id="tr-review-form">
                         <td id='td-review'>
                             <form class="review-form" role="form" method="POST" action="{{ url('/review') }}">
                                 {{ csrf_field() }}
@@ -58,10 +58,13 @@
                                     <div>
                                         <button id="review-submit" type="submit" class="btn btn-primary">
                                             Submit
-                                        </button>
+                                        </button>                                        
                                     </div>
                                 </div>
                             </form>
+                        </td>
+                        <td style="width:34px;vertical-align:top;text-align:center;">
+                            <i style="padding-left:2px;text-align:center;" class="fa fa-user-secret secret-empty" ></i>
                         </td>
                     </tr>
                 </tbody>

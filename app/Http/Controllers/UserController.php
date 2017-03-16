@@ -30,7 +30,7 @@ class UserController extends Controller
                 $ratings[] = ['rating' => $r->rating, 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
             }
             foreach ($userReviews as $r) {
-                $reviews[] = ['review' => $r->review, 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
+                $reviews[] = ['review' => $r->review, 'headline' => $r->headline, 'date' => date('F j, Y', strtotime((string)$r->updated_at)), 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
             }
             $data = ['username' => $user->name, 'ratings' => $ratings, 'reviews' => $reviews];        
         }

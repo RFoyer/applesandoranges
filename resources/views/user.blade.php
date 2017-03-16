@@ -6,6 +6,14 @@
         <thead></thead>
         <tbody></tbody>
     </table>
+    <table id="ratings-data">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+    <table id="reviews-data">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
 </div>
 @endsection
 
