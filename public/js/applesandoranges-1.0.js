@@ -5,7 +5,6 @@ var detachedRowsIndex = 0;
 var noMoreRows = false;
 var detachedMoreBtn;
 var detachedSpinner;
-var detachedReviewForm;
 var gradId = 0;
 var isFirstRow = true;
 var borderTopColor = 'orange';
@@ -94,17 +93,18 @@ $(document).ready(function() {
         
     }
     else {
+        $('#tr-review-form').hide();
         readyTable1();
         var pleaseLoginTooltip = '';
         if (isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }    
-        $('#ratings-data').append('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
+        $('#reviews-data').after('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
         $.getJSON('ratable/home/0?name=' + path.slice(1), function(json) {
             var approvalPending = '';
             var anonymousIcon = '';
             var secretEmpty = '';
-            var mapMarkerTd = '<td id="td-map-marker" style="vertical-align:top;padding-left:2px;padding-right:2px;padding-top:14px;text-align:center;width:34px;"><i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(map feature coming soon)<br>(located in ' + json['region'] + ')"></i></td>';
+            var mapMarkerTd = '<td id="td-map-marker" style="vertical-align:top;padding-left:2px;padding-right:2px;padding-top:14px;text-align:center;width:34px;"><i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i></td>';
             var eraserIcon = '';
             if (!json['isAnonymous']) {
                 secretEmpty = ' secret-empty';
@@ -168,8 +168,7 @@ $(document).ready(function() {
                 $('#star-table').width($('#star-table').width());        
                 $('#star-table').css({'table-layout': 'fixed'});
                                 
-                $('#star-table').append('<tr><td><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>');
-                detachedSpinner = $('.spinner').detach();
+                $('#star-table').append('<tr><td><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>');                
                 if (pleaseLoginTooltip) {
                     $('[data-toggle="tooltip"]').tooltip();
                 }
@@ -182,13 +181,18 @@ $(document).ready(function() {
 function createUserDataRows(json) {
     var i;
     var length = 10;
+    var anonymousIcon = '';
     if (json.ratings.length < 10) {
         length = json.ratings.length;
     }
     for (i = 0; i < length; i++) {
         if (!json['ratings'][i]['anonymous']) {
-            $('#ratings-data tbody').append('<tr><td>' + createSmallReadOnlyStars(json['ratings'][i]['rating']) + '</td><td><a style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json['ratings'][i]['ratable'] + '">' + json['ratings'][i]['ratable'] + '</a></td></tr>');
+            anonymousIcon = '';
         }
+        else {
+            anonymousIcon = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous rating" style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
+        }
+        $('#ratings-data tbody').append('<tr><td>' + createSmallReadOnlyStars(json['ratings'][i]['rating']) + '</td><td><span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json['ratings'][i]['ratable'] + '">' + json['ratings'][i]['ratable'] + '</a>' + anonymousIcon + '</span></td></tr>');
     }
     $('#ratings-data svg').css({'padding': '2px'});
     //set table width
@@ -200,9 +204,17 @@ function createUserDataRows(json) {
             length = 10;
         }
         for (i = 0; i < length; i++) {
-            $('#reviews-data tbody').append('<tr><td><a href="/' + json['reviews'][i]['ratable'] + '">' + json['reviews'][i]['ratable'] + '</a>: ' + json['reviews'][i]['date'] + ' - ' + json['reviews'][i]['headline'] + ' - ' + json['reviews'][i]['review'] + '</td><tr>');
+            if (!json['reviews'][i]['anonymous']) {
+                anonymousIcon = '';
+            }
+            else {
+                anonymousIcon = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous review"></i>';
+            }
+            $('#reviews-data tbody').append('<tr><td>' + anonymousIcon + ' <a href="/' + json['reviews'][i]['ratable'] + '">' + json['reviews'][i]['ratable'] + '</a>: ' + json['reviews'][i]['date'] + ' - ' + json['reviews'][i]['headline'] + ' - ' + json['reviews'][i]['review'] + '</td><tr>');
         }
     }
+    $('.fa-user-secret').tooltip({container:'body'});
+    $('.fa-user-secret').tooltip();
     detachedSpinner = $('#tr-spinner').detach();
     $('#ratings-data tbody').append('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
     $('#reviews-data tbody').append('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
@@ -212,15 +224,25 @@ function createUserDataRows(json) {
 
 function getReviews(ratableName) {
     var i;
-    $('#reviews-data').before(detachedSpinner);
+    var jsonCount = 0;
     $('#table-2').prepend('<caption>Reviews:</caption>');
-    $('.review-form').append('<input type="hidden" name="ratable" value="' + ratableName + '">');
-    $('.review-form').append('<input type="hidden" name="anonymous" value="false">');
+    $('.review-form input[name="ratable"]').val(ratableName);
     if (!isGuest) {
-        detachedReviewForm = $('#tr-review-form').detach();
+        $('#tr-review-form').hide();
         $.getJSON('review', {'ratable': ratableName, 'userId': "useAuthId", 'skip': 0 }, function(json) {
             if (!json['review']) {
-                $('#table-2 tbody').prepend(detachedReviewForm);                
+                $('#tr-review-form').show();
+                $('#tr-review-form').show();
+                $('#table-2').on('submit', '.review-form', function() {
+                    if (!isGuest) {
+                        $.post("review", $(this).serialize(), function(res) {
+                            console.log(res);
+                        });
+                    }
+                    $('#tr-review-form').hide();
+                    $('#table-2 tbody').append('<tr><td style="color:green;"><i class="fa fa-check"></i> Your review has been submitted!</td></tr>');
+                    return false;
+                });
                 $('#table-2').on('mouseenter', '.fa-user-secret', function() {
                     $(this).addClass('fa-2x');
                     $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
@@ -248,22 +270,145 @@ function getReviews(ratableName) {
                     return false;       
                  });
             }
+            else {
+                $('#table-2 tbody').append('<tr class="user-review"><td><button class="btn btn-default">your review</button></td></tr>')
+                $('#table-2').on('click', '.user-review', function() {
+                    $(this).remove();
+                    $('#table-2 tbody').append('<tr><td>' +
+                            '<div style="display:table;margin-bottom:-6px">' + 
+                                createSmallReadOnlyStars(json['rating']) + 
+                                ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong>' +
+                                '<table><tr>' +
+                                    '<td style="padding:0px;padding-left:8px;">' +
+                                        '<i class="fa fa-pencil-square-o" style="color:blue;text-align:center;width:34px;" data-toggle="tooltip" data-placement="top" title="edit your review"></i>' +
+                                    '</td>' +
+                                    '<td style="padding:0px;">' +
+                                        '<form class="eraser-form" name="eraser-form" method="post">' +
+                                            '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                                            '<input type="hidden" name="ratable" value="' + ratableName + '"/>' +                                
+                                         '</form>' +
+                                        '<i class="fa fa-eraser" style="color:pink;text-align:center;width:34px;" data-toggle="tooltip" data-placement="top" title="clear your review"></i>' +
+                                    '</td></tr>' +
+                                '</table>' +
+                            '</div>' +
+                            '<div style="padding-left:4px;">By <a href="user/' + json['userId'] +'">' + json['user'] + '</a> on ' + json['date'] + '</div>' +
+                            '<div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +                            
+                        '</td></tr>'
+                    );
+                    $('#table-2 svg').css({'padding': '2px'});                    
+                    $('#table-2 i').tooltip({container: 'body'});
+                    $('#table-2 i').tooltip();
+                    $('#table-2').on('click', '.fa-pencil-square-o', function() {
+                        $('#table-2 i').tooltip('hide');
+                        $('#tr-review-form').next().remove();
+                        $('#tr-review-form').show();
+                        $('#table-2 textarea').val(json['review']);
+                        $('#table-2 input[name="headline"]').val(json['headline']);
+                        $('#table-2 input[name="anonymous"]').val(json['anonymous']);
+                        if (json['anonymous']) {
+                            $('#table-2 .fa-user-secret').removeClass('secret-empty');
+                        }
+                        else {
+                            $('#table-2 .fa-user-secret').addClass('secret-empty');
+                        }
+                        $('#table-2').on('submit', '.review-form', function() {
+                            if (!isGuest) {
+                                $.post("review", $(this).serialize(), function(res) {
+                                    console.log(res);
+                                });
+                            }
+                            $('#table-2 tbody').append('<tr><td>Your review has been submitted!</td></tr>');
+                            $('#tr-review-form').hide();                            
+                            return false;
+                        });
+                        $('#table-2').on('mouseenter', '.fa-user-secret', function() {
+                            $(this).addClass('fa-2x');
+                            $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
+                            $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
+                            if (!$(this).attr('data-toggle')) {
+                                $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "review this anonymously"});
+                            }
+                            $(this).tooltip({container: 'body'});
+                            $(this).tooltip('show');
+                            $(this).mouseleave(function() {
+                               $(this).removeClass('fa-2x');
+                               $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
+                               $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
+                            }); 
+                         });
+                         $('#table-2').on('click', '.fa-user-secret', function() {
+                            var isAnonymous = false;
+                            $(this).toggleClass('secret-empty');
+                            if (!isGuest) {
+                                 if (!$(this).hasClass('secret-empty')) {
+                                     isAnonymous = true;
+                                 }
+                                 $('.review-form').find('input[name="anonymous"]').val(isAnonymous.toString());            
+                            }
+                            return false;       
+                         });
+                    });
+                    $('#table-2').on('click', '.fa-eraser', function() {
+                        $('#table-2 i').tooltip('hide');
+                        $('#table-2').on('submit', '.eraser-form', function() {
+                            var id = $('#star-table').find('input[name="id"]').first().val().toString();
+                            $.ajax('review/destroy/' + id, {data: $(this).serialize(), method: "DELETE"}); 
+                            return false;
+                        });
+                        $('#table-2 .eraser-form').trigger('submit');
+                        $('#tr-review-form').hide();                        
+                        $('#table-2 tbody').append('<tr><td style="color:red;"><i class="fa fa-check"></i> Your review has been removed. <button class="btn btn-default undo">undo</button></td></tr>');
+                        $('#table-2').on('click', '.undo', function() {
+                            $('#tr-review-form').next().remove();
+                            $('#table-2 .review-form').find('textarea').first().html(json['review']);
+                            $('#table-2 .review-form input[name="headline"]').val(json['headline']);
+                            $('#table-2 .review-form input[name="anonymous"]').val(json['anonymous']);
+                            $('#table-2 .review-form input[name="ratable"]').val(ratableName);
+                            $('.review-form').on('submit', function() {
+                                $.post('review', $(this).serialize(), function(res) {
+                                    console.log(res);
+                                });
+                                return false;
+                            });
+                            $('.review-form').trigger('submit');
+                            $('#table-2 tbody').append('<tr><td style="color:green;"><i class="fa fa-check"></i> Your review has been restored.</td></tr>');
+                        })
+                    });
+                });
+            }
         });
     }
     for (i = 0; i < 10; i++) {
         $.getJSON('review?userId=useSkip&ratable=' + ratableName + '&skip=' + rowInd, function(json) {
             if (json['review']) {
-                $('#table-2 tbody').append('<tr><td>' +
-                            '<div style="display:table;margin-bottom:-6px">' + createSmallReadOnlyStars(json['rating']) + ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong></div><div style="padding-left:4px;">By <a href="#">' + json['user'] + '</a> on ' + json['date'] + '</div><div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +
+                if (!json['user']) {
+                    json['user'] = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous review"></i>'
+                }
+                else {
+                    json['user'] = '<a href="user/' + json['userId'] + '">' + json['user'] + '</a>';
+                }
+                $('#table-3 tbody').append('<tr><td>' +
+                            '<div style="display:table;margin-bottom:-6px">' + 
+                                createSmallReadOnlyStars(json['rating']) + 
+                                ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong>\n\
+                            </div>' +
+                            '<div style="padding-left:4px;">By ' + json['user'] + ' on ' + json['date'] + '</div>' +
+                            '<div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +
+                            '<div>Was this review helpful? <button class="btn btn-default">Yes</button><button class="btn btn-default" style="margin-left:4px;">No</button></div>' +
                         '</td></tr>'
                 );
+                $('#table-3 .fa-user-secret').tooltip({container: 'body'});
+                $('#table-3 .fa-user-secret').tooltip();
             }
-            $('#table-2 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
-            $('#table-2 svg').css({'padding': '2px'});                
+            $('#table-3 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
+            $('#table-3 svg').css({'padding': '2px'});
+            jsonCount++;
+            if (jsonCount === 10) {
+                detachedSpinner = $('.spinner').detach();
+            }
         });
         rowInd++;
-    }
-    detachedSpinner = $('.spinner').detach();
+    }    
     $('#table-2').on('focus', 'textarea', function() {
        $(this).attr('rows', '10');
        
@@ -390,7 +535,7 @@ function createTr(json) {
                     '</form>' +
                     '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
     if (json['region'].length) {
-        mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(feature coming soon)<br>(located in ' + json['region'] + ')"></i>';
+        mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
     }
     if (isFirstRow) {
         contents = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -410,7 +555,7 @@ function createTr(json) {
         isFirstRow = false;
         $('#table-1 thead').prepend('<tr><th></th><th></th><th></th><th></th><th></th><th></th></tr>');
         if (!mapMarker.length) {
-            $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="(feature coming soon)<br>see on map<br>(located in ' + json['region'] + ')"></i>');
+            $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>');
         }
         $('#table-1 .ratable-tr td').each(function(i) {
             var width = $(this).outerWidth();

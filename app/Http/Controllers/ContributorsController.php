@@ -10,6 +10,8 @@ use App\Rating;
 use App\Review;
 use App\Ratable;
 
+use Illuminate\Support\Facades\DB;
+
 class ContributorsController extends Controller
 {
     public function index() {
@@ -17,30 +19,26 @@ class ContributorsController extends Controller
     }
     
     public function show($skip) {        
-        $users = User::orderBy('name')->skip($skip)->take(10)->get();
+        $users = DB::table('ratings')->select(DB::raw('user_id, count(user_id) as user_count'))->groupBy('user_id')->orderBy('user_count', 'desc')->skip($skip)->take(10)->get();
+        //$users = Rating::groupBy('user_id')->havingRaw('COUNT(user_id)')->skip($skip)->take(10)->get();
         $data = [];
         foreach($users as $u) {
-            $numberOfRatings = Rating::where('user_id', $u->id)->count();
-            $numberOfReviews = Review::where('user_id', $u->id)->count();
-            $numberOfProposedRatables = Ratable::where('creator_id', $u->id)->count();
-            $numberOfApprovedRatables = Ratable::where('creator_id', $u->id)->where('approved', true)->count();
+            $user = User::where('id', $u->user_id)->first();
+            $numberOfRatings = Rating::where('user_id', $user->id)->count();
+            $numberOfReviews = Review::where('user_id', $user->id)->count();
+            $numberOfProposedRatables = Ratable::where('creator_id', $user->id)->count();
+            $numberOfApprovedRatables = Ratable::where('creator_id', $user->id)->where('approved', true)->count();
             //$numberOfPendingRatables = diff between last two
             //$numberOfRejectedRatables
-            array_push($data, ['name' => $u->name,
-                'email' => $u->email,
-                'id' => $u->id,
+            array_push($data, ['name' => $user->name,
+                'email' => $user->email,
+                'id' => $user->id,
                 'numberOfRatings' => (empty($numberOfRatings)) ? 0 : $numberOfRatings,
                 'numberOfReviews' => (empty($numberOfReviews)) ? 0 : $numberOfReviews,
                 'numberOfProposedRatables' => (empty($numberOfProposedRatables)) ? 0 : $numberOfProposedRatables,
                 'numberOfApprovedRatables' => (empty($numberOfApprovedRatables)) ? 0 : $numberOfApprovedRatables
             ]);
         }
-        usort($data, function($a, $b) {
-            if ($a['numberOfRatings'] === $b['numberOfRatings']) {
-                return 0;
-            }
-            return ($a['numberOfRatings'] > $b['numberOfRatings']) ? -1 : 1;
-        });
         return response()->json($data);
     }
 }

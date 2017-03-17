@@ -8,7 +8,7 @@ use App\User;
 use App\Review;
 use App\Rating;
 use App\Ratable;
-
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -17,13 +17,25 @@ class UserController extends Controller
     }
     
     public function show($id) {
-        $user = User::where('id', $id)->first();
+        $user = User::where('id', (int)$id)->first();
         $data = [];
         if ($user) {
             $userRatings = new Rating;
             $userReviews = new Review;
-            $userRatings = Rating::where('user_id', $id)->get();
-            $userReviews = Review::where('user_id', $id)->get();
+            if ((int)$id === Auth::id()) {
+                $userRatings = Rating::where('user_id', (int)$id)->get();
+                $userReviews = Review::where('user_id', (int)$id)->get();
+            }
+            else {
+                $userRatings = Rating::where([
+                    ['user_id', '=', (int)$id],
+                    ['anonymous', '=', false]
+                ])->get();
+                $userReviews = Review::where([
+                    ['user_id', '=', (int)$id],
+                    ['anonymous', '=', false]
+                ])->get();
+            }
             $ratings = [];
             $reviews = [];
             foreach ($userRatings as $r) {

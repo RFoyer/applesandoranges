@@ -57,9 +57,7 @@ class ReviewController extends Controller
                 ['ratable_id', '=', $ratableId]
                 ])->first();
             if ($oldReview) {
-                if (($oldReview->review !== $newReview) || ($oldReview->headline !== $newHeadline)) {
-                    $this->update($request, $ratableId);
-                }                
+                $this->update($request, $ratableId);               
             }
             else {
                 $review = new Review;
@@ -89,6 +87,12 @@ class ReviewController extends Controller
                 ['ratable_id', '=', $ratableId]
             ])->first();
             if ($review) {
+                if ($review->anonymous) {
+                    $anonymous = true;
+                }
+                else {
+                    $anonymous = false;
+                }
                 $rating = Rating::where([
                     ['user_id', '=', Auth::id()],
                     ['ratable_id', '=', $ratableId]
@@ -104,7 +108,7 @@ class ReviewController extends Controller
                 else {
                     $rating = 0;
                 }
-                $data = ['review' => $review->review, 'headline' => $review->headline, 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+                $data = ['review' => $review->review, 'anonymous' => $anonymous, 'headline' => $review->headline, 'userId' => Auth::id(), 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
             }
         }
         else if ($request->input('userId') === 'useSkip') {
@@ -113,9 +117,11 @@ class ReviewController extends Controller
             if ($review) {
                 if ($review->anonymous) {
                     $user = "";
+                    $userId = '';
                 }
                 else {
                     $user = User::where('id', $review->user_id)->value('name');
+                    $userId = $review->user_id;
                 }
                 $rating = Rating::where([
                     ['user_id', '=', $review->user_id],
@@ -128,7 +134,7 @@ class ReviewController extends Controller
                 else {
                     $rating = 0;
                 }
-                $data = ['review' => $review->review, 'headline' => $review->headline, 'user' => $user, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+                $data = ['review' => $review->review, 'headline' => $review->headline, 'userId' => $userId, 'user' => $user, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
             }
         }
         else {

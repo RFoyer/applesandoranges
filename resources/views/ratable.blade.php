@@ -14,6 +14,10 @@
                 <thead></thead>
                 <tbody><tr><td>Please <a href="{{ url('/login') }}">login</a> to write a review.</td></tr></tbody>
             </table>
+            <table id="table-3" class="guest">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
         </div>
     @else
         <div id='ratings-data' class="user">
@@ -53,6 +57,9 @@
                                         @endif
                                     </div>
                                 </div>
+                                
+                                <input type="hidden" name="ratable">
+                                <input type="hidden" name="anonymous" value="false">
 
                                 <div class="form-group">
                                     <div>
@@ -68,6 +75,10 @@
                         </td>
                     </tr>
                 </tbody>
+            </table>
+            <table id="table-3">
+                <thead></thead>
+                <tbody></tbody>
             </table>
         </div>
     @endif
