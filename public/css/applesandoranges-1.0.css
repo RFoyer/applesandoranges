@@ -247,3 +247,7 @@ caption {
     text-align: left;
     font-weight: bold;
 }
+
+.fa {
+    cursor: pointer;
+}
