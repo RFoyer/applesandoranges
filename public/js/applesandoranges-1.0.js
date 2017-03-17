@@ -12,6 +12,9 @@ var avgStarColor = 'orange';
 var avgStarFadedColor = '#FED8B1';
 
 $(document).ready(function() {
+    if (window.innerWidth <= 800) {
+        $('#body').css({'width': '100%'});
+    }
     var path = location.pathname;
     setIsGuest();
     createAutocomplete();
