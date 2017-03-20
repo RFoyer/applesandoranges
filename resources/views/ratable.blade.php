@@ -71,7 +71,7 @@
                             </form>
                         </td>
                         <td style="width:34px;vertical-align:top;text-align:center;">
-                            <i style="padding-left:2px;text-align:center;" class="fa fa-user-secret secret-empty fa-lg" data-toggle="tooltip" data-placement="top" title="review anonymously"></i>
+                            <i class="fa fa-user-secret secret-empty fa-lg" data-toggle="tooltip" data-placement="top" title="review anonymously"></i>
                         </td>
                     </tr>
                 </tbody>
