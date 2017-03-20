@@ -16,7 +16,7 @@ $(document).ready(function() {
     if (window.innerWidth <= 800) {
         deviceType = "mobile";
         $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%'});
-        $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});
+        $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});        
     }
     else {
         $('#search-box').focus();
@@ -110,86 +110,57 @@ $(document).ready(function() {
         }    
         $('#reviews-data').after('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
         $.getJSON('ratable/home/0?name=' + path.slice(1), function(json) {
+            var imgTd = '';
             var approvalPending = '';
             var anonymousIcon = '';
             var secretEmpty = '';
-            var mapMarkerTd = '<td id="td-map-marker" style="vertical-align:top;padding-left:2px;padding-right:2px;padding-top:14px;text-align:center;width:34px;"><i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i></td>';
+            var mapMarker = '';
             var eraserIcon = '';
+            if (deviceType === 'desktop') {
+                imgTd = '<td><img class="img-max-width" src="' + json['img_src'] + '"></td>';
+            }
+            if (json['region'].length) {
+                mapMarker = '<div style="float:left;padding-left:4px;"><i class="fa fa-map-marker fa-lg" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i></div>';
+            }                
             if (!json['isAnonymous']) {
                 secretEmpty = ' secret-empty';
             }
             if (!isGuest) {
-                eraserIcon = '<form class="eraser-form" name="eraser-form" method="post">' +
+                eraserIcon = '<div style="float:left;padding-left:4px;"><form class="eraser-form" name="eraser-form" method="post">' +
                                 '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
                                 '<input type="hidden" name="id" value="' + json['id'] + '"/>' +                                
                              '</form>' +
-                             '<i style="color:pink;" class="fa fa-eraser" data-toggle="tooltip" data-placement="top" title="clear your rating"></i>';
+                             '<i style="color:pink;" class="fa fa-eraser fa-lg" data-toggle="tooltip" data-placement="top" title="clear your rating"></i>' +
+                             '</div>';
             }
-            anonymousIcon = '<form class="anon-form" name="anon-form" method="post">' +
+            anonymousIcon = '<div style="float:left;padding-left:4px;"><form class="anon-form" name="anon-form" method="post">' +
                                 '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
                                 '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
                                 '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
                             '</form>' +
-                            '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
+                            '<i class="fa fa-user-secret fa-lg' + secretEmpty + '" data-toggle="tooltip" data-placement="top" title="rate this anonymously"></i></div>';
             if (!json['isApproved']) {
                 approvalPending = '<strong><em>*approval is pending on this ratable</em></strong>';
                 avgStarColor = 'green';
                 avgStarFadedColor = '#90EE90';
             }
             if (json['name']) {
-                $('#table-1 tbody').append('<tr class="ratable-home-tr">' +
-                                                '<td><div><img class="img-max-width" src="' + json['img_src'] + '"></div></td>' +
-                                                '<td>' + 
-                                                    '<div>' +
-                                                        '<table id="star-table">' +
-                                                            '<thead>' +
-                                                                '<tr><th colspan="5" style="padding-left:4px;"><h3>' + json['name'] + '</h3></th></tr>' +
-                                                                '<tr><th colspan="5">' + approvalPending + '</th></tr>' +
-                                                            '</thead>' +
-                                                            '<tbody>' +
-                                                                '<tr>' +
-                                                                    '<td class="td-star"><div style="width:205px;" ' + pleaseLoginTooltip +'>' + createFiveStars(json) + '</div></td>' +
-                                                                    '<td>' +
-                                                                        '<div class="font-12px">' +
-                                                                            '<span class="number-rating">' + json['rating'] + '/5 - </span>' + 
-                                                                            '<span class="number-of-ratings">' + json['numberOfRatings'] + '</span><br>' +
-                                                                        '</div>' +
-                                                                    '</td>' +
-                                                                    '<td style="vertical-align:top;padding-right:2px;padding-top:15px;text-align:center;width:34px;">' + anonymousIcon + '</td>' +
-                                                                    mapMarkerTd +
-                                                                    '<td style="vertical-align:top;padding-left:2px;padding-right:2px;padding-top:14px;text-align:center;width:34px;">' + eraserIcon + '</td>' +
-                                                                '</tr>' +
-                                                            '</tbody>' +
-                                                        '</table>' +                                                                      
-                                                    '</div>' +                                
-                                                '</td>' +                            
-                                            '</tr>'
+                $('#table-1 tbody').append('<tr>' + imgTd +
+                                                '<td style="overflow:hidden;">' +
+                                                    '<div><h3>' + json['name'] + '</h3></div>' +
+                                                    '<div style="float:left;width:100%;">' + approvalPending + '</div>' +
+                                                    '<div class="td-star" style="float:left;"' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div>' +
+                                                    '<div><div style="float:left;width:100%"><div style="float:left;">' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div>' + anonymousIcon + mapMarker + eraserIcon + '</div></div>' +
+                                                    '<div><div style="float:left;width:100%;">' + json['desc'] + '</div></div>' +
+                                                '</td></tr>'
                 );
-                $('#star-table thead').prepend('<tr><th width="205"></th><th></th><th></th><th></th><th></th></tr>');
-                $('#star-table tbody tr').first().find('td').each(function(i) {
-                    var width = $(this).outerWidth();
-                    $(this).innerWidth(width);
-                    $('#star-table thead tr').first().find('th').slice(i, i + 1).innerWidth(width);            
-                });
-                if (!json['region'].length) {
-                    $('#td-map-marker').remove();
-                }
-                $('#star-table').width($('#star-table').width());        
-                $('#star-table').css({'table-layout': 'fixed'});
-                                
-                $('#star-table').append('<tr><td><div class="align-justify font-12px">' + json['desc'] + '</div></td></tr>');                
-                if (pleaseLoginTooltip) {
-                    $('[data-toggle="tooltip"]').tooltip();
-                }
+                $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+                $('[data-toggle="tooltip"]').tooltip();
                 getReviews(json['name']);
-            }            
+            }                        
         });
     }       
 });
-
-function setMobile() {
-    
-}
 
 function createUserDataRows(json) {
     var i;
@@ -256,22 +227,7 @@ function getReviews(ratableName) {
                     $('#table-2 tbody').append('<tr><td style="color:green;"><i class="fa fa-check"></i> Your review has been submitted!</td></tr>');
                     return false;
                 });
-                $('#table-2').on('mouseenter', '.fa-user-secret', function() {
-                    $(this).addClass('fa-2x');
-                    $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
-                    $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
-                    if (!$(this).attr('data-toggle')) {
-                        $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "review this anonymously"});
-                    }
-                    $(this).tooltip({container: 'body'});
-                    $(this).tooltip('show');
-                    $(this).mouseleave(function() {
-                       $(this).removeClass('fa-2x');
-                       $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
-                       $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
-                    }); 
-                 });
-                 $('#table-2').on('click', '.fa-user-secret', function() {
+                $('#table-2').on('click', '.fa-user-secret', function() {
                     var isAnonymous = false;
                     $(this).toggleClass('secret-empty');
                     if (!isGuest) {
@@ -281,7 +237,7 @@ function getReviews(ratableName) {
                          $('.review-form').find('input[name="anonymous"]').val(isAnonymous);            
                     }
                     return false;       
-                 });
+                });
             }
             else {
                 $('#table-2 tbody').append('<tr class="user-review"><td><button class="btn btn-default">your review</button></td></tr>')
@@ -324,6 +280,8 @@ function getReviews(ratableName) {
                         else {
                             $('#table-2 .fa-user-secret').addClass('secret-empty');
                         }
+                        $('#table-2 i').tooltip({container: 'body'});
+                        $('#table-2 i').tooltip();                    
                         $('#table-2').on('submit', '.review-form', function() {
                             if (!isGuest) {
                                 $.post("review", $(this).serialize(), function(res) {
@@ -334,22 +292,7 @@ function getReviews(ratableName) {
                             $('#tr-review-form').hide();                            
                             return false;
                         });
-                        $('#table-2').on('mouseenter', '.fa-user-secret', function() {
-                            $(this).addClass('fa-2x');
-                            $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
-                            $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
-                            if (!$(this).attr('data-toggle')) {
-                                $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "review this anonymously"});
-                            }
-                            $(this).tooltip({container: 'body'});
-                            $(this).tooltip('show');
-                            $(this).mouseleave(function() {
-                               $(this).removeClass('fa-2x');
-                               $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
-                               $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
-                            }); 
-                         });
-                         $('#table-2').on('click', '.fa-user-secret', function() {
+                        $('#table-2').on('click', '.fa-user-secret', function() {
                             var isAnonymous = false;
                             $(this).toggleClass('secret-empty');
                             if (!isGuest) {
@@ -395,7 +338,7 @@ function getReviews(ratableName) {
         $.getJSON('review?userId=useSkip&ratable=' + ratableName + '&skip=' + rowInd, function(json) {
             if (json['review']) {
                 if (!json['user']) {
-                    json['user'] = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous review"></i>'
+                    json['user'] = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous review"></i>';
                 }
                 else {
                     json['user'] = '<a href="user/' + json['userId'] + '">' + json['user'] + '</a>';
@@ -535,64 +478,45 @@ function createTr(json) {
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
-        var contents = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
+        var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
         if (isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }
         if (!json['isAnonymous']) {
             secretEmpty = ' secret-empty';
         }
-        anonymousIcon = '<form class="anon-form" name="anon-form" method="post">' +
+        anonymousIcon = '<div style="float:left;padding-left:8px;"><form class="anon-form" name="anon-form" method="post">' +
                             '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
                             '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
                             '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
                         '</form>' +
-                        '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
+                        '<i class="fa fa-user-secret fa-lg' + secretEmpty + '" data-toggle="tooltip" data-placement="top" title="rate this anonymously"></i></div>';
         if (json['region'].length) {
-            mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
-        }
-        if (isFirstRow) {
-            contents = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+            mapMarker = '<div style="float:left;padding-left:8px;"><i class="fa fa-map-marker fa-lg" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i></div>';
         }
         $('#things-to-rate-body').append(
             '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
-                '<td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
-                '<td>' + contents + '</td>' + 
-                '<td class="td-star"><div style="width:205px;" class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
-                '<td style="padding-top:10px;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
-                '<td style="padding-right:2px;padding-top:10px;text-align:center;width:34px;">' + anonymousIcon + '</td>' +
-                '<td style="padding-left:2px;padding-right:2px;padding-top:9px;text-align:center;width:34px;">' + mapMarker + '</td>' +
+                '<td><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
+                '<td><div>' + anchor + '</div></td>' + 
+                '<td>' +    
+                    '<div class="td-star" style="float:left"' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div>' + 
+                '</td>' +
+                '<td style="padding-top:12px;">' +
+                    '<div style="float:left;"><div style="float:left;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div>' + 
+                    anonymousIcon + mapMarker + 
+                '</td>' +
             '</tr>'
         );
         $('#tr-add-rows').appendTo('#things-to-rate-body');
-        if (isFirstRow) {
-            isFirstRow = false;
-            $('#table-1 thead').prepend('<tr><th></th><th></th><th></th><th></th><th></th><th></th></tr>');
-            if (!mapMarker.length) {
-                $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>');
-            }
-            $('#table-1 .ratable-tr td').each(function(i) {
-                var width = $(this).outerWidth();
-                $(this).innerWidth(width);
-                $('#table-1 th').slice(i, i + 1).innerWidth(width);            
-            });
-            $('#table-1').width($('#table-1').width());        
-            $('#table-1').css({'table-layout': 'fixed'});
-            if (!mapMarker.length) {
-                $('#table-1 .ratable-tr td').last().empty();
-            }        
-            $('#table-1 .ratable-tr td').first().next().html('<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>');
-            $('#table-1 th').css({'padding-bottom': '10px'});
-        }    
-        $('[data-toggle="tooltip"]').tooltip({containter: 'body', html: true})
-        $('[data-toggle="tooltip"]').tooltip();
-        }
+        $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true})
+        $('[data-toggle="tooltip"]').tooltip();        
+    }
     else {
         var pleaseLoginTooltip = '';
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
-        var contents = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
+        var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
         if (isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }
@@ -604,14 +528,14 @@ function createTr(json) {
                             '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
                             '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
                         '</form>' +
-                        '<i style="padding-left:4px;" class="fa fa-user-secret' + secretEmpty + '"></i>';
+                        '<i style="padding-left:4px;" class="fa fa-user-secret fa-lg' + secretEmpty + '" data-toggle="tooltip" data-placement="top" title="rate this anonymously"></i>';
         if (json['region'].length) {
-            mapMarker = '<i style="padding-left:4px;vertical-align:top;padding-top:3px;" class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
+            mapMarker = '<i style="padding-left:4px;vertical-align:top;padding-top:4px;" class="fa fa-map-marker fa-lg" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
         }
         $('#things-to-rate-body').append(
             '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
                 '<td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
-                '<td><div>' + contents + '</div>' +
+                '<td><div>' + anchor + '</div>' +
                     '<div class="td-star" style="overflow:hidden;width:100%;"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></div>' + 
                     '<div style="overflow:hidden;width:100%;"><div style="float:left;" >' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div><div style="float:left;vertical-align:middle;">' + anonymousIcon + mapMarker + '</div></div>' +
                 '</td>' +
@@ -807,7 +731,7 @@ function createIconEvents() {
        //open map in new window 
     });*/
     
-    if (deviceType === "desktop") {
+    /*if (deviceType === "desktop") {
         $('#table-1').on('mouseenter', '.fa-user-secret', function() {
             $(this).addClass('fa-2x');
             $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
@@ -842,12 +766,13 @@ function createIconEvents() {
                 $(this).removeClass('fa-2x'); 
             }); 
         });
-    }
+    }*/
     
 }
 
 function createBtnEvents() {
     $('#table-1').on('click', '#add-rows-btn', function(){
+        window.scrollTo(0, 0);
         $('#add-rows-btn').button({disabled: true});
         detachedRowsIndex++;
         $('.ratable-tr').remove();
@@ -872,6 +797,7 @@ function createBtnEvents() {
     });
     
     $('#table-1').on('click', '#prev-rows-btn', function() {
+        window.scrollTo(0, 0);
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         detachedRowsIndex--;
         if (detachedRowsIndex === 0) {
