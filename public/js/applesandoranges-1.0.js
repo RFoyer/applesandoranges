@@ -10,10 +10,16 @@ var isFirstRow = true;
 var borderTopColor = 'orange';
 var avgStarColor = 'orange';
 var avgStarFadedColor = '#FED8B1';
+var deviceType = "desktop";
 
 $(document).ready(function() {
     if (window.innerWidth <= 800) {
-        $('#body').css({'width': '100%'});
+        deviceType = "mobile";
+        $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%'});
+        $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});
+    }
+    else {
+        $('#search-box').focus();
     }
     var path = location.pathname;
     setIsGuest();
@@ -180,6 +186,10 @@ $(document).ready(function() {
         });
     }       
 });
+
+function setMobile() {
+    
+}
 
 function createUserDataRows(json) {
     var i;
@@ -520,61 +530,97 @@ function createRows(settings) {
 }
 
 function createTr(json) {
-    var pleaseLoginTooltip = '';
-    var anonymousIcon = '';
-    var secretEmpty = '';
-    var mapMarker = '';
-    var contents = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
-    if (isGuest) {
-        pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
-    }
-    if (!json['isAnonymous']) {
-        secretEmpty = ' secret-empty';
-    }
-    anonymousIcon = '<form class="anon-form" name="anon-form" method="post">' +
-                        '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
-                        '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
-                        '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
-                    '</form>' +
-                    '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
-    if (json['region'].length) {
-        mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
-    }
-    if (isFirstRow) {
-        contents = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-    }
-    $('#things-to-rate-body').append(
-        '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
-            '<td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
-            '<td>' + contents + '</td>' + 
-            '<td class="td-star"><div style="width:205px;" class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
-            '<td style="padding-top:10px;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
-            '<td style="padding-right:2px;padding-top:10px;text-align:center;width:34px;">' + anonymousIcon + '</td>' +
-            '<td style="padding-left:2px;padding-right:2px;padding-top:9px;text-align:center;width:34px;">' + mapMarker + '</td>' +
-        '</tr>'
-    );
-    $('#tr-add-rows').appendTo('#things-to-rate-body');
-    if (isFirstRow) {
-        isFirstRow = false;
-        $('#table-1 thead').prepend('<tr><th></th><th></th><th></th><th></th><th></th><th></th></tr>');
-        if (!mapMarker.length) {
-            $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>');
+    if (deviceType === "desktop") {
+        var pleaseLoginTooltip = '';
+        var anonymousIcon = '';
+        var secretEmpty = '';
+        var mapMarker = '';
+        var contents = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
+        if (isGuest) {
+            pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }
-        $('#table-1 .ratable-tr td').each(function(i) {
-            var width = $(this).outerWidth();
-            $(this).innerWidth(width);
-            $('#table-1 th').slice(i, i + 1).innerWidth(width);            
-        });
-        $('#table-1').width($('#table-1').width());        
-        $('#table-1').css({'table-layout': 'fixed'});
-        if (!mapMarker.length) {
-            $('#table-1 .ratable-tr td').last().empty();
-        }        
-        $('#table-1 .ratable-tr td').first().next().html('<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>');
-        $('#table-1 th').css({'padding-bottom': '10px'});
-    }    
-    $('[data-toggle="tooltip"]').tooltip({containter: 'body', html: true})
-    $('[data-toggle="tooltip"]').tooltip();    
+        if (!json['isAnonymous']) {
+            secretEmpty = ' secret-empty';
+        }
+        anonymousIcon = '<form class="anon-form" name="anon-form" method="post">' +
+                            '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                            '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
+                            '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
+                        '</form>' +
+                        '<i class="fa fa-user-secret' + secretEmpty + '"></i>';
+        if (json['region'].length) {
+            mapMarker = '<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
+        }
+        if (isFirstRow) {
+            contents = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        }
+        $('#things-to-rate-body').append(
+            '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
+                '<td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
+                '<td>' + contents + '</td>' + 
+                '<td class="td-star"><div style="width:205px;" class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></td>' + 
+                '<td style="padding-top:10px;"> ' + json['rating'] + '/5 - ' + json['numberOfRatings'] + ' </td>' + 
+                '<td style="padding-right:2px;padding-top:10px;text-align:center;width:34px;">' + anonymousIcon + '</td>' +
+                '<td style="padding-left:2px;padding-right:2px;padding-top:9px;text-align:center;width:34px;">' + mapMarker + '</td>' +
+            '</tr>'
+        );
+        $('#tr-add-rows').appendTo('#things-to-rate-body');
+        if (isFirstRow) {
+            isFirstRow = false;
+            $('#table-1 thead').prepend('<tr><th></th><th></th><th></th><th></th><th></th><th></th></tr>');
+            if (!mapMarker.length) {
+                $('#table-1 .ratable-tr td').last().append('<i class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>');
+            }
+            $('#table-1 .ratable-tr td').each(function(i) {
+                var width = $(this).outerWidth();
+                $(this).innerWidth(width);
+                $('#table-1 th').slice(i, i + 1).innerWidth(width);            
+            });
+            $('#table-1').width($('#table-1').width());        
+            $('#table-1').css({'table-layout': 'fixed'});
+            if (!mapMarker.length) {
+                $('#table-1 .ratable-tr td').last().empty();
+            }        
+            $('#table-1 .ratable-tr td').first().next().html('<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>');
+            $('#table-1 th').css({'padding-bottom': '10px'});
+        }    
+        $('[data-toggle="tooltip"]').tooltip({containter: 'body', html: true})
+        $('[data-toggle="tooltip"]').tooltip();
+        }
+    else {
+        var pleaseLoginTooltip = '';
+        var anonymousIcon = '';
+        var secretEmpty = '';
+        var mapMarker = '';
+        var contents = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
+        if (isGuest) {
+            pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
+        }
+        if (!json['isAnonymous']) {
+            secretEmpty = ' secret-empty';
+        }
+        anonymousIcon = '<form style="float:left;" class="anon-form" name="anon-form" method="post">' +
+                            '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                            '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
+                            '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
+                        '</form>' +
+                        '<i style="padding-left:4px;" class="fa fa-user-secret' + secretEmpty + '"></i>';
+        if (json['region'].length) {
+            mapMarker = '<i style="padding-left:4px;vertical-align:top;padding-top:3px;" class="fa fa-map-marker" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i>';
+        }
+        $('#things-to-rate-body').append(
+            '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
+                '<td class="td-img"><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
+                '<td><div>' + contents + '</div>' +
+                    '<div class="td-star" style="overflow:hidden;width:100%;"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></div>' + 
+                    '<div style="overflow:hidden;width:100%;"><div style="float:left;" >' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div><div style="float:left;vertical-align:middle;">' + anonymousIcon + mapMarker + '</div></div>' +
+                '</td>' +
+            '</tr>'
+        );
+        $('#tr-add-rows').appendTo('#things-to-rate-body');        
+        $('[data-toggle="tooltip"]').tooltip({containter: 'body', html: true})
+        $('[data-toggle="tooltip"]').tooltip();
+        }
 }
 
 function createFiveStars(json) {
@@ -585,6 +631,10 @@ function createFiveStars(json) {
     var offset = '50%';
     var fraction = parseFloat(parseFloat(json['rating'].substring(json['rating'].length - 2)).toFixed(1));
     var ratingFloor = Math.floor(parseFloat(json['rating']));
+    var svgMeasure = '40';
+    if (deviceType === "mobile") {
+        svgMeasure = '25';
+    }
     for (i = 0; i < 5; i++) {
         if ((i < json['userRating']) && (i < ratingFloor)) {
             stroke = avgStarColor;
@@ -618,7 +668,7 @@ function createFiveStars(json) {
                     '<input type="hidden" name="rating" value="' + i + '"/>' +
                     '<input type="hidden" name="anonymous" value="' + json['isAnonymous'].toString() + '"/>' +
                     '<button class="poly-star-btn">' +
-                        '<svg width="40" height="40" viewBox="0 0 262 250" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
+                        '<svg width="' + svgMeasure + '" height="' + svgMeasure + '" viewBox="0 0 262 250" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
                             '<defs>' +
                                 '<linearGradient id="fill-grad-' + gradId.toString() + '" class="fill">' +
                                     '<stop offset="0%" stop-color="orange" />' +
@@ -733,38 +783,11 @@ function createIconEvents() {
         }
         return false;
     });
-    $('#table-1').on('mouseenter', '.fa-eraser', function() {
-       $(this).addClass('fa-2x');
-       $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
-       $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
-       $(this).tooltip({container: 'body'});
-       $(this).tooltip('show');
-       $(this).mouseleave(function() {
-          $(this).removeClass('fa-2x');
-          $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
-          $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
-       }); 
-    });
     $('#table-1').on('click', '.fa-eraser', function() {
        if (!isGuest) {
             $(this).siblings('.eraser-form').trigger('submit');            
        }
        return false;       
-    });
-    $('#table-1').on('mouseenter', '.fa-user-secret', function() {
-       $(this).addClass('fa-2x');
-       $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
-       $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
-       if (!$(this).attr('data-toggle')) {
-           $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "rate this anonymously"});
-       }
-       $(this).tooltip({container: 'body'});
-       $(this).tooltip('show');
-       $(this).mouseleave(function() {
-          $(this).removeClass('fa-2x');
-          $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
-          $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
-       }); 
     });
     $('#table-1').on('click', '.fa-user-secret', function() {
        var isAnonymous = false;
@@ -779,16 +802,48 @@ function createIconEvents() {
        }
        return false;       
     });
-    $('#table-1').on('mouseenter', '.fa-map-marker', function() {
-       $(this).addClass('fa-2x');
-       $(this).tooltip('show');
-       $(this).mouseleave(function() {
-          $(this).removeClass('fa-2x'); 
-       }); 
-    });
-    $('#table-1').on('click', '.fa-map-marker', function() {
+    
+    /*$('#table-1').on('click', '.fa-map-marker', function() {
        //open map in new window 
-    });
+    });*/
+    
+    if (deviceType === "desktop") {
+        $('#table-1').on('mouseenter', '.fa-user-secret', function() {
+            $(this).addClass('fa-2x');
+            $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
+            $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
+            if (!$(this).attr('data-toggle')) {
+                $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "rate this anonymously"});
+            }
+            $(this).tooltip({container: 'body'});
+            $(this).tooltip('show');
+            $(this).mouseleave(function() {
+                $(this).removeClass('fa-2x');
+                $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
+                $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
+            }); 
+        });
+        $('#table-1').on('mouseenter', '.fa-eraser', function() {
+            $(this).addClass('fa-2x');
+            $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
+            $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
+            $(this).tooltip({container: 'body'});
+            $(this).tooltip('show');
+            $(this).mouseleave(function() {
+                $(this).removeClass('fa-2x');
+                $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
+                $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
+            }); 
+        });
+        $('#table-1').on('mouseenter', '.fa-map-marker', function() {
+            $(this).addClass('fa-2x');
+            $(this).tooltip('show');
+            $(this).mouseleave(function() {
+                $(this).removeClass('fa-2x'); 
+            }); 
+        });
+    }
+    
 }
 
 function createBtnEvents() {
@@ -851,26 +906,28 @@ function createSearchEventHandlers() {
 
 function createNavbarEventHandlers() {
     $('.nav-a').css({'height': '56px', 'display': 'table-cell', 'vertical-align': 'middle'});
-    $('.dropdown').mouseenter(function() {
-        $(this).addClass('open');
-        $(this).find('a').first().attr('aria-expanded', false);
-        $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
-        if (!isGuest) {
-            $('#ul-logout').width($('#ul-logout').parent().width());
-        }
-        $(this).find('ul').find('a').mouseenter(function() {
-           $(this).css({'background-color': '#32a232', 'color': 'white'});
-           $(this).parent().css({'background-color': '#32a232'});
-           $(this).mouseleave(function() {
-               $(this).css({'background-color': 'white', 'color': '#32a232'});
-               $(this).parent().css({'background-color': 'white'});
-           });
+    if (deviceType === "desktop") {
+        $('.dropdown').mouseenter(function() {
+            $(this).addClass('open');
+            $(this).find('a').first().attr('aria-expanded', false);
+            $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
+            if (!isGuest) {
+                $('#ul-logout').width($('#ul-logout').parent().width());
+            }
+            $(this).find('ul').find('a').mouseenter(function() {
+               $(this).css({'background-color': '#32a232', 'color': 'white'});
+               $(this).parent().css({'background-color': '#32a232'});
+               $(this).mouseleave(function() {
+                   $(this).css({'background-color': 'white', 'color': '#32a232'});
+                   $(this).parent().css({'background-color': 'white'});
+               });
+            });
+            $(this).mouseleave(function() {
+                $(this).removeClass('open');
+                $(this).find('a').first().attr('aria-expanded', true);
+                $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
+                $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
+            });
         });
-        $(this).mouseleave(function() {
-            $(this).removeClass('open');
-            $(this).find('a').first().attr('aria-expanded', true);
-            $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
-            $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
-        });
-    });
+    }
 }
