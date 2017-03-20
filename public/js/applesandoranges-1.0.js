@@ -16,6 +16,7 @@ $(document).ready(function() {
     if (window.innerWidth <= 800) {
         deviceType = "mobile";
         $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%'});
+        $('.ad-space').css({'width': $('#body').width()});
         $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});        
     }
     else {
@@ -172,6 +173,7 @@ function createUserDataRows(json) {
     var i;
     var length = 10;
     var anonymousIcon = '';
+    var anonymousTooltip = '';
     if (json.ratings.length < 10) {
         length = json.ratings.length;
     }
@@ -180,12 +182,14 @@ function createUserDataRows(json) {
             anonymousIcon = '';
         }
         else {
-            anonymousIcon = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous rating" style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
+            if (deviceType === "desktop") {
+                anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
+            }
+            anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip + ' style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
         }
         $('#ratings-data tbody').append('<tr><td>' + createSmallReadOnlyStars(json['ratings'][i]['rating']) + '</td><td><span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json['ratings'][i]['ratable'] + '">' + json['ratings'][i]['ratable'] + '</a>' + anonymousIcon + '</span></td></tr>');
     }
     $('#ratings-data svg').css({'padding': '2px'});
-    //set table width
     if (json['reviews'].length) {
         if (json.reviews.length < 10) {
             length = json.reviews.length;
@@ -198,11 +202,18 @@ function createUserDataRows(json) {
                 anonymousIcon = '';
             }
             else {
-                anonymousIcon = '<i class="fa fa-user-secret" data-toggle="tooltip" data-placement="top" title="anonymous review"></i>';
+                if (deviceType === "desktop") {
+                    anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
+                }
+                anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
             }
-            $('#reviews-data tbody').append('<tr><td>' + anonymousIcon + ' <a href="/' + json['reviews'][i]['ratable'] + '">' + json['reviews'][i]['ratable'] + '</a>: ' + json['reviews'][i]['date'] + ' - ' + json['reviews'][i]['headline'] + ' - ' + json['reviews'][i]['review'] + '</td><tr>');
+            $('#reviews-data tbody').append('<tr><td>' + anonymousIcon + ' <a href="/' + json['reviews'][i]['ratable'] + '">' + json['reviews'][i]['ratable'] + '</a>: ' + json['reviews'][i]['date'] + ' - ' + json['reviews'][i]['headline'] + ' - ' + 
+                    '<div>' + json['reviews'][i]['review'] + '</div></td><tr>');
         }
     }
+    if ($('#reviews-data').width() > $('.panel-body').last().width()) {
+        $('#reviews-data').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});        
+    }    
     $('.fa-user-secret').tooltip({container:'body'});
     $('.fa-user-secret').tooltip();
     detachedSpinner = $('#tr-spinner').detach();
@@ -276,6 +287,9 @@ function getReviews(ratableName) {
                             '<div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +                            
                         '</td></tr>'
                     );
+                    if ($('#table-2').width() > $('#reviews-data').width()) {
+                        $('#table-2').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
+                    }
                     $('#table-2 svg').css({'padding': '2px'});                    
                     if (deviceType === "desktop") {
                         $('#table-2 i').tooltip({container: 'body'});
@@ -376,7 +390,7 @@ function getReviews(ratableName) {
                                 ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong>\n\
                             </div>' +
                             '<div style="padding-left:4px;">By ' + json['user'] + ' on ' + json['date'] + '</div>' +
-                            '<div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +
+                            '<div style="padding-left:8px;padding-top:4px;overflow:hidden;">' + json['review'] + '</div>' +
                             '<div>Was this review helpful? <button class="btn btn-default">Yes</button><button class="btn btn-default" style="margin-left:4px;">No</button></div>' +
                         '</td></tr>'
                 );
@@ -384,6 +398,9 @@ function getReviews(ratableName) {
                     $('#table-3 .fa-user-secret').tooltip({container: 'body'});
                     $('#table-3 .fa-user-secret').tooltip();
                 }
+            }
+            if ($('#table-3').width() > $('#reviews-data').width()) {
+                $('#table-3').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
             }
             $('#table-3 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
             $('#table-3 svg').css({'padding': '2px'});
@@ -565,7 +582,7 @@ function createTr(json) {
             '<tr class="ratable-tr border-top-' + borderTopColor + '">' +
                 '<td><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
                 '<td><div>' + anchor + '</div>' +
-                    '<div class="td-star" style="overflow:hidden;width:100%;"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></div>' + 
+                    '<div class="td-star" style="overflow:hidden;"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></div>' + 
                     '<div style="overflow:hidden;width:100%;"><div style="float:left;" >' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div><div style="float:left;vertical-align:middle;">' + anonymousIcon + mapMarker + '</div></div>' +
                 '</td>' +
             '</tr>'

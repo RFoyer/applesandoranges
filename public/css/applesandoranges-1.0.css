@@ -169,7 +169,7 @@ h3 {
 #body {
     margin: auto;
     width: 1100px;
-    background: url('/images/your_ad_here.jpg') 50% 0px no-repeat fixed;
+    background: url('/images/your_ad_here.jpg') no-repeat fixed;
     min-height: 100vh;
 }
 
