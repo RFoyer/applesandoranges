@@ -15,7 +15,7 @@ var deviceType = "desktop";
 $(document).ready(function() {
     if (window.innerWidth <= 800) {
         deviceType = "mobile";
-        $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%'});
+        $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%', 'background': 'url("/images/your_ad_here.jpg") no-repeat fixed'});
         $('.ad-space').css({'width': $('#body').width()});
         $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});        
     }
@@ -877,19 +877,19 @@ function createNavbarEventHandlers() {
         $('.logo').after(detachedSearch);
         $('.logo').css({'padding': 'auto', 'height': 'auto', 'float': 'left', 'vertical-align': 'middle', 'background-color': 'white'});
         $('#logo').css({'height': 'auto', 'padding': 'auto'});
-        $('#logo').not('#and').css({'font-size': '12px'});
+        $('#logo').not('#and').css({'font-size': '14px'});
         $('#div-form-search').css({'float': 'left', 'padding': '8px', 'margin': 'auto', 'height': 'auto', 'width': 'auto'});
         $('#search-box').css({'height': 'auto', 'padding': '5px', 'margin': 'auto', 'width': '108px'});
         $('#btn-search').css({'padding-top': '5px', 'padding-bottom': '5px'});
         $('.navbar-header .input-group').add('.navbar-header .input-group-btn').css({'height': 'auto', 'padding': 'auto', 'margin': 'auto'});
-        $('.nav-a').css({'background-color': 'white', 'color': '#32a232'});
+        $('.nav-a').css({'background-color': '#32a232', 'color': 'white'});
         $('.navbar-collapse').css({'padding': '4px', 'background-color': '#32a232'});
         $('.navbar-nav').css({'margin': '0px'});
-        $('.nav-a').first().add('.navbar-nav li').css({'border': '1px solid', 'border-color': '#32a232', 'background-color': 'white'});
         $('.navbar-header button').css({'border-color': '#32a232', 'background-color': 'white'});
         $('.dropdown-menu').css({'background-color': '#32a232', 'padding': '0px'});
         $('.nav-a').last().css({'padding': 'auto'});
         $('.navbar-header').css({'background-color': '#32a232'});
         $('.input-group').css({'width': '150px'});
+        $('.caret').attr('class', 'fa fa-caret-right');
     }
 }

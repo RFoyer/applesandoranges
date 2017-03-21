@@ -67,7 +67,7 @@
                     <ul class="nav navbar-nav">
                         <li class="dropdown">
                             <a href="#" style="color:white;" class="dropdown-toggle nav-a" data-toggle="dropdown" role="button" aria-expanded="false">
-                                Contributors<span class="caret"></span>
+                                Contributors <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" role="menu" style="background-color:white;">
                                 <li>
