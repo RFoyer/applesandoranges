@@ -74,14 +74,9 @@ class RatingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id, $skip)
+    public function show($id)
     {
-        if ((int)$id !== 0) {
-            //get specific
-        }
-        else {
-            //take 1 with skip
-        }
+        
     }
 
     /**

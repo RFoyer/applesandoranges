@@ -13,7 +13,7 @@
 
 Route::get('/', 'HomeController@index');
 
-Route::get('rating/{id}/{skip}', "RatingController@show");
+Route::get('table/{table}', 'TableController@show');
 
 Route::post('rating', 'RatingController@store');
 
@@ -38,8 +38,6 @@ Route::get('autocomplete', 'SearchAutocompleteController@show');
 Route::get('ratable/create', 'RatableController@create');
 
 Route::post('ratable/create/success', 'RatableController@store');
-
-Route::get('ratable/{table}/{skip}', 'RatableController@show');
 
 //Route::get('admin', function(){return view('home');});
 

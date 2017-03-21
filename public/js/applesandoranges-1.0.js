@@ -38,7 +38,7 @@ $(document).ready(function() {
         readyTable1();
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="6"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div><div><button id="add-rows-btn">More</button></div></td></tr>');
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        createRows({'length': 10, 'path': 'master'});
+        createRows({'length': 10, 'table': 'master'});
         createBtnEvents();
         $('#table-1').prepend('<caption>THINGS TO RATE</caption>');
     }
@@ -50,7 +50,7 @@ $(document).ready(function() {
         borderTopColor = 'green';
         avgStarColor = 'green';
         avgStarFadedColor = '#90EE90';
-        createRows({'length': 10, 'path': 'proposed'});
+        createRows({'length': 10, 'table': 'proposed'});
         createBtnEvents();
         $('#table-1').prepend('<caption>PROPOSED RATABLES (APPROVAL PENDING)</caption>');
         //css
@@ -61,7 +61,7 @@ $(document).ready(function() {
     else if (path === '/search') {
         readyTable1();
         $('#things-to-rate-body').append('<tr id="tr-add-rows"><td id="td-add-rows" colspan="5"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div></td></tr>');
-        createRows({'length': 3, 'path': 'autocomplete'});
+        createRows({'length': 3, 'table': 'autocomplete'});
     }
     else if (path.slice(0, 5) === '/user') {
         $('#user-data').prepend('<caption>User:</caption>');
@@ -115,196 +115,73 @@ $(document).ready(function() {
     else {
         $('#tr-review-form').hide();
         readyTable1();
-        var pleaseLoginTooltip = '';
-        if (isGuest) {
-            pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
-        }    
         $('#reviews-data').after('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
-        $.getJSON('ratable/home/0?name=' + path.slice(1), function(json) {
-            var imgTd = '';
-            var approvalPending = '';
-            var anonymousIcon = '';
-            var secretEmpty = '';
-            var anonymousTooltip = '';
-            var mapMarker = '';
-            var mapMarkerTooltip = '';
-            var eraserIcon = '';
-            var eraserTooltip = '';
-            if (deviceType === 'desktop') {
-                imgTd = '<td><img class="img-max-width" src="' + json['img_src'] + '"></td>';
-                mapMarkerTooltip = ' data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"';
-                eraserTooltip = ' data-toggle="tooltip" data-placement="top" title="clear your rating"';
-                anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="rate this anonymously"';
-            }
-            if (json['region'].length) {
-                mapMarker = '<div style="float:left;padding-left:4px;"><i class="fa fa-map-marker fa-lg"' + mapMarkerTooltip + '></i></div>';
-            }                
-            if (!json['isAnonymous']) {
-                secretEmpty = ' secret-empty';
-            }
-            if (!isGuest) {
-                eraserIcon = '<div style="float:left;padding-left:4px;"><form class="eraser-form" name="eraser-form" method="post">' +
-                                '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
-                                '<input type="hidden" name="id" value="' + json['id'] + '"/>' +                                
-                             '</form>' +
-                             '<i style="color:pink;" class="fa fa-eraser fa-lg"' + eraserTooltip + '></i>' +
-                             '</div>';
-            }
-            anonymousIcon = '<div style="float:left;padding-left:4px;"><form class="anon-form" name="anon-form" method="post">' +
-                                '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
-                                '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
-                                '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
-                            '</form>' +
-                            '<i class="fa fa-user-secret fa-lg' + secretEmpty + '"' + anonymousTooltip + '></i></div>';
-            if (!json['isApproved']) {
-                approvalPending = '<strong><em>*approval is pending on this ratable</em></strong>';
-                avgStarColor = 'green';
-                avgStarFadedColor = '#90EE90';
-            }
-            if (json['name']) {
-                $('#table-1 tbody').append('<tr>' + imgTd +
-                                                '<td style="overflow:hidden;">' +
-                                                    '<div><h3>' + json['name'] + '</h3></div>' +
-                                                    '<div style="float:left;width:100%;">' + approvalPending + '</div>' +
-                                                    '<div class="td-star" style="float:left;"' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div>' +
-                                                    '<div><div style="float:left;width:100%"><div style="float:left;">' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div>' + anonymousIcon + mapMarker + eraserIcon + '</div></div>' +
-                                                    '<div><div style="float:left;width:100%;">' + json['desc'] + '</div></div>' +
-                                                '</td></tr>'
-                );
-                $('[data-toggle="tooltip"]').tooltip({container: 'body'});
-                $('[data-toggle="tooltip"]').tooltip();
-                getReviews(json['name']);
-            }                        
+        $.getJSON('table/home?name=' + path.slice(1), function(json) {
+            createRatableTable1Rows(json);
+            createRatableReviewsRows(json['name']);
         });
     }       
 });
 
-function createUserDataRows(json) {
-    createUserBtnEvents(json);
-    createUserRatingsRows(json, 'none');
-    createUserReviewsRows(json, 'none');
-}
-
-function createUserBtnEvents(json) {
-    $('#ratings-data tbody').on('click', '.add-rows-btn', function() {
-        $('#ratings-data tbody').append(detachedSpinner);
-        createUserRatingsRows(json, 'add');
-    });
-    $('#reviews-data tbody').on('click', '.add-rows-btn', function() {
-       $('#reviews-data tbody').append(detachedSpinner);
-       createUserReviewsRows(json, 'add');
-    });
-    $('#ratings-data tbody').on('click', '.prev-rows-btn', function() {
-        $('#ratings-data tbody').append(detachedSpinner);
-        createUserRatingsRows(json, 'prev');
-    });
-    $('#reviews-data tbody').on('click', '.prev-rows-btn', function() {
-        $('#reviews-data tbody').append(detachedSpinner);
-        createUserReviewsRows(json, 'prev');
-    });
-}
-
-function createUserRatingsRows(json, btnAction) {
-    var i;
-    var anonymousTooltip = '';
+function createRatableTable1Rows(json) {
+    var pleaseLoginTooltip = '';
+    var imgTd = '';
+    var approvalPending = '';
     var anonymousIcon = '';
-    var length = 10;
-    $('#ratings-data tbody tr').not('#ratings-data .tr-spinner').remove();    
-    if (json.ratings.length) {
-        if (btnAction === 'add') {
-            ratingsIndex += 10;
-        }
-        else if (btnAction === 'prev') {
-            ratingsIndex -= 10;
-        }
-        else if ((btnAction === 'none') && (json.ratings.length < 10)) {
-            length = json.ratings.length;
-        }
-        if ((btnAction !== 'none') && ((json.ratings.length - ratingsIndex) < 10)) {
-            length = json.ratings.length - ratingsIndex;
-        }
-        for (i = 0; i < length; i++) {
-            if (!json.ratings[i + ratingsIndex]['anonymous']) {
-                anonymousIcon = '';
-            }
-            else {
-                if (deviceType === "desktop") {
-                    anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
-                }
-                anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip + ' style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
-            }
-            $('#ratings-data .tr-spinner').before('<tr>' +
-                    '<td>' + createSmallReadOnlyStars(json.ratings[i + ratingsIndex]['rating']) + '</td>' +
-                    '<td>' +
-                        '<span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json.ratings[i + ratingsIndex]['ratable'] + '">' + json.ratings[i + ratingsIndex]['ratable'] + '</a>' + anonymousIcon + '</span>' +
-                    '</td></tr>');
-        }
-    }
-    $('#ratings-data svg').css({'padding': '2px'});
-    $('.fa-user-secret').tooltip({container:'body'});
-    $('.fa-user-secret').tooltip();
-    if (ratingsIndex >= 10) {
-        $('#ratings-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
-        $('#ratings-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
-    }
-    if (json.ratings.length > (ratingsIndex + 10)) {
-        $('#ratings-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
-        $('#ratings-data tbody .add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
-    }
-    $('#ratings-data .tr-spinner').remove();
-}
-
-function createUserReviewsRows(json, btnAction) {
-    var i;
-    var length = 10;
-    var anonymousIcon = '';
+    var secretEmpty = '';
     var anonymousTooltip = '';
-    $('#reviews-data tbody tr').not('#reviews-data .tr-spinner').remove();    
-    if (json.reviews.length) {
-        if (btnAction === 'add') {
-            reviewsIndex += 10;
-        }
-        else if (btnAction === 'prev') {
-            reviewsIndex -= 10;
-        }
-        else if ((btnAction === 'none') && (json.reviews.length < 10)) {
-            length = json.reviews.length;
-        }
-        if ((btnAction !== 'none') && ((json.reviews.length - reviewsIndex) < 10)) {
-            length = json.reviews.length - reviewsIndex;
-        }
-        for (i = 0; i < length; i++) {
-            if (!json.reviews[i + reviewsIndex]['anonymous']) {
-                anonymousIcon = '';
-            }
-            else {
-                if (deviceType === "desktop") {
-                    anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous review"';
-                }
-                anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
-            }
-            $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon + ' <a href="/' + json.reviews[i + reviewsIndex]['ratable'] + '">' + json.reviews[i + reviewsIndex]['ratable'] + '</a>: ' + json.reviews[i + reviewsIndex]['date'] + ' - ' + json.reviews[i + reviewsIndex]['headline'] + ' - ' + 
-                    '<div>' + json.reviews[i + reviewsIndex]['review'] + '</div></td><tr>');
-        }
+    var mapMarker = '';
+    var mapMarkerTooltip = '';
+    var eraserIcon = '';
+    var eraserTooltip = '';
+    if (isGuest) {
+            pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
-    if ($('#reviews-data').width() > $('.panel-body').last().width()) {
-        $('#reviews-data').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
-        $('#reviews-data td').css({'width': '100%'});
+    if (deviceType === 'desktop') {
+        imgTd = '<td><img class="img-max-width" src="' + json['img_src'] + '"></td>';
+        mapMarkerTooltip = ' data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"';
+        eraserTooltip = ' data-toggle="tooltip" data-placement="top" title="clear your rating"';
+        anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="rate this anonymously"';
     }
-    $('.fa-user-secret').tooltip({container:'body'});
-    $('.fa-user-secret').tooltip();
-    if (reviewsIndex >= 10) {
-        $('#reviews-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
-        $('#reviews-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    if (json['region'].length) {
+        mapMarker = '<div style="float:left;padding-left:4px;"><i class="fa fa-map-marker fa-lg"' + mapMarkerTooltip + '></i></div>';
+    }                
+    if (!json['isAnonymous']) {
+        secretEmpty = ' secret-empty';
     }
-    if (json.reviews.length > (reviewsIndex + 10)) {
-        $('#reviews-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
-        $('#reviews-data tbody button').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    if (!isGuest) {
+        eraserIcon = '<div style="float:left;padding-left:4px;"><form class="eraser-form" name="eraser-form" method="post">' +
+                        '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                        '<input type="hidden" name="id" value="' + json['id'] + '"/>' +                                
+                     '</form>' +
+                     '<i style="color:pink;" class="fa fa-eraser fa-lg"' + eraserTooltip + '></i>' +
+                     '</div>';
     }
-    $('#reviews-data .tr-spinner').remove();
+    anonymousIcon = '<div style="float:left;padding-left:4px;"><form class="anon-form" name="anon-form" method="post">' +
+                        '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                        '<input type="hidden" name="id" value="' + json['id'] + '"/>' +
+                        '<input type="hidden" name="anonymous" value="' + json['isAnonymous'] + '" />' +                        
+                    '</form>' +
+                    '<i class="fa fa-user-secret fa-lg' + secretEmpty + '"' + anonymousTooltip + '></i></div>';
+    if (!json['isApproved']) {
+        approvalPending = '<strong><em>*approval is pending on this ratable</em></strong>';
+        avgStarColor = 'green';
+        avgStarFadedColor = '#90EE90';
+    }
+    $('#table-1 tbody').append('<tr>' + imgTd +
+                                    '<td style="overflow:hidden;">' +
+                                        '<div><h3>' + json['name'] + '</h3></div>' +
+                                        '<div style="float:left;width:100%;">' + approvalPending + '</div>' +
+                                        '<div class="td-star" style="float:left;"' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div>' +
+                                        '<div><div style="float:left;width:100%"><div style="float:left;">' + json['rating'] + '/5 - ' + json['numberOfRatings'] + '</div>' + anonymousIcon + mapMarker + eraserIcon + '</div></div>' +
+                                        '<div><div style="float:left;width:100%;">' + json['desc'] + '</div></div>' +
+                                    '</td></tr>'
+    );
+    $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+    $('[data-toggle="tooltip"]').tooltip();       
 }
 
-function getReviews(ratableName) {
+function createRatableReviewsRows(ratableName) {
     var i;
     var jsonCount = 0;
     $('#table-2').prepend('<caption>Reviews:</caption>');
@@ -500,6 +377,131 @@ function getReviews(ratableName) {
     });
 }
 
+function createUserDataRows(json) {
+    createUserBtnEvents(json);
+    createUserRatingsRows(json, 'none');
+    createUserReviewsRows(json, 'none');
+}
+
+function createUserBtnEvents(json) {
+    $('#ratings-data tbody').on('click', '.add-rows-btn', function() {
+        $('#ratings-data tbody').append(detachedSpinner);
+        createUserRatingsRows(json, 'add');
+    });
+    $('#reviews-data tbody').on('click', '.add-rows-btn', function() {
+       $('#reviews-data tbody').append(detachedSpinner);
+       createUserReviewsRows(json, 'add');
+    });
+    $('#ratings-data tbody').on('click', '.prev-rows-btn', function() {
+        $('#ratings-data tbody').append(detachedSpinner);
+        createUserRatingsRows(json, 'prev');
+    });
+    $('#reviews-data tbody').on('click', '.prev-rows-btn', function() {
+        $('#reviews-data tbody').append(detachedSpinner);
+        createUserReviewsRows(json, 'prev');
+    });
+}
+
+function createUserRatingsRows(json, btnAction) {
+    var i;
+    var anonymousTooltip = '';
+    var anonymousIcon = '';
+    var length = 10;
+    $('#ratings-data tbody tr').not('#ratings-data .tr-spinner').remove();    
+    if (json.ratings.length) {
+        if (btnAction === 'add') {
+            ratingsIndex += 10;
+        }
+        else if (btnAction === 'prev') {
+            ratingsIndex -= 10;
+        }
+        else if ((btnAction === 'none') && (json.ratings.length < 10)) {
+            length = json.ratings.length;
+        }
+        if ((btnAction !== 'none') && ((json.ratings.length - ratingsIndex) < 10)) {
+            length = json.ratings.length - ratingsIndex;
+        }
+        for (i = 0; i < length; i++) {
+            if (!json.ratings[i + ratingsIndex]['anonymous']) {
+                anonymousIcon = '';
+            }
+            else {
+                if (deviceType === "desktop") {
+                    anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
+                }
+                anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip + ' style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
+            }
+            $('#ratings-data .tr-spinner').before('<tr>' +
+                    '<td>' + createSmallReadOnlyStars(json.ratings[i + ratingsIndex]['rating']) + '</td>' +
+                    '<td>' +
+                        '<span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json.ratings[i + ratingsIndex]['ratable'] + '">' + json.ratings[i + ratingsIndex]['ratable'] + '</a>' + anonymousIcon + '</span>' +
+                    '</td></tr>');
+        }
+    }
+    $('#ratings-data svg').css({'padding': '2px'});
+    $('.fa-user-secret').tooltip({container:'body'});
+    $('.fa-user-secret').tooltip();
+    if (ratingsIndex >= 10) {
+        $('#ratings-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
+        $('#ratings-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    if (json.ratings.length > (ratingsIndex + 10)) {
+        $('#ratings-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
+        $('#ratings-data tbody .add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    $('#ratings-data .tr-spinner').remove();
+}
+
+function createUserReviewsRows(json, btnAction) {
+    var i;
+    var length = 10;
+    var anonymousIcon = '';
+    var anonymousTooltip = '';
+    $('#reviews-data tbody tr').not('#reviews-data .tr-spinner').remove();    
+    if (json.reviews.length) {
+        if (btnAction === 'add') {
+            reviewsIndex += 10;
+        }
+        else if (btnAction === 'prev') {
+            reviewsIndex -= 10;
+        }
+        else if ((btnAction === 'none') && (json.reviews.length < 10)) {
+            length = json.reviews.length;
+        }
+        if ((btnAction !== 'none') && ((json.reviews.length - reviewsIndex) < 10)) {
+            length = json.reviews.length - reviewsIndex;
+        }
+        for (i = 0; i < length; i++) {
+            if (!json.reviews[i + reviewsIndex]['anonymous']) {
+                anonymousIcon = '';
+            }
+            else {
+                if (deviceType === "desktop") {
+                    anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous review"';
+                }
+                anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
+            }
+            $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon + ' <a href="/' + json.reviews[i + reviewsIndex]['ratable'] + '">' + json.reviews[i + reviewsIndex]['ratable'] + '</a>: ' + json.reviews[i + reviewsIndex]['date'] + ' - ' + json.reviews[i + reviewsIndex]['headline'] + ' - ' + 
+                    '<div>' + json.reviews[i + reviewsIndex]['review'] + '</div></td><tr>');
+        }
+    }
+    if ($('#reviews-data').width() > $('.panel-body').last().width()) {
+        $('#reviews-data').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
+        $('#reviews-data td').css({'width': '100%'});
+    }
+    $('.fa-user-secret').tooltip({container:'body'});
+    $('.fa-user-secret').tooltip();
+    if (reviewsIndex >= 10) {
+        $('#reviews-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
+        $('#reviews-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    if (json.reviews.length > (reviewsIndex + 10)) {
+        $('#reviews-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
+        $('#reviews-data tbody button').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    $('#reviews-data .tr-spinner').remove();
+}
+
 function createSmallReadOnlyStars(rating) {
     var html = '';
     var i;
@@ -547,9 +549,9 @@ function readyTable1() {
 function createRows(settings) {
     var i;
     var k = 0;
-    if (settings.path !== 'autocomplete') {
+    if (settings.table !== 'autocomplete') {
         for (i = 0; i < settings.length; i++) {
-            $.getJSON('ratable/' + settings.path + '/' + skipRatingCount.toString(), function(json) {
+            $.getJSON('table/' + settings.table + '?skip=' + skipRatingCount.toString(), function(json) {
                 k++;
                 if (json['name']) {
                     createTr(json);                    
@@ -585,7 +587,7 @@ function createRows(settings) {
             var i;
             if (searchJson.length) {
                 for (i = 0; i < searchJson.length; i++) {
-                    $.getJSON('ratable/search/0?id=' + searchJson[i].id.toString(), function(resultJson) {
+                    $.getJSON('table/search?id=' + searchJson[i].id.toString(), function(resultJson) {
                         createTr(resultJson);
                         k++;
                         if (k === (searchJson.length)) {
@@ -873,7 +875,7 @@ function createBtnEvents() {
         $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         if ((detachedRatingsRowsIndex === detachedRatingsRows.length) && !noMoreRows) {
             $('#td-add-rows').prepend(detachedSpinner);                
-            createRows({'length': 10, 'path': 'master'});
+            createRows({'length': 10, 'table': 'master'});
         }
         else {
             $('#tr-add-rows').before(detachedRatingsRows[detachedRatingsRowsIndex]);
