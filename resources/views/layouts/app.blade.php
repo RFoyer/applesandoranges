@@ -116,8 +116,11 @@
             <div>
                 @yield('content')
             </div>
+            <div id="footer">
+            Apples and Oranges - &copy; 2017 Raymond Foyer
+            </div>
         </div>
-                
+        
         </div>
         <div class="ad-space">Ad Space</div>
 </div>
