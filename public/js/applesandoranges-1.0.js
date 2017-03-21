@@ -779,44 +779,6 @@ function createIconEvents() {
     /*$('#table-1').on('click', '.fa-map-marker', function() {
        //open map in new window 
     });*/
-    
-    /*if (deviceType === "desktop") {
-        $('#table-1').on('mouseenter', '.fa-user-secret', function() {
-            $(this).addClass('fa-2x');
-            $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
-            $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
-            if (!$(this).attr('data-toggle')) {
-                $(this).attr({'data-toggle': "tooltip", 'data-placement': "top", 'title': "rate this anonymously"});
-            }
-            $(this).tooltip({container: 'body'});
-            $(this).tooltip('show');
-            $(this).mouseleave(function() {
-                $(this).removeClass('fa-2x');
-                $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
-                $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
-            }); 
-        });
-        $('#table-1').on('mouseenter', '.fa-eraser', function() {
-            $(this).addClass('fa-2x');
-            $(this).parent().css({'position': 'relative', 'overflow': 'hidden'});
-            $(this).css({'position': 'absolute', 'left': 0, 'right': 0});
-            $(this).tooltip({container: 'body'});
-            $(this).tooltip('show');
-            $(this).mouseleave(function() {
-                $(this).removeClass('fa-2x');
-                $(this).parent().css({'position': 'initial', 'overflow': 'initial'});
-                $(this).css({'position': 'initial', 'left': 'initial', 'right': 'initial'});
-            }); 
-        });
-        $('#table-1').on('mouseenter', '.fa-map-marker', function() {
-            $(this).addClass('fa-2x');
-            $(this).tooltip('show');
-            $(this).mouseleave(function() {
-                $(this).removeClass('fa-2x'); 
-            }); 
-        });
-    }*/
-    
 }
 
 function createBtnEvents() {
