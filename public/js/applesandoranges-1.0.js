@@ -1,7 +1,12 @@
 var isGuest = false;
-var rowInd = 0; // change to skipAmount
-var detachedRows = [];
-var detachedRowsIndex = 0;
+var skipRatingCount = 0;
+var skipReviewCount = 0;
+var detachedRatingsRows = [];
+var detachedRatingsRowsIndex = 0;
+var detachedReviewsRows = [];
+var detachedReviewsRowsIndex = 0;
+var ratingsIndex = 0;
+var reviewsIndex = 0;
 var noMoreRows = false;
 var detachedMoreBtn;
 var detachedSpinner;
@@ -59,17 +64,20 @@ $(document).ready(function() {
         createRows({'length': 3, 'path': 'autocomplete'});
     }
     else if (path.slice(0, 5) === '/user') {
-        $('#reviews-data tbody').append('<tr id="tr-spinner"><td id="td-spinner" colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div></td></tr>');
         $('#user-data').prepend('<caption>User:</caption>');
         $('#ratings-data').prepend('<caption>Ratings:</caption>');
         $('#reviews-data').prepend('<caption>Reviews:</caption>');
+        detachedSpinner = '<tr class="tr-spinner"><td colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div></td></tr>';
+        $('#user-data tbody').append(detachedSpinner);
+        $('#ratings-data tbody').append(detachedSpinner);
+        $('#reviews-data tbody').append(detachedSpinner);
         $.getJSON('userdata/' + path.slice(6), function(json) {
-           if (json['username']) {
+            $('#user-data tbody .tr-spinner').remove();
+            if (json['username']) {
                 $('#user-data tbody').prepend('<tr><td>'+ json['username'] + '</td></tr>');
                 createUserDataRows(json)
            }
            else {
-                detachedSpinner = $('.spinner').detach();
                 $('#user-data tbody').append('<tr><td>Sorry, this user does not seem to exist!</td></tr>');
            }
         });
@@ -172,58 +180,128 @@ $(document).ready(function() {
 });
 
 function createUserDataRows(json) {
+    createUserBtnEvents(json);
+    createUserRatingsRows(json, 'none');
+    createUserReviewsRows(json, 'none');
+}
+
+function createUserBtnEvents(json) {
+    $('#ratings-data tbody').on('click', '.add-rows-btn', function() {
+        $('#ratings-data tbody').append(detachedSpinner);
+        createUserRatingsRows(json, 'add');
+    });
+    $('#reviews-data tbody').on('click', '.add-rows-btn', function() {
+       $('#reviews-data tbody').append(detachedSpinner);
+       createUserReviewsRows(json, 'add');
+    });
+    $('#ratings-data tbody').on('click', '.prev-rows-btn', function() {
+        $('#ratings-data tbody').append(detachedSpinner);
+        createUserRatingsRows(json, 'prev');
+    });
+    $('#reviews-data tbody').on('click', '.prev-rows-btn', function() {
+        $('#reviews-data tbody').append(detachedSpinner);
+        createUserReviewsRows(json, 'prev');
+    });
+}
+
+function createUserRatingsRows(json, btnAction) {
     var i;
-    var length = 10;
-    var anonymousIcon = '';
     var anonymousTooltip = '';
-    if (json.ratings.length < 10) {
-        length = json.ratings.length;
-    }
-    for (i = 0; i < length; i++) {
-        if (!json['ratings'][i]['anonymous']) {
-            anonymousIcon = '';
+    var anonymousIcon = '';
+    var length = 10;
+    $('#ratings-data tbody tr').not('#ratings-data .tr-spinner').remove();    
+    if (json.ratings.length) {
+        if (btnAction === 'add') {
+            ratingsIndex += 10;
         }
-        else {
-            if (deviceType === "desktop") {
-                anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
-            }
-            anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip + ' style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
+        else if (btnAction === 'prev') {
+            ratingsIndex -= 10;
         }
-        $('#ratings-data tbody').append('<tr><td>' + createSmallReadOnlyStars(json['ratings'][i]['rating']) + '</td><td><span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json['ratings'][i]['ratable'] + '">' + json['ratings'][i]['ratable'] + '</a>' + anonymousIcon + '</span></td></tr>');
-    }
-    $('#ratings-data svg').css({'padding': '2px'});
-    if (json['reviews'].length) {
-        if (json.reviews.length < 10) {
-            length = json.reviews.length;
+        else if ((btnAction === 'none') && (json.ratings.length < 10)) {
+            length = json.ratings.length;
         }
-        else {
-            length = 10;
+        if ((btnAction !== 'none') && ((json.ratings.length - ratingsIndex) < 10)) {
+            length = json.ratings.length - ratingsIndex;
         }
         for (i = 0; i < length; i++) {
-            if (!json['reviews'][i]['anonymous']) {
+            if (!json.ratings[i + ratingsIndex]['anonymous']) {
                 anonymousIcon = '';
             }
             else {
                 if (deviceType === "desktop") {
                     anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
                 }
+                anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip + ' style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
+            }
+            $('#ratings-data .tr-spinner').before('<tr>' +
+                    '<td>' + createSmallReadOnlyStars(json.ratings[i + ratingsIndex]['rating']) + '</td>' +
+                    '<td>' +
+                        '<span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json.ratings[i + ratingsIndex]['ratable'] + '">' + json.ratings[i + ratingsIndex]['ratable'] + '</a>' + anonymousIcon + '</span>' +
+                    '</td></tr>');
+        }
+    }
+    $('#ratings-data svg').css({'padding': '2px'});
+    $('.fa-user-secret').tooltip({container:'body'});
+    $('.fa-user-secret').tooltip();
+    if (ratingsIndex >= 10) {
+        $('#ratings-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
+        $('#ratings-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    if (json.ratings.length > (ratingsIndex + 10)) {
+        $('#ratings-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
+        $('#ratings-data tbody .add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    $('#ratings-data .tr-spinner').remove();
+}
+
+function createUserReviewsRows(json, btnAction) {
+    var i;
+    var length = 10;
+    var anonymousIcon = '';
+    var anonymousTooltip = '';
+    $('#reviews-data tbody tr').not('#reviews-data .tr-spinner').remove();    
+    if (json.reviews.length) {
+        if (btnAction === 'add') {
+            reviewsIndex += 10;
+        }
+        else if (btnAction === 'prev') {
+            reviewsIndex -= 10;
+        }
+        else if ((btnAction === 'none') && (json.reviews.length < 10)) {
+            length = json.reviews.length;
+        }
+        if ((btnAction !== 'none') && ((json.reviews.length - reviewsIndex) < 10)) {
+            length = json.reviews.length - reviewsIndex;
+        }
+        for (i = 0; i < length; i++) {
+            if (!json.reviews[i + reviewsIndex]['anonymous']) {
+                anonymousIcon = '';
+            }
+            else {
+                if (deviceType === "desktop") {
+                    anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous review"';
+                }
                 anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
             }
-            $('#reviews-data tbody').append('<tr><td>' + anonymousIcon + ' <a href="/' + json['reviews'][i]['ratable'] + '">' + json['reviews'][i]['ratable'] + '</a>: ' + json['reviews'][i]['date'] + ' - ' + json['reviews'][i]['headline'] + ' - ' + 
-                    '<div>' + json['reviews'][i]['review'] + '</div></td><tr>');
+            $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon + ' <a href="/' + json.reviews[i + reviewsIndex]['ratable'] + '">' + json.reviews[i + reviewsIndex]['ratable'] + '</a>: ' + json.reviews[i + reviewsIndex]['date'] + ' - ' + json.reviews[i + reviewsIndex]['headline'] + ' - ' + 
+                    '<div>' + json.reviews[i + reviewsIndex]['review'] + '</div></td><tr>');
         }
     }
     if ($('#reviews-data').width() > $('.panel-body').last().width()) {
         $('#reviews-data').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
         $('#reviews-data td').css({'width': '100%'});
-    }    
+    }
     $('.fa-user-secret').tooltip({container:'body'});
     $('.fa-user-secret').tooltip();
-    detachedSpinner = $('#tr-spinner').detach();
-    $('#ratings-data tbody').append('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
-    $('#reviews-data tbody').append('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
-    $('.add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-    //enable button
+    if (reviewsIndex >= 10) {
+        $('#reviews-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
+        $('#reviews-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    if (json.reviews.length > (reviewsIndex + 10)) {
+        $('#reviews-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
+        $('#reviews-data tbody button').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    $('#reviews-data .tr-spinner').remove();
 }
 
 function getReviews(ratableName) {
@@ -376,7 +454,7 @@ function getReviews(ratableName) {
         });
     }
     for (i = 0; i < 10; i++) {
-        $.getJSON('review?userId=useSkip&ratable=' + ratableName + '&skip=' + rowInd, function(json) {
+        $.getJSON('review?userId=useSkip&ratable=' + ratableName + '&skip=' + skipReviewCount, function(json) {
             var anonymousTooltip = '';
             if (json['review']) {
                 if (!json['user']) {
@@ -414,7 +492,7 @@ function getReviews(ratableName) {
                 detachedSpinner = $('.spinner').detach();
             }
         });
-        rowInd++;
+        skipReviewCount++;
     }    
     $('#table-2').on('focus', 'textarea', function() {
        $(this).attr('rows', '10');
@@ -471,7 +549,7 @@ function createRows(settings) {
     var k = 0;
     if (settings.path !== 'autocomplete') {
         for (i = 0; i < settings.length; i++) {
-            $.getJSON('ratable/' + settings.path + '/' + rowInd.toString(), function(json) {
+            $.getJSON('ratable/' + settings.path + '/' + skipRatingCount.toString(), function(json) {
                 k++;
                 if (json['name']) {
                     createTr(json);                    
@@ -480,12 +558,12 @@ function createRows(settings) {
                     $('#things-to-rate-body').append('<tr class="ratable-tr"></tr>');
                     if (!noMoreRows) {
                         noMoreRows = true;
-                        detachedRows.push($('.ratable-tr').clone());
+                        detachedRatingsRows.push($('.ratable-tr').clone());
                     }                   
                 }
                 if (k === settings.length) {
-                    if ((detachedRowsIndex === detachedRows.length) && !noMoreRows) {
-                        detachedRows.push($('.ratable-tr').clone());
+                    if ((detachedRatingsRowsIndex === detachedRatingsRows.length) && !noMoreRows) {
+                        detachedRatingsRows.push($('.ratable-tr').clone());
                     }                    
                     detachedSpinner = $('.spinner').detach();
                     if (noMoreRows) {
@@ -499,7 +577,7 @@ function createRows(settings) {
                     }                        
                 }
             });
-            rowInd++;
+            skipRatingCount++;
         }
     }
     else {
@@ -787,19 +865,19 @@ function createBtnEvents() {
     $('#table-1').on('click', '#add-rows-btn', function(){
         window.scrollTo(0, 0);
         $('#add-rows-btn').button({disabled: true});
-        detachedRowsIndex++;
+        detachedRatingsRowsIndex++;
         $('.ratable-tr').remove();
         if (!$('#prev-rows-btn').length) {
             $('#things-to-rate-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="6"><button id="prev-rows-btn">Previous</button></tr></td>');
         }
         $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        if ((detachedRowsIndex === detachedRows.length) && !noMoreRows) {
+        if ((detachedRatingsRowsIndex === detachedRatingsRows.length) && !noMoreRows) {
             $('#td-add-rows').prepend(detachedSpinner);                
             createRows({'length': 10, 'path': 'master'});
         }
         else {
-            $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
-            if ((detachedRowsIndex < detachedRows.length) && !((detachedRowsIndex === (detachedRows.length - 1)) && noMoreRows)) {
+            $('#tr-add-rows').before(detachedRatingsRows[detachedRatingsRowsIndex]);
+            if ((detachedRatingsRowsIndex < detachedRatingsRows.length) && !((detachedRatingsRowsIndex === (detachedRatingsRows.length - 1)) && noMoreRows)) {
                 $('#add-rows-btn').button({disabled: false});            
             }
             else {
@@ -812,8 +890,8 @@ function createBtnEvents() {
     $('#table-1').on('click', '#prev-rows-btn', function() {
         window.scrollTo(0, 0);
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        detachedRowsIndex--;
-        if (detachedRowsIndex === 0) {
+        detachedRatingsRowsIndex--;
+        if (detachedRatingsRowsIndex === 0) {
             $('#tr-prev-rows').remove();
         }
         $('.ratable-tr').remove();
@@ -821,7 +899,7 @@ function createBtnEvents() {
             $('#td-add-rows').append('<div><button id="add-rows-btn">More</button></div>');
             $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         }
-        $('#tr-add-rows').before(detachedRows[detachedRowsIndex]);
+        $('#tr-add-rows').before(detachedRatingsRows[detachedRatingsRowsIndex]);
         $('#add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     });
 }
