@@ -43,12 +43,8 @@ Route::post('ratable/create/success', 'RatableController@store');
 
 Route::get('proposed', 'HomeController@index');
 
-Route::get('user/{id}', 'UserController@index');
-
-Route::get('user/userdata/{id}', 'UserController@show');
+Route::get('user/{id}', 'UserController@show');
 
 Route::get('contributors', "ContributorsController@index");
 
-Route::get('contributors/retrieve/{skip}', "ContributorsController@show");
-
-Route::get('{path}', "RatableController@index");
+Route::get('/{path}', "RatableController@index");

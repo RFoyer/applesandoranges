@@ -15,6 +15,12 @@ class TableController extends Controller
 {
     public function show(Request $request, $table) {
         $data = [];
+        if (Auth::check()) {
+            $thisUserId = Auth::id();
+        }
+        else {
+            $thisUserId = 0;
+        }
         if ($table === 'master') {
             $ratable = Ratable::where([
                 ['approved', '=', true],
@@ -22,7 +28,7 @@ class TableController extends Controller
             ])->first();
         }
         else if ($table === 'proposed') {
-            $ratable = Ratable::where('approved', false)->skip($skip)->first();
+            $ratable = Ratable::where('approved', false)->skip((int)$request->input('skip'))->first();
         }
         else if ($table === 'home') {
             $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($request->input('name'))]);
@@ -32,8 +38,60 @@ class TableController extends Controller
         }
         else if ($table === 'search') {
             $ratable = Ratable::where('id', $request->input('id'))->first();
-        }            
-        if ($ratable) {
+        }
+        else if ($table === 'contributors') {
+            $users = DB::table('ratings')->select(DB::raw('user_id, count(user_id) as user_count'))->groupBy('user_id')->orderBy('user_count', 'desc')->take(10)->get();
+            $data = [];
+            foreach($users as $u) {
+                $user = User::where('id', $u->user_id)->first();
+                $numberOfRatings = Rating::where('user_id', $user->id)->count();
+                $numberOfReviews = Review::where('user_id', $user->id)->count();
+                $numberOfProposedRatables = Ratable::where('creator_id', $user->id)->count();
+                $numberOfApprovedRatables = Ratable::where('creator_id', $user->id)->where('approved', true)->count();
+                //$numberOfPendingRatables = diff between last two
+                //$numberOfRejectedRatables
+                array_push($data, ['name' => $user->name,
+                    'email' => $user->email,
+                    'id' => $user->id,
+                    'numberOfRatings' => (empty($numberOfRatings)) ? 0 : $numberOfRatings,
+                    'numberOfReviews' => (empty($numberOfReviews)) ? 0 : $numberOfReviews,
+                    'numberOfProposedRatables' => (empty($numberOfProposedRatables)) ? 0 : $numberOfProposedRatables,
+                    'numberOfApprovedRatables' => (empty($numberOfApprovedRatables)) ? 0 : $numberOfApprovedRatables
+                ]);
+            }
+        }
+        else if ($table === 'user') {
+            $id = $request->input('id');
+            $user = User::where('id', (int)$id)->first();
+            if ($user) {
+                $userRatings = new Rating;
+                $userReviews = new Review;
+                if ((int)$id === (int)$thisUserId) {
+                    $userRatings = Rating::where('user_id', (int)$id)->get();
+                    $userReviews = Review::where('user_id', (int)$id)->get();
+                }
+                else {
+                    $userRatings = Rating::where([
+                        ['user_id', '=', (int)$id],
+                        ['anonymous', '=', false]
+                    ])->get();
+                    $userReviews = Review::where([
+                        ['user_id', '=', (int)$id],
+                        ['anonymous', '=', false]
+                    ])->get();
+                }
+                $ratings = [];
+                $reviews = [];
+                foreach ($userRatings as $r) {
+                    $ratings[] = ['rating' => $r->rating, 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
+                }
+                foreach ($userReviews as $r) {
+                    $reviews[] = ['review' => $r->review, 'headline' => $r->headline, 'date' => date('F j, Y', strtotime((string)$r->updated_at)), 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
+                }
+                $data = ['username' => $user->name, 'ratings' => $ratings, 'reviews' => $reviews];        
+            }
+        }
+        if (isset($ratable)) {
             if ($ratable->img_src === "#") {
                 $ratable->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";                    
             }
@@ -44,7 +102,7 @@ class TableController extends Controller
                 $region = substr($ratable->class, $substrStartIndex + 1, $substrLength);
             }
             $userRating = Rating::where([
-                    ['user_id', '=', Auth::id()],
+                    ['user_id', '=', (int)$thisUserId],
                     ['ratable_id', '=', $ratable->id]
                 ])->first();
             $isAnonymous = false;

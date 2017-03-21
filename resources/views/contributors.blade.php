@@ -3,8 +3,16 @@
 @section('content')
 <div class="panel-body">
     <table id="contributors-data">
-        <caption style='white-space: nowrap;'>TOP CONTRIBUTORS</caption>
-        <thead></thead>
+        <caption>TOP CONTRIBUTORS</caption>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Ratings</th>
+                <th>Reviews</th>
+                <th>Ratables Proposed</th>
+                <th>Ratables Approved</th>                
+            </tr>
+        </thead>
         <tbody></tbody>
     </table>
 </div>

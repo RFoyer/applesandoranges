@@ -10,7 +10,7 @@
             <thead id="{{ $searchTerm }}">
                  
             </thead>
-            <tbody id='things-to-rate-body'>
+            <tbody id='table-1-body'>
                    
             </tbody>
         </table>
@@ -20,7 +20,7 @@
             <thead id="{{ $searchTerm }}">
                         
             </thead>
-            <tbody id='things-to-rate-body'>
+            <tbody id='table-1-body'>
                       
             </tbody>
         </table>
