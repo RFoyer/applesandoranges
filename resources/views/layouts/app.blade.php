@@ -55,11 +55,11 @@
                             <form novalidate>
                                 <div class="input-group">
                                     <input type="text" id="search-box" class="form-control" placeholder="Search ratables..." name="q" autocomplete="off">
-                                    <div class="input-group-btn">
+                                    <span class="input-group-btn">
                                         <button id="btn-search" type="submit" formmethod="get" class="btn btn-default" formaction="/search">
                                             <i class="fa fa-search"></i>
                                         </button>
-                                    </div>
+                                    </span>
                                 </div>
                             </form>
                         </div>

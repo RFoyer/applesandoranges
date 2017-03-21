@@ -24,7 +24,7 @@ and open the template in the editor.
 }
 
 .input-group {
-    width: 250px;
+    /*width: 250px;*/
     background-color: white;
     border: 1px solid;
     border-radius: 4px;
@@ -247,6 +247,7 @@ caption {
 #footer {
     text-align: center;
     padding-bottom: 10px;
+    padding-top: 10px;
     position: absolute;
     bottom: 0px;
     width: 100%;

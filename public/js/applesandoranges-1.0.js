@@ -21,7 +21,9 @@ $(document).ready(function() {
     }
     else {
         $('#search-box').focus();
+        $('.input-group').css({'width': '250px'});
     }
+    $('#main-body-container').css({'padding-bottom': $('#footer').outerHeight()});
     var path = location.pathname;
     setIsGuest();
     createAutocomplete();
@@ -872,11 +874,11 @@ function createNavbarEventHandlers() {
     }
     else {
         detachedSearch = $('#div-form-search').detach();
-        $('.logo').before(detachedSearch);
+        $('.navbar-header').append(detachedSearch);
         $('.logo').css({'padding': 'auto', 'height': 'auto', 'float': 'left', 'vertical-align': 'middle', 'background-color': 'white'});
         $('#logo').css({'height': 'auto', 'padding': 'auto'});
-        $('#div-form-search').css({'float': 'right', 'padding': '8px', 'margin': 'auto', 'height': 'auto'});
-        $('#search-box').css({'height': 'auto', 'padding': '5px', 'margin': 'auto'});
+        $('#div-form-search').css({'float': 'left', 'padding': '8px', 'margin': 'auto', 'height': 'auto', 'width': 'auto'});
+        $('#search-box').css({'height': 'auto', 'padding': '5px', 'margin': 'auto', 'width': 'auto'});
         $('#btn-search').css({'padding-top': '5px', 'padding-bottom': '5px'});
         $('.navbar-header .input-group').add('.navbar-header .input-group-btn').css({'height': 'auto', 'padding': 'auto', 'margin': 'auto'});
         $('.nav-a').css({'background-color': 'white', 'color': '#32a232'});
@@ -887,5 +889,6 @@ function createNavbarEventHandlers() {
         $('.dropdown-menu').css({'background-color': '#32a232', 'padding': '0px'});
         $('.nav-a').last().css({'padding': 'auto'});
         $('.navbar-header').css({'background-color': '#32a232'});
+        $('.input-group').css({'width': $('.logo').outerWidth()});
     }
 }
