@@ -15,7 +15,7 @@ var deviceType = "desktop";
 $(document).ready(function() {
     if (window.innerWidth <= 800) {
         deviceType = "mobile";
-        $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%', 'background': 'url("/images/your_ad_here.jpg") no-repeat fixed'});
+        $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%'});
         $('.ad-space').css({'width': $('#body').width()});
         $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});        
     }
