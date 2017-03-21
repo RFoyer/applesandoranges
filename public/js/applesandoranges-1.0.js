@@ -874,10 +874,10 @@ function createNavbarEventHandlers() {
     }
     else {
         detachedSearch = $('#div-form-search').detach();
-        $('.navbar-header').append(detachedSearch);
+        $('.logo').after(detachedSearch);
         $('.logo').css({'padding': 'auto', 'height': 'auto', 'float': 'left', 'vertical-align': 'middle', 'background-color': 'white'});
         $('#logo').css({'height': 'auto', 'padding': 'auto'});
-        $('#div-form-search').css({'float': 'left', 'padding': '8px', 'margin': 'auto', 'height': 'auto', 'width': 'auto'});
+        $('#div-form-search').css({'float': 'left', 'padding': '8px', 'margin': 'auto', 'height': 'auto', 'width': '33%'});
         $('#search-box').css({'height': 'auto', 'padding': '5px', 'margin': 'auto', 'width': 'auto'});
         $('#btn-search').css({'padding-top': '5px', 'padding-bottom': '5px'});
         $('.navbar-header .input-group').add('.navbar-header .input-group-btn').css({'height': 'auto', 'padding': 'auto', 'margin': 'auto'});
@@ -889,6 +889,6 @@ function createNavbarEventHandlers() {
         $('.dropdown-menu').css({'background-color': '#32a232', 'padding': '0px'});
         $('.nav-a').last().css({'padding': 'auto'});
         $('.navbar-header').css({'background-color': '#32a232'});
-        $('.input-group').css({'width': $('.logo').outerWidth()});
+        $('.input-group').css({'width': '100%'});
     }
 }
