@@ -209,7 +209,7 @@ function setIsGuest() {
 
 function createAutocomplete() {
     $('#search-box').autocomplete({
-        source: 'autocomplete'        
+        source: '/autocomplete'        
     }).autocomplete('instance')._renderItem = function(ul, item) {
         return $("<li>").append('<div>' +
                 '<img class="search-img" width="60" src="' + item.img + '">' + 
@@ -218,12 +218,12 @@ function createAutocomplete() {
 }
 
 function createSearchEvents() {
-    $('#div-form-search form').submit(function() {
+    $('#body').on('submit', 'div-form-search form', function() {
         if (!$(this).find('#search-box').val().length) {
             return false;
         }
     });
-    $('#btn-search').mouseenter(function() {
+    $('#body').on('mouseenter', '#btn-search', function() {
         $(this).css({'background-color': 'white'});
     });
 }
@@ -239,6 +239,7 @@ function createNavbarEvents() {
     else {
         detachedSearch = $('#div-form-search').detach();
         $('#logo-div').after(detachedSearch);
+        createAutocomplete();
         setMobileNavbarCss();        
     }
 }
