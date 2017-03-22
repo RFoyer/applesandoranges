@@ -66,7 +66,7 @@ input[name="ratable"], input[name="rating"] {
     display: none;
 }
 
-form[name="star-form"] {
+.star-btn-form {
     float: left;        
 }
 
@@ -131,34 +131,13 @@ svg {
     padding: 0px;
 }
 
-.number-rating {
-    color: orange;
-}
-
-.number-of-ratings {
-    color: green;
-}
-
-.align-justify {
-    /*text-align: justify;*/
-    margin-top: -8px;
-}
-
 h3 {
     margin: 0px;
     margin-bottom: 4px;
 }
 
-.font-12px {
-    font-size: 12px;
-}
-
-.img-max-width {
+#ratable-home-img {
     max-width: 350px;
-}
-
-.align-right {
-    text-align: right;
 }
 
 #body {
@@ -192,7 +171,7 @@ h3 {
     display: table;
 }
 
-.logo {
+#logo-div {
     padding: 14px;
     height: 56px;
     background-color: white;
@@ -224,6 +203,25 @@ h3 {
 
 .fa-user-secret {
     color: #7D7D7D;
+    cursor: pointer;
+}
+
+.user-page-anon {
+    padding-left :4px;
+    padding-bottom: 4px;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+.master-page-anon {
+    float: left;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.anon-form {
+    display: inline-block;
+    float: left;
 }
 
 .secret-empty {
@@ -232,15 +230,38 @@ h3 {
 
 .fa-map-marker {
     color: #6666ff;
+    cursor: pointer;
+}
+
+.mobile-map {
+    padding-left: 4px;
+    vertical-align: top;
+    padding-top: 4px;
+}
+
+.mobile-icons {
+    float: left;
+    vertical-align: middle;
+}
+
+.fa-eraser {
+    color: pink;
+    cursor: pointer;
+}
+
+.eraser-form {
+    display: inline-block;
+}
+
+.fa-pencil-square-o {
+    color: blue;
+    padding: 4px;
+    cursor: pointer;
 }
 
 caption {
     text-align: left;
     font-weight: bold;
-}
-
-.fa {
-    cursor: pointer;
 }
 
 #footer {
@@ -250,4 +271,31 @@ caption {
     position: absolute;
     bottom: 0px;
     width: 100%;
+}
+
+.icon-div {
+    float: left;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.headline {
+    vertical-align: top;
+    padding-left: 2px;
+    padding-right: 4px;
+}
+
+.ratings-data-a {
+    vertical-align: top;
+    display: table-cell;
+    padding-bottom: 5px;
+    padding-left: 2px;
+}
+
+.review-icon {
+    vertical-align: top;    
+    padding-bottom: 0px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 5px;
 }

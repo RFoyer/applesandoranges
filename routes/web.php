@@ -19,7 +19,7 @@ Route::post('rating', 'RatingController@store');
 
 Route::post('rating/{id}', "RatingController@update");
 
-Route::delete('rating/destroy/{id}', "RatingController@destroy");
+Route::delete('rating/{id}', "RatingController@destroy");
 
 Route::get('review', 'ReviewController@show');
 
@@ -27,7 +27,7 @@ Route::post('review', 'ReviewController@store');
 
 Route::post('review/{id}', "ReviewController@update");
 
-Route::delete('review/destroy/{id}', "ReviewController@destroy");
+Route::delete('review/{id}', "ReviewController@destroy");
 
 Auth::routes();
 

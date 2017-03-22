@@ -41,7 +41,7 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <div class="logo">
+                    <div id="logo-div">
                         <a id='logo' class="navbar-brand" href="{{ url('/') }}">
                             <span id='apples'>Apples</span> <span id='and'>-and-</span> <span id='oranges'>Oranges</span>
                         </a>
