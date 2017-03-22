@@ -1,8 +1,7 @@
-var globalVars = {
+var globals = {
     'deviceType': "desktop",
     'isGuest': false,
-    'skipRatingCount': 0,
-    'skipReviewCount': 0,
+    'skipRatingCount': 0,    
     'detachedRatingsRows': [],
     'detachedRatingsRowsIndex': 0,    
     'noMoreRows': false,
@@ -38,6 +37,9 @@ function fillTables() {
     else if (path === '/contributors') {
         fillContributorsTable();
     }
+    else if ((path === '/login') || (path === '/register') || (path === '/ratable/create') || (path === '/ratable/create/success')) {
+        //
+    }
     else if (!$('#error').length) {
         fillRatableTables();        
     }
@@ -65,7 +67,7 @@ function fillUserTables() {
         $('#user-data tbody .tr-spinner').remove();
         if (json['username']) {
             $('#user-data tbody').prepend('<tr><td>'+ json['username'] + '</td></tr>');
-            createUserDataRows(json)
+            createUserDataRows(json);
        }
        else {
             $('#user-data tbody').append('<tr><td>Sorry, this user does not seem to exist!</td></tr>');
@@ -78,19 +80,23 @@ function fillContributorsTable() {
     $('#contributors-data th').css({'padding-left': '4px', 'padding-right': '4px', 'text-align': 'center'});
     $.getJSON('/table/contributors', function(json) {
         $('.spinner').remove();
-        json.forEach(function(data) {
-            $('#contributors-data tbody').append('<tr>' +
-                '<td class="td-user"><a href="/user/' + data.id.toString() + '">' + data.name + '</a></td>' +
-                '<td>' + data.numberOfRatings.toString() + '</td>' +
-                '<td>' + data.numberOfReviews.toString() + '</td>' +
-                '<td>' + data.numberOfProposedRatables.toString() + '</td>' +
-                '<td>' + data.numberOfApprovedRatables.toString() + '</td>' +
-                //'<td>' + data.numberOfPendingRatables.toString() + '</td>' +
-                //'<td>' + data.numberOfRejectedRatables.toString() + '</td>' +                    
-            '</tr>');
-        });
+        createContributorsRows(json);
         $('#contributors-data tr').not('.td-user').css({'text-align': 'center'});
         $('#contributors-data .td-user').css({'text-align': 'left'});
+    });
+}
+
+function createContributorsRows(json) {
+    json.forEach(function(data) {
+        $('#contributors-data tbody').append('<tr>' +
+            '<td class="td-user"><a href="/user/' + data.id.toString() + '">' + data.name + '</a></td>' +
+            '<td>' + data.numberOfRatings.toString() + '</td>' +
+            '<td>' + data.numberOfReviews.toString() + '</td>' +
+            '<td>' + data.numberOfProposedRatables.toString() + '</td>' +
+            '<td>' + data.numberOfApprovedRatables.toString() + '</td>' +
+            //'<td>' + data.numberOfPendingRatables.toString() + '</td>' +
+            //'<td>' + data.numberOfRejectedRatables.toString() + '</td>' +                    
+        '</tr>');
     });
 }
 
@@ -99,8 +105,10 @@ function fillRatableTables() {
         $('#tr-review-form').hide();
     }
     createTable1Events();
-    $('#reviews-data').after('<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>');
-    $.getJSON('/table/home?name=' + path.slice(1), function(json) {
+    globals.detachedSpinner = '<div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>';
+    $('#ratings-data').after(globals.detachedSpinner);
+    $('#reviews-data').after(globals.detachedSpinner);
+    $.getJSON('/table/home?name=' + location.pathname.slice(1), function(json) {
         createRatableTable1Rows(json);
         createRatableReviewsRows(json['name']);
     });
@@ -128,9 +136,9 @@ function appendSpinnerWithMoreBtn(color) {
 }
 
 function setProposedTableColors() {
-    globalVars.borderTopColor = 'green';
-    globalVars.avgStarColor = 'green';
-    globalVars.avgStarFadedColor = '#90EE90';
+    globals.borderTopColor = 'green';
+    globals.avgStarColor = 'green';
+    globals.avgStarFadedColor = '#90EE90';
 }
 
 function appendSearchSpinner() {
@@ -138,10 +146,10 @@ function appendSearchSpinner() {
 }
 
 function appendUserSpinners() {
-    globalVars.detachedSpinner = '<tr class="tr-spinner"><td colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div></td></tr>';
-    $('#user-data tbody').append(globalVars.detachedSpinner);
-    $('#ratings-data tbody').append(globalVars.detachedSpinner);
-    $('#reviews-data tbody').append(globalVars.detachedSpinner);
+    globals.detachedSpinner = '<tr class="tr-spinner"><td colspan="2"><div class="spinner"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div></td></tr>';
+    $('#user-data tbody').append(globals.detachedSpinner);
+    $('#ratings-data tbody').append(globals.detachedSpinner);
+    $('#reviews-data tbody').append(globals.detachedSpinner);
 }
 
 function readyPage() {
@@ -155,7 +163,7 @@ function readyPage() {
 
 function setDeviceType() {
     if (window.innerWidth <= 800) {
-        globalVars.deviceType = "mobile";
+        globals.deviceType = "mobile";
         $('#body').add('#nav').add('#nav-container').add('#div-mid').css({'width': '100%'});
         $('.ad-space').css({'width': $('#body').width()});
         $('.navbar-header').add('.navbar-collapse').css({'margin': '0px'});        
@@ -172,7 +180,7 @@ function makePaddingForFooter() {
 
 function setIsGuest() {
     if ($('#table-1').hasClass("guest") || $('#ratings-data').hasClass('guest')) {
-        globalVars.isGuest = true;
+        globals.isGuest = true;
     }    
 }
 
@@ -186,70 +194,72 @@ function createAutocomplete() {
 
 function createSearchEvents() {
     $('#div-form-search form').submit(function() {
-       if (!$(this).find('#search-box').val().length) {
-            /*$(this).find('#search-box').attr({ 'data-toggle': "tooltip", 'data-placement': "bottom", 'title': "Please fill out first."});
-            $(this).find('#search-box').tooltip({container: 'body', trigger: 'manual'});
-            $(this).find('#search-box').tooltip('show');*/
-            //go here to fix arrow background: https://www.w3schools.com/bootstrap/bootstrap_ref_js_tooltip.asp
-            //events that get rid of tooltip: keydown, click
-            //also add timeout
+        if (!$(this).find('#search-box').val().length) {
             return false;
-       }
+        }
     });
     $('#btn-search').mouseenter(function() {
-       $(this).css({'background-color': 'white'});
+        $(this).css({'background-color': 'white'});
     });
 }
 
 function createNavbarEvents() {
     var detachedSearch;
     $('.nav-a').css({'height': '56px', 'display': 'table-cell', 'vertical-align': 'middle'});
-    if (globalVars.deviceType === "desktop") {
+    if (globals.deviceType === "desktop") {
         $('.navbar-collapse').css({'background-color':'#32a232'});
         $('.dropdown-menu').css({'padding': '0px', 'min-width': '0px'});
-        $('.dropdown').mouseenter(function() {
-            $(this).addClass('open');
-            $(this).find('a').first().attr('aria-expanded', false);
-            $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
-            if (!globalVars.isGuest) {
-                $('#ul-logout').width($('#ul-logout').parent().width());
-            }
-            $(this).find('ul').find('a').mouseenter(function() {
-               $(this).css({'background-color': '#32a232', 'color': 'white'});
-               $(this).parent().css({'background-color': '#32a232'});
-               $(this).mouseleave(function() {
-                   $(this).css({'background-color': 'white', 'color': '#32a232'});
-                   $(this).parent().css({'background-color': 'white'});
-               });
-            });
-            $(this).mouseleave(function() {
-                $(this).removeClass('open');
-                $(this).find('a').first().attr('aria-expanded', true);
-                $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
-                $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
-            });
-        });
+        createDropdownEvents();        
     }
     else {
         detachedSearch = $('#div-form-search').detach();
         $('.logo').after(detachedSearch);
-        $('.logo').css({'padding': 'auto', 'height': 'auto', 'float': 'left', 'vertical-align': 'middle', 'background-color': 'white'});
-        $('#logo').css({'height': 'auto', 'padding': 'auto'});
-        $('#logo').not('#and').css({'font-size': '14px'});
-        $('#div-form-search').css({'float': 'left', 'padding': '8px', 'margin': 'auto', 'height': 'auto', 'width': 'auto'});
-        $('#search-box').css({'height': 'auto', 'padding': '5px', 'margin': 'auto', 'width': '108px'});
-        $('#btn-search').css({'padding-top': '5px', 'padding-bottom': '5px'});
-        $('.navbar-header .input-group').add('.navbar-header .input-group-btn').css({'height': 'auto', 'padding': 'auto', 'margin': 'auto'});
-        $('.nav-a').css({'background-color': '#32a232', 'color': 'white'});
-        $('.navbar-collapse').css({'padding': '4px', 'background-color': '#32a232'});
-        $('.navbar-nav').css({'margin': '0px'});
-        $('.navbar-header button').css({'border-color': '#32a232', 'background-color': 'white'});
-        $('.dropdown-menu').css({'background-color': '#32a232', 'padding': '0px'});
-        $('.nav-a').last().css({'padding': 'auto'});
-        $('.navbar-header').css({'background-color': '#32a232'});
-        $('.input-group').css({'width': '150px'});
-        $('.caret').attr('class', 'fa fa-caret-right');
+        setMobileNavbarCss();        
     }
+}
+
+function createDropdownEvents() {
+    $('.dropdown').mouseenter(function() {
+        $(this).addClass('open');
+        $(this).find('a').first().attr('aria-expanded', false);
+        $(this).find('a').first().css({'background-color': 'white', 'color': '#32a232'});
+        if (!globals.isGuest) {
+            $('#ul-logout').width($('#ul-logout').parent().width());
+        }
+        $(this).find('ul').find('a').mouseenter(function() {
+           $(this).css({'background-color': '#32a232', 'color': 'white'});
+           $(this).parent().css({'background-color': '#32a232'});
+           $(this).mouseleave(function() {
+               $(this).css({'background-color': 'white', 'color': '#32a232'});
+               $(this).parent().css({'background-color': 'white'});
+           });
+        });
+        $(this).mouseleave(function() {
+            $(this).removeClass('open');
+            $(this).find('a').first().attr('aria-expanded', true);
+            $(this).find('a').css({'background-color': 'white', 'color': '#32a232'});
+            $(this).find('a').first().css({'background-color': '#32a232', 'color': 'white'});
+        });
+    });
+}
+
+function setMobileNavbarCss() {
+    $('.logo').css({'padding': 'auto', 'height': 'auto', 'float': 'left', 'vertical-align': 'middle', 'background-color': 'white'});
+    $('#logo').css({'height': 'auto', 'padding': 'auto'});
+    $('#logo').not('#and').css({'font-size': '14px'});
+    $('#div-form-search').css({'float': 'left', 'padding': '8px', 'margin': 'auto', 'height': 'auto', 'width': 'auto'});
+    $('#search-box').css({'height': 'auto', 'padding': '5px', 'margin': 'auto', 'width': '108px'});
+    $('#btn-search').css({'padding-top': '5px', 'padding-bottom': '5px'});
+    $('.navbar-header .input-group').add('.navbar-header .input-group-btn').css({'height': 'auto', 'padding': 'auto', 'margin': 'auto'});
+    $('.nav-a').css({'background-color': '#32a232', 'color': 'white'});
+    $('.navbar-collapse').css({'padding': '4px', 'background-color': '#32a232'});
+    $('.navbar-nav').css({'margin': '0px'});
+    $('.navbar-header button').css({'border-color': '#32a232', 'background-color': 'white'});
+    $('.dropdown-menu').css({'background-color': '#32a232', 'padding': '0px'});
+    $('.nav-a').last().css({'padding': 'auto'});
+    $('.navbar-header').css({'background-color': '#32a232'});
+    $('.input-group').css({'width': '150px'});
+    $('.caret').attr('class', 'fa fa-caret-right');
 }
 
 function createTable1Events() {
@@ -321,7 +331,7 @@ function createTable1StarEvents() {
 
 function makeTable1StarFormsAsync() {
     $('#table-1').on('submit', '.star-btn-form', function(){
-        if (!globalVars.isGuest) {
+        if (!globals.isGuest) {
             $.post("rating", $(this).serialize(), function(res) {
             console.log(res);
             });
@@ -349,7 +359,7 @@ function createTable1IconEvents() {
         return false;
     });
     $('#table-1').on('click', '.fa-eraser', function() {
-       if (!globalVars.isGuest) {
+       if (!globals.isGuest) {
             $(this).siblings('.eraser-form').trigger('submit');            
        }
        return false;       
@@ -357,7 +367,7 @@ function createTable1IconEvents() {
     $('#table-1').on('click', '.fa-user-secret', function() {
        var isAnonymous = false;
        $(this).toggleClass('secret-empty');
-       if (!globalVars.isGuest) {
+       if (!globals.isGuest) {
             if (!$(this).hasClass('secret-empty')) {
                 isAnonymous = true;
             }
@@ -367,10 +377,6 @@ function createTable1IconEvents() {
        }
        return false;       
     });
-    
-    /*$('#table-1').on('click', '.fa-map-marker', function() {
-       //open map in new window 
-    });*/
 }
 
 function createRatableTable1Rows(json) {
@@ -384,10 +390,10 @@ function createRatableTable1Rows(json) {
     var mapMarkerTooltip = '';
     var eraserIcon = '';
     var eraserTooltip = '';
-    if (globalVars.isGuest) {
+    if (globals.isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
     }
-    if (globalVars.deviceType === 'desktop') {
+    if (globals.deviceType === 'desktop') {
         imgTd = '<td><img class="img-max-width" src="' + json['img_src'] + '"></td>';
         mapMarkerTooltip = ' data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"';
         eraserTooltip = ' data-toggle="tooltip" data-placement="top" title="clear your rating"';
@@ -399,7 +405,7 @@ function createRatableTable1Rows(json) {
     if (!json['isAnonymous']) {
         secretEmpty = ' secret-empty';
     }
-    if (!globalVars.isGuest) {
+    if (!globals.isGuest) {
         eraserIcon = '<div style="float:left;padding-left:4px;"><form class="eraser-form" name="eraser-form" method="post">' +
                         '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
                         '<input type="hidden" name="id" value="' + json['id'] + '"/>' +                                
@@ -415,8 +421,8 @@ function createRatableTable1Rows(json) {
                     '<i class="fa fa-user-secret fa-lg' + secretEmpty + '"' + anonymousTooltip + '></i></div>';
     if (!json['isApproved']) {
         approvalPending = '<strong><em>*approval is pending on this ratable</em></strong>';
-        globalVars.avgStarColor = 'green';
-        globalVars.avgStarFadedColor = '#90EE90';
+        globals.avgStarColor = 'green';
+        globals.avgStarFadedColor = '#90EE90';
     }
     $('#table-1 tbody').append('<tr>' + imgTd +
                                     '<td style="overflow:hidden;">' +
@@ -428,31 +434,31 @@ function createRatableTable1Rows(json) {
                                     '</td></tr>'
     );
     $('[data-toggle="tooltip"]').tooltip({container: 'body'});
-    $('[data-toggle="tooltip"]').tooltip();       
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.spinner').first().remove();
 }
 
 function createRatableReviewsRows(ratableName) {
-    var i;
     readyRatableTable2(ratableName);
-    for (i = 0; i < 10; i++) {
-        createRatableTable3Rows(ratableName);
-        globalVars.skipReviewCount++;
-    }    
+    $.getJSON('review?userId=all&ratable=' + ratableName, function(json) {
+        createRatableTable3BtnEvents(json);
+        createRatableTable3Rows(json, 'none');
+    });
 }
 
 function readyRatableTable2(ratableName) {
     $('#table-2').prepend('<caption>Reviews:</caption>');
     $('.review-form input[name="ratable"]').val(ratableName);
-    if (!globalVars.isGuest) {
-        $('#tr-review-form').hide();
+    if (!globals.isGuest) {
+       $('#tr-review-form').hide();
         $.getJSON('review', {'ratable': ratableName, 'userId': "useAuthId", 'skip': 0 }, function(json) {
             if (!json['review']) {
                 $('#tr-review-form').show();
-                createRatableTable2CreateReviewEvents();
+                createNewReviewEvents();
             }
             else {
-                $('#table-2 tbody').append('<tr class="user-review"><td><button class="btn btn-default">your review</button></td></tr>')
-                createRatableTable2EditReviewEvents(json);
+                $('#table-2 tbody').append('<tr class="user-review"><td><button class="btn btn-default">your review</button></td></tr>');
+                createEditReviewBtnEvent(json, ratableName);
             }
         });
     }
@@ -461,9 +467,25 @@ function readyRatableTable2(ratableName) {
     });
 }
 
-function createRatableTable2CreateReviewEvents() {
+function createRatableTable3BtnEvents(json) {
+    $('#table-3 tbody').on('click', '.add-rows-btn', function() {
+       $('#reviews-data').after(globals.detachedSpinner);
+       createRatableTable3Rows(json, 'add');
+    });
+    $('#table-3 tbody').on('click', '.prev-rows-btn', function() {
+        $('#reviews-data').after(globals.detachedSpinner);
+        createRatableTable3Rows(json, 'prev');
+    });    
+}
+
+function createNewReviewEvents() {
+    createNewReviewFormEvent();
+    createNewReviewIconEvent();    
+}
+
+function createNewReviewFormEvent() {
     $('#table-2').on('submit', '.review-form', function() {
-        if (!globalVars.isGuest) {
+        if (!globals.isGuest) {
             $.post("review", $(this).serialize(), function(res) {
                 console.log(res);
             });
@@ -472,10 +494,13 @@ function createRatableTable2CreateReviewEvents() {
         $('#table-2 tbody').append('<tr><td style="color:green;"><i class="fa fa-check"></i> Your review has been submitted!</td></tr>');
         return false;
     });
+}
+
+function createNewReviewIconEvent() {
     $('#table-2').on('click', '.fa-user-secret', function() {
         var isAnonymous = false;
         $(this).toggleClass('secret-empty');
-        if (!globalVars.isGuest) {
+        if (!globals.isGuest) {
              if (!$(this).hasClass('secret-empty')) {
                  isAnonymous = true;
              }
@@ -485,160 +510,214 @@ function createRatableTable2CreateReviewEvents() {
     });
 }
 
-function createRatableTable2EditReviewEvents(json) {
+function createEditReviewBtnEvent(json, ratableName) {
     $('#table-2').on('click', '.user-review', function() {
-        var pencilSquareTooltip = '';
-        var eraserTooltip = '';
         $(this).remove();
-        if (globalVars.deviceType === "desktop") {
-            pencilSquareTooltip = ' data-toggle="tooltip" data-placement="top" title="edit your review"';
-            eraserTooltip = ' data-toggle="tooltip" data-placement="top" title="clear your review">';
-        }
-        $('#table-2 tbody').append('<tr><td>' +
-                '<div style="display:table;margin-bottom:-6px">' + 
-                    createSmallReadOnlyStars(json['rating']) + 
-                    ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong>' +
-                    '<table><tr>' +
-                        '<td style="padding:0px;padding-left:8px;">' +
-                            '<i class="fa fa-pencil-square-o fa-lg" style="color:blue;padding:4px;"' + pencilSquareTooltip + '></i>' +
-                        '</td>' +
-                        '<td style="padding:0px;">' +
-                            '<form class="eraser-form" name="eraser-form" method="post">' +
-                                '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
-                                '<input type="hidden" name="ratable" value="' + ratableName + '"/>' +                                
-                             '</form>' +
-                            '<i class="fa fa-eraser fa-lg" style="color:pink;padding:4px;"' + eraserTooltip + '</i>' +
-                        '</td></tr>' +
-                    '</table>' +
-                '</div>' +
-                '<div style="padding-left:4px;">By <a href="user/' + json['userId'] +'">' + json['user'] + '</a> on ' + json['date'] + '</div>' +
-                '<div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +                            
-            '</td></tr>'
-        );
-        if ($('#table-2').width() > $('#reviews-data').width()) {
-            $('#table-2').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
-            $('#table-2 td').css({'width': '100%'});
-        }
-        $('#table-2 svg').css({'padding': '2px'});                    
-        if (globalVars.deviceType === "desktop") {
-            $('#table-2 i').tooltip({container: 'body'});
-            $('#table-2 i').tooltip();                    
-        }
-        $('#table-2').on('click', '.fa-pencil-square-o', function() {
-            $('#table-2 i').tooltip('hide');
-            $('#tr-review-form').next().remove();
-            $('#tr-review-form').show();
-            $('#table-2 textarea').val(json['review']);
-            $('#table-2 input[name="headline"]').val(json['headline']);
-            $('#table-2 input[name="anonymous"]').val(json['anonymous']);
-            if (json['anonymous']) {
-                $('#table-2 .fa-user-secret').removeClass('secret-empty');
-            }
-            else {
-                $('#table-2 .fa-user-secret').addClass('secret-empty');
-            }
-            if (globalVars.deviceType === 'mobile') {
-                $('#table-2 .fa-user-secret').removeAttr('data-toggle');
-                $('#table-2 .fa-user-secret').removeAttr('data-placement');
-                $('#table-2 .fa-user-secret').removeAttr('title');
-                $('#table-2 .fa-user-secret').removeAttr('data-original-title');
-                $('#table-2 .fa-user-secret').removeAttr('aria-describedby');
-            }
-            else {
-                $('#table-2 .fa-user-secret').tooltip({container: 'body'});
-                $('#table-2 .fa-user-secret').tooltip(); 
-            }
-            $('#table-2').on('submit', '.review-form', function() {
-                if (!globalVars.isGuest) {
-                    $.post("review", $(this).serialize(), function(res) {
-                        console.log(res);
-                    });
-                }
-                $('#table-2 tbody').append('<tr><td>Your review has been submitted!</td></tr>');
-                $('#tr-review-form').hide();                            
-                return false;
-            });
-            $('#table-2').on('click', '.fa-user-secret', function() {
-                var isAnonymous = false;
-                $(this).toggleClass('secret-empty');
-                if (!globalVars.isGuest) {
-                     if (!$(this).hasClass('secret-empty')) {
-                         isAnonymous = true;
-                     }
-                     $('.review-form').find('input[name="anonymous"]').val(isAnonymous.toString());            
-                }
-                return false;       
-             });
-        });
-        $('#table-2').on('click', '.fa-eraser', function() {
-            $('#table-2 i').tooltip('hide');
-            $('#table-2').on('submit', '.eraser-form', function() {
-                var id = $('#star-table').find('input[name="id"]').first().val().toString();
-                $.ajax('review/destroy/' + id, {data: $(this).serialize(), method: "DELETE"}); 
-                return false;
-            });
-            $('#table-2 .eraser-form').trigger('submit');
-            $('#tr-review-form').hide();                        
-            $('#table-2 tbody').append('<tr><td style="color:red;"><i class="fa fa-check"></i> Your review has been removed. <button class="btn btn-default undo">undo</button></td></tr>');
-            $('#table-2').on('click', '.undo', function() {
-                $('#tr-review-form').next().remove();
-                $('#table-2 .review-form').find('textarea').first().html(json['review']);
-                $('#table-2 .review-form input[name="headline"]').val(json['headline']);
-                $('#table-2 .review-form input[name="anonymous"]').val(json['anonymous']);
-                $('#table-2 .review-form input[name="ratable"]').val(ratableName);
-                $('.review-form').on('submit', function() {
-                    $.post('review', $(this).serialize(), function(res) {
-                        console.log(res);
-                    });
-                    return false;
-                });
-                $('.review-form').trigger('submit');
-                $('#table-2 tbody').append('<tr><td style="color:green;"><i class="fa fa-check"></i> Your review has been restored.</td></tr>');
-            })
-        });
+        appendEditReviewRow(json, ratableName);
+        setEditReviewRowCss();
+        createEditReviewIconEvents(json, ratableName);
     });
 }
 
-function createRatableTable3Rows(ratableName) {
-    var jsonCount = 0;
-    $.getJSON('review?userId=useSkip&ratable=' + ratableName + '&skip=' + globalVars.skipReviewCount, function(json) {
-        var anonymousTooltip = '';
-        if (json['review']) {
-            if (!json['user']) {
-                if (globalVars.deviceType === 'desktop') {
+function appendEditReviewRow(json, ratableName) {
+    var pencilSquareTooltip = '';
+    var eraserTooltip = '';
+    if (globals.deviceType === "desktop") {
+        pencilSquareTooltip = ' data-toggle="tooltip" data-placement="top" title="edit your review"';
+        eraserTooltip = ' data-toggle="tooltip" data-placement="top" title="clear your review">';
+    }
+    $('#table-2 tbody').append('<tr><td>' +
+            '<div style="display:table;margin-bottom:-6px">' + 
+                createSmallReadOnlyStars(json['rating']) + 
+                ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong>' +
+                '<table><tr>' +
+                    '<td style="padding:0px;padding-left:8px;">' +
+                        '<i class="fa fa-pencil-square-o fa-lg" style="color:blue;padding:4px;"' + pencilSquareTooltip + '></i>' +
+                    '</td>' +
+                    '<td style="padding:0px;">' +
+                        '<form class="eraser-form" name="eraser-form" method="post">' +
+                            '<input type="hidden" name="_token" id="csrf-token" value="' + $('meta[name="csrf-token"]').attr('content') + '" />' +
+                            '<input type="hidden" name="ratable" value="' + ratableName + '"/>' +                                
+                         '</form>' +
+                        '<i class="fa fa-eraser fa-lg" style="color:pink;padding:4px;"' + eraserTooltip + '</i>' +
+                    '</td></tr>' +
+                '</table>' +
+            '</div>' +
+            '<div style="padding-left:4px;">By <a href="user/' + json['userId'] +'">' + json['user'] + '</a> on ' + json['date'] + '</div>' +
+            '<div style="padding-left:8px;padding-top:4px;">' + json['review'] + '</div>' +                            
+        '</td></tr>'
+    );
+}
+
+function setEditReviewRowCss() {
+    if ($('#table-2').width() > $('#reviews-data').width()) {
+        $('#table-2').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
+        $('#table-2 td').css({'width': '100%'});
+    }
+    $('#table-2 svg').css({'padding': '2px'});                    
+    if (globals.deviceType === "desktop") {
+        $('#table-2 i').tooltip({container: 'body'});
+        $('#table-2 i').tooltip();                    
+    }
+}
+
+function createEditReviewIconEvents(json, ratableName) {
+    $('#table-2').on('click', '.fa-pencil-square-o', function() {
+        showEditReviewForm(json);
+        setEditReviewAnonymousIcon(json);
+        createEditReviewAnonymousIconEvent();
+        createEditReviewFormEvent();        
+    });
+    $('#table-2').on('click', '.fa-eraser', function() {
+        $('#table-2 i').tooltip('hide');
+        eraseReview();
+        $('#tr-review-form').hide();                        
+        $('#table-2 tbody').append('<tr><td style="color:red;"><i class="fa fa-check"></i> Your review has been removed. <button class="btn btn-default undo">undo</button></td></tr>');
+        createUndoEraseReviewEvent(json, ratableName);        
+    });
+}
+function showEditReviewForm(json) {
+    $('#table-2 i').tooltip('hide');
+    $('#tr-review-form').next().remove();
+    $('#tr-review-form').show();
+    $('#table-2 textarea').val(json['review']);
+    $('#table-2 input[name="headline"]').val(json['headline']);
+    $('#table-2 input[name="anonymous"]').val(json['anonymous']);
+}
+
+function setEditReviewAnonymousIcon(json) {
+    $('#table-2 .fa-user-secret').toggleClass('secret-empty', !json['anonymous']);
+    if (globals.deviceType === 'mobile') {
+            $('#table-2 .fa-user-secret').removeAttr('data-toggle');
+            $('#table-2 .fa-user-secret').removeAttr('data-placement');
+            $('#table-2 .fa-user-secret').removeAttr('title');
+            $('#table-2 .fa-user-secret').removeAttr('data-original-title');
+            $('#table-2 .fa-user-secret').removeAttr('aria-describedby');
+        }
+        else {
+            $('#table-2 .fa-user-secret').tooltip({container: 'body'});
+            $('#table-2 .fa-user-secret').tooltip(); 
+    }
+}
+
+function createEditReviewAnonymousIconEvent() {
+    $('#table-2').on('click', '.fa-user-secret', function() {
+        var isAnonymous = false;
+        $(this).toggleClass('secret-empty');
+        if (!globals.isGuest) {
+             if (!$(this).hasClass('secret-empty')) {
+                 isAnonymous = true;
+             }
+             $('.review-form').find('input[name="anonymous"]').val(isAnonymous.toString());            
+        }
+        return false;       
+    });
+}
+
+function createEditReviewFormEvent() {
+    $('#table-2').on('submit', '.review-form', function() {
+        if (!globals.isGuest) {
+            $.post("review", $(this).serialize(), function(res) {
+                console.log(res);
+            });
+        }
+        $('#table-2 tbody').append('<tr><td>Your review has been submitted!</td></tr>');
+        $('#tr-review-form').hide();                            
+        return false;
+    });
+}
+
+function eraseReview() {
+    $('#table-2').on('submit', '.eraser-form', function() {
+        var id = $('#star-table').find('input[name="id"]').first().val().toString();
+        $.ajax('review/destroy/' + id, {data: $(this).serialize(), method: "DELETE"}); 
+        return false;
+    });
+    $('#table-2 .eraser-form').trigger('submit');
+}
+
+function createUndoEraseReviewEvent(json, ratableName) {
+    $('#table-2').on('click', '.undo', function() {
+        $('#tr-review-form').next().remove();
+        $('#table-2 .review-form').find('textarea').first().html(json['review']);
+        $('#table-2 .review-form input[name="headline"]').val(json['headline']);
+        $('#table-2 .review-form input[name="anonymous"]').val(json['anonymous']);
+        $('#table-2 .review-form input[name="ratable"]').val(ratableName);
+        undoEraseReview();
+        $('#table-2 tbody').append('<tr><td style="color:green;"><i class="fa fa-check"></i> Your review has been restored.</td></tr>');
+    });
+}
+
+function undoEraseReview() {
+    $('.review-form').on('submit', function() {
+        $.post('review', $(this).serialize(), function(res) {
+            console.log(res);
+        });
+        return false;
+    });
+    $('.review-form').trigger('submit');
+}
+
+function createRatableTable3Rows(json, btnAction) {
+    var i;
+    var length = 10;
+    var anonymousTooltip = '';
+    var userAnchor = '';
+    $('#table-3 tbody tr').remove();    
+    if (json.reviews.length) {
+        if (btnAction === 'add') {
+            globals.reviewsIndex += 10;
+        }
+        else if (btnAction === 'prev') {
+            globals.reviewsIndex -= 10;
+        }
+        else if ((btnAction === 'none') && (json.reviews.length < 10)) {
+            length = json.reviews.length;
+        }
+        if ((btnAction !== 'none') && ((json.reviews.length - globals.reviewsIndex) < 10)) {
+            length = json.reviews.length - globals.reviewsIndex;
+        }
+        for (i = 0; i < length; i++) {
+            if (!json.reviews[i + globals.reviewsIndex]['user']) {
+                if (globals.deviceType === 'desktop') {
                     anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous review"';
                 }
-                json['user'] = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
+                userAnchor = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
             }
             else {
-                json['user'] = '<a href="user/' + json['userId'] + '">' + json['user'] + '</a>';
+                userAnchor = '<a href="user/' + json.reviews[i + globals.reviewsIndex]['userId'] + '">' + json.reviews[i + globals.reviewsIndex]['user'] + '</a>';
             }
             $('#table-3 tbody').append('<tr><td>' +
                         '<div style="display:table;margin-bottom:-6px">' + 
-                            createSmallReadOnlyStars(json['rating']) + 
-                            ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json['headline'] + '</strong>\n\
-                        </div>' +
-                        '<div style="padding-left:4px;">By ' + json['user'] + ' on ' + json['date'] + '</div>' +
-                        '<div style="padding-left:8px;padding-top:4px;overflow:hidden;">' + json['review'] + '</div>' +
+                            createSmallReadOnlyStars(json.reviews[i + globals.reviewsIndex]['rating']) + 
+                            ' <strong style="vertical-align:middle;display:table-cell;padding-bottom:5px;padding-left:2px"> ' + json.reviews[i + globals.reviewsIndex]['headline'] + '</strong>' +
+                        '</div>' +
+                        '<div style="padding-left:4px;">By ' + userAnchor + ' on ' + json.reviews[i + globals.reviewsIndex]['date'] + '</div>' +
+                        '<div style="padding-left:8px;padding-top:4px;overflow:hidden;">' + json.reviews[i + globals.reviewsIndex]['review'] + '</div>' +
                         '<div>Was this review helpful? <button class="btn btn-default">Yes</button><button class="btn btn-default" style="margin-left:4px;">No</button></div>' +
                     '</td></tr>'
             );
-            if (globalVars.deviceType === 'desktop') {
+            if (globals.deviceType === 'desktop') {
                 $('#table-3 .fa-user-secret').tooltip({container: 'body'});
                 $('#table-3 .fa-user-secret').tooltip();
             }
+            if ($('#table-3').width() > $('#reviews-data').width()) {
+                $('#table-3').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
+                $('#table-3 td').css({'width': '100%'});
+            }
+            $('#table-3 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
+            $('#table-3 svg').css({'padding': '2px'});            
         }
-        if ($('#table-3').width() > $('#reviews-data').width()) {
-            $('#table-3').css({'width': '100%', 'table-layout': 'fixed', 'overflow': 'hidden'});
-            $('#table-3 td').css({'width': '100%'});
-        }
-        $('#table-3 tbody tr').css({'border-top-style': 'solid', 'border-top-width': 'thin', 'border-top-color': 'orange', 'border-bottom-style': 'solid', 'border-bottom-width': 'thin', 'border-bottom-color': 'orange'});
-        $('#table-3 svg').css({'padding': '2px'});
-        jsonCount++;
-        if (jsonCount === 10) {
-            globalVars.detachedSpinner = $('.spinner').detach();
-        }
-    });
+    }
+    if (globals.reviewsIndex >= 10) {
+        $('#table-3 tbody').prepend('<tr><td style="text-align:center;"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
+        $('#table-3 tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    if (json.reviews.length > (globals.reviewsIndex + 10)) {
+        $('#table-3 tbody').append('<tr><td style="text-align:center;"><div><button class="add-rows-btn">More</button></div></td></tr>');
+        $('#table-3 tbody .add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
+    }
+    $('.spinner').last().remove();
 }
 
 function createUserDataRows(json) {
@@ -649,19 +728,19 @@ function createUserDataRows(json) {
 
 function createUserBtnEvents(json) {
     $('#ratings-data tbody').on('click', '.add-rows-btn', function() {
-        $('#ratings-data tbody').append(globalVars.detachedSpinner);
+        $('#ratings-data tbody').append(globals.detachedSpinner);
         createUserRatingsRows(json, 'add');
     });
     $('#reviews-data tbody').on('click', '.add-rows-btn', function() {
-       $('#reviews-data tbody').append(globalVars.detachedSpinner);
+       $('#reviews-data tbody').append(globals.detachedSpinner);
        createUserReviewsRows(json, 'add');
     });
     $('#ratings-data tbody').on('click', '.prev-rows-btn', function() {
-        $('#ratings-data tbody').append(globalVars.detachedSpinner);
+        $('#ratings-data tbody').append(globals.detachedSpinner);
         createUserRatingsRows(json, 'prev');
     });
     $('#reviews-data tbody').on('click', '.prev-rows-btn', function() {
-        $('#reviews-data tbody').append(globalVars.detachedSpinner);
+        $('#reviews-data tbody').append(globals.detachedSpinner);
         createUserReviewsRows(json, 'prev');
     });
 }
@@ -674,42 +753,42 @@ function createUserRatingsRows(json, btnAction) {
     $('#ratings-data tbody tr').not('#ratings-data .tr-spinner').remove();    
     if (json.ratings.length) {
         if (btnAction === 'add') {
-            globalVars.ratingsIndex += 10;
+            globals.ratingsIndex += 10;
         }
         else if (btnAction === 'prev') {
-            globalVars.ratingsIndex -= 10;
+            globals.ratingsIndex -= 10;
         }
         else if ((btnAction === 'none') && (json.ratings.length < 10)) {
             length = json.ratings.length;
         }
-        if ((btnAction !== 'none') && ((json.ratings.length - globalVars.ratingsIndex) < 10)) {
-            length = json.ratings.length - globalVars.ratingsIndex;
+        if ((btnAction !== 'none') && ((json.ratings.length - globals.ratingsIndex) < 10)) {
+            length = json.ratings.length - globals.ratingsIndex;
         }
         for (i = 0; i < length; i++) {
-            if (!json.ratings[i + globalVars.ratingsIndex]['anonymous']) {
+            if (!json.ratings[i + globals.ratingsIndex]['anonymous']) {
                 anonymousIcon = '';
             }
             else {
-                if (globalVars.deviceType === "desktop") {
+                if (globals.deviceType === "desktop") {
                     anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous rating"';
                 }
                 anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip + ' style="padding-left:4px;padding-bottom:4px;vertical-align:middle;display:table-cell;"></i>';
             }
             $('#ratings-data .tr-spinner').before('<tr>' +
-                    '<td>' + createSmallReadOnlyStars(json.ratings[i + globalVars.ratingsIndex]['rating']) + '</td>' +
+                    '<td>' + createSmallReadOnlyStars(json.ratings[i + globals.ratingsIndex]['rating']) + '</td>' +
                     '<td>' +
-                        '<span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json.ratings[i + globalVars.ratingsIndex]['ratable'] + '">' + json.ratings[i + globalVars.ratingsIndex]['ratable'] + '</a>' + anonymousIcon + '</span>' +
+                        '<span><a style="vertical-align:top;display:table-cell;padding-bottom:5px;padding-left:2px" href="/' + json.ratings[i + globals.ratingsIndex]['ratable'] + '">' + json.ratings[i + globals.ratingsIndex]['ratable'] + '</a>' + anonymousIcon + '</span>' +
                     '</td></tr>');
         }
     }
     $('#ratings-data svg').css({'padding': '2px'});
     $('.fa-user-secret').tooltip({container:'body'});
     $('.fa-user-secret').tooltip();
-    if (globalVars.ratingsIndex >= 10) {
+    if (globals.ratingsIndex >= 10) {
         $('#ratings-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
         $('#ratings-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     }
-    if (json.ratings.length > (globalVars.ratingsIndex + 10)) {
+    if (json.ratings.length > (globals.ratingsIndex + 10)) {
         $('#ratings-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
         $('#ratings-data tbody .add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     }
@@ -724,29 +803,29 @@ function createUserReviewsRows(json, btnAction) {
     $('#reviews-data tbody tr').not('#reviews-data .tr-spinner').remove();    
     if (json.reviews.length) {
         if (btnAction === 'add') {
-            globalVars.reviewsIndex += 10;
+            globals.reviewsIndex += 10;
         }
         else if (btnAction === 'prev') {
-            globalVars.reviewsIndex -= 10;
+            globals.reviewsIndex -= 10;
         }
         else if ((btnAction === 'none') && (json.reviews.length < 10)) {
             length = json.reviews.length;
         }
-        if ((btnAction !== 'none') && ((json.reviews.length - globalVars.reviewsIndex) < 10)) {
-            length = json.reviews.length - globalVars.reviewsIndex;
+        if ((btnAction !== 'none') && ((json.reviews.length - globals.reviewsIndex) < 10)) {
+            length = json.reviews.length - globals.reviewsIndex;
         }
         for (i = 0; i < length; i++) {
-            if (!json.reviews[i + globalVars.reviewsIndex]['anonymous']) {
+            if (!json.reviews[i + globals.reviewsIndex]['anonymous']) {
                 anonymousIcon = '';
             }
             else {
-                if (globalVars.deviceType === "desktop") {
+                if (globals.deviceType === "desktop") {
                     anonymousTooltip = ' data-toggle="tooltip" data-placement="top" title="anonymous review"';
                 }
                 anonymousIcon = '<i class="fa fa-user-secret"' + anonymousTooltip +'></i>';
             }
-            $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon + ' <a href="/' + json.reviews[i + globalVars.reviewsIndex]['ratable'] + '">' + json.reviews[i + globalVars.reviewsIndex]['ratable'] + '</a>: ' + json.reviews[i + globalVars.reviewsIndex]['date'] + ' - ' + json.reviews[i + globalVars.reviewsIndex]['headline'] + ' - ' + 
-                    '<div>' + json.reviews[i + globalVars.reviewsIndex]['review'] + '</div></td><tr>');
+            $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon + ' <a href="/' + json.reviews[i + globals.reviewsIndex]['ratable'] + '">' + json.reviews[i + globals.reviewsIndex]['ratable'] + '</a>: ' + json.reviews[i + globals.reviewsIndex]['date'] + ' - ' + json.reviews[i + globals.reviewsIndex]['headline'] + ' - ' + 
+                    '<div>' + json.reviews[i + globals.reviewsIndex]['review'] + '</div></td><tr>');
         }
     }
     if ($('#reviews-data').width() > $('.panel-body').last().width()) {
@@ -755,11 +834,11 @@ function createUserReviewsRows(json, btnAction) {
     }
     $('.fa-user-secret').tooltip({container:'body'});
     $('.fa-user-secret').tooltip();
-    if (globalVars.reviewsIndex >= 10) {
+    if (globals.reviewsIndex >= 10) {
         $('#reviews-data tbody').prepend('<tr><td style="text-align:center;" colspan="2"><div><button class="prev-rows-btn">Previous</button></div></td></tr>');
         $('#reviews-data tbody .prev-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     }
-    if (json.reviews.length > (globalVars.reviewsIndex + 10)) {
+    if (json.reviews.length > (globals.reviewsIndex + 10)) {
         $('#reviews-data .tr-spinner').before('<tr><td style="text-align:center;" colspan="2"><div><button class="add-rows-btn">More</button></div></td></tr>');
         $('#reviews-data tbody button').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     }
@@ -795,25 +874,25 @@ function createRows(table) {
     var k = 0;
     if (table !== 'autocomplete') {
         for (i = 0; i < 10; i++) {
-            $.getJSON('/table/' + table + '?skip=' + globalVars.skipRatingCount.toString(), function(json) {
+            $.getJSON('/table/' + table + '?skip=' + globals.skipRatingCount.toString(), function(json) {
                 k++;
                 if (json['name']) {
                     createTr(json);                    
                 }
                 else {
                     $('#table-1-body').append('<tr class="ratable-tr"></tr>');
-                    if (!globalVars.noMoreRows) {
-                        globalVars.noMoreRows = true;
-                        globalVars.detachedRatingsRows.push($('.ratable-tr').clone());
+                    if (!globals.noMoreRows) {
+                        globals.noMoreRows = true;
+                        globals.detachedRatingsRows.push($('.ratable-tr').clone());
                     }                   
                 }
                 if (k === 10) {
-                    if ((globalVars.detachedRatingsRowsIndex === globalVars.detachedRatingsRows.length) && !globalVars.noMoreRows) {
-                        globalVars.detachedRatingsRows.push($('.ratable-tr').clone());
+                    if ((globals.detachedRatingsRowsIndex === globals.detachedRatingsRows.length) && !globals.noMoreRows) {
+                        globals.detachedRatingsRows.push($('.ratable-tr').clone());
                     }                    
-                    globalVars.detachedSpinner = $('.spinner').detach();
-                    if (globalVars.noMoreRows) {
-                        globalVars.detachedMoreBtn = $('#add-rows-btn').detach();
+                    globals.detachedSpinner = $('.spinner').detach();
+                    if (globals.noMoreRows) {
+                        globals.detachedMoreBtn = $('#add-rows-btn').detach();
                     }
                     else {
                         $('#add-rows-btn').button({disabled: false});
@@ -823,7 +902,7 @@ function createRows(table) {
                     }                        
                 }
             });
-            globalVars.skipRatingCount++;
+            globals.skipRatingCount++;
         }
     }
     else {
@@ -848,13 +927,13 @@ function createRows(table) {
 }
 
 function createTr(json) {
-    if (globalVars.deviceType === "desktop") {
+    if (globals.deviceType === "desktop") {
         var pleaseLoginTooltip = '';
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
         var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' + json['desc'] + '" href="' + json['name'] + '">' + json['name'] + '</a>';
-        if (globalVars.isGuest) {
+        if (globals.isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }
         if (!json['isAnonymous']) {
@@ -870,7 +949,7 @@ function createTr(json) {
             mapMarker = '<div style="float:left;"><i class="fa fa-map-marker fa-lg" data-html="true" data-toggle="tooltip" data-placement="top" title="located in ' + json['region'] + '<br>(map feature coming soon)"></i></div>';
         }
         $('#table-1-body').append(
-            '<tr class="ratable-tr border-top-' + globalVars.borderTopColor + '">' +
+            '<tr class="ratable-tr border-top-' + globals.borderTopColor + '">' +
                 '<td><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
                 '<td><div>' + anchor + '</div></td>' + 
                 '<td>' +    
@@ -883,7 +962,7 @@ function createTr(json) {
             '</tr>'
         );
         $('#tr-add-rows').appendTo('#table-1-body');
-        $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true})
+        $('[data-toggle="tooltip"]').tooltip({container: 'body', html: true});
         $('[data-toggle="tooltip"]').tooltip();        
     }
     else {
@@ -892,7 +971,7 @@ function createTr(json) {
         var secretEmpty = '';
         var mapMarker = '';
         var anchor = '<a href="' + json['name'] + '">' + json['name'] + '</a>';
-        if (globalVars.isGuest) {
+        if (globals.isGuest) {
             pleaseLoginTooltip = 'data-toggle="tooltip" data-placement="top" title="Please login to rate items."';
         }
         if (!json['isAnonymous']) {
@@ -908,7 +987,7 @@ function createTr(json) {
             mapMarker = '<i style="padding-left:4px;vertical-align:top;padding-top:4px;" class="fa fa-map-marker fa-lg"></i>';
         }
         $('#table-1-body').append(
-            '<tr class="ratable-tr border-top-' + globalVars.borderTopColor + '">' +
+            '<tr class="ratable-tr border-top-' + globals.borderTopColor + '">' +
                 '<td><img src="' + json['img_src'] + '" style="width:100px;"></td>' +  
                 '<td><div>' + anchor + '</div>' +
                     '<div class="td-star" style="overflow:hidden;"><div class="btn-star-group "' + pleaseLoginTooltip + '>' + createFiveStars(json) + '</div></div>' + 
@@ -917,7 +996,7 @@ function createTr(json) {
             '</tr>'
         );
         $('#tr-add-rows').appendTo('#table-1-body');        
-        $('[data-toggle="tooltip"]').tooltip({container: 'body'})
+        $('[data-toggle="tooltip"]').tooltip({container: 'body'});
         $('[data-toggle="tooltip"]').tooltip();
         }
 }
@@ -931,34 +1010,34 @@ function createFiveStars(json) {
     var fraction = parseFloat(parseFloat(json['rating'].substring(json['rating'].length - 2)).toFixed(1));
     var ratingFloor = Math.floor(parseFloat(json['rating']));
     var svgMeasure = '40';
-    if (globalVars.deviceType === "mobile") {
+    if (globals.deviceType === "mobile") {
         svgMeasure = '25';
     }
     for (i = 0; i < 5; i++) {
         if ((i < json['userRating']) && (i < ratingFloor)) {
-            stroke = globalVars.avgStarColor;
+            stroke = globals.avgStarColor;
             starFill = 'red';
         }
         else if (i < ratingFloor) {
-            stroke = globalVars.avgStarColor;
-            starFill = globalVars.avgStarColor;
+            stroke = globals.avgStarColor;
+            starFill = globals.avgStarColor;
         }
         else if ((i < json['userRating']) && (!fraction)) {
-            stroke = globalVars.avgStarFadedColor;
+            stroke = globals.avgStarFadedColor;
             starFill = 'red';
         }
         else if ((i < json['userRating']) && fraction && (i === ratingFloor)) {
             offset = json['rating'].substring(json['rating'].length - 1) + '0%';
-            stroke = "url(#stroke-grad-" + globalVars.gradId.toString() + ")";
+            stroke = "url(#stroke-grad-" + globals.gradId.toString() + ")";
             starFill = "red";
         }
         else if ((i === ratingFloor) && fraction) {
             offset = json['rating'].substring(json['rating'].length - 1) + '0%';
-            stroke = "url(#stroke-grad-" + globalVars.gradId.toString() + ")";
-            starFill = "url(#fill-grad-" + globalVars.gradId.toString() + ")";            
+            stroke = "url(#stroke-grad-" + globals.gradId.toString() + ")";
+            starFill = "url(#fill-grad-" + globals.gradId.toString() + ")";            
         }
         else {
-            stroke = globalVars.avgStarFadedColor;
+            stroke = globals.avgStarFadedColor;
             starFill = 'white';
         }
         html += '<form class="star-btn-form" name="star-form" method="post">' +
@@ -969,16 +1048,16 @@ function createFiveStars(json) {
                     '<button class="poly-star-btn">' +
                         '<svg width="' + svgMeasure + '" height="' + svgMeasure + '" viewBox="0 0 262 250" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
                             '<defs>' +
-                                '<linearGradient id="fill-grad-' + globalVars.gradId.toString() + '" class="fill">' +
+                                '<linearGradient id="fill-grad-' + globals.gradId.toString() + '" class="fill">' +
                                     '<stop offset="0%" stop-color="orange" />' +
-                                    '<stop offset="' + offset + '" stop-color="' + globalVars.avgStarColor + '" />' +
+                                    '<stop offset="' + offset + '" stop-color="' + globals.avgStarColor + '" />' +
                                     '<stop offset="' + offset + '" stop-color="white" />' +
                                     '<stop offset="100%" stop-color="white" />' +
                                 '</linearGradient>' +
-                                '<linearGradient id="stroke-grad-' + globalVars.gradId.toString() + '" class="stroke">' +
+                                '<linearGradient id="stroke-grad-' + globals.gradId.toString() + '" class="stroke">' +
                                     '<stop offset="0%" stop-color="orange" />' +
-                                    '<stop offset="' + offset + '" stop-color="' + globalVars.avgStarColor + '" />' +
-                                    '<stop offset="' + offset + '" stop-color="' + globalVars.avgStarFadedColor + '" />' +
+                                    '<stop offset="' + offset + '" stop-color="' + globals.avgStarColor + '" />' +
+                                    '<stop offset="' + offset + '" stop-color="' + globals.avgStarFadedColor + '" />' +
                                     '<stop offset="100%" stop-color="#FED8B1" />' +
                                 '</linearGradient>' +
                             '</defs>' +
@@ -987,7 +1066,7 @@ function createFiveStars(json) {
                         '</svg>' + 
                     '</button>' +
                 '</form>';
-        globalVars.gradId++;
+        globals.gradId++;
     }
     return html;
 }
@@ -996,19 +1075,19 @@ function createBtnEvents() {
     $('#table-1').on('click', '#add-rows-btn', function(){
         window.scrollTo(0, 0);
         $('#add-rows-btn').button({disabled: true});
-        globalVars.detachedRatingsRowsIndex++;
+        globals.detachedRatingsRowsIndex++;
         $('.ratable-tr').remove();
         if (!$('#prev-rows-btn').length) {
             $('#table-1-body').prepend('<tr id="tr-prev-rows"><td id="td-prev-rows" colspan="6"><button id="prev-rows-btn">Previous</button></tr></td>');
         }
         $('#prev-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        if ((globalVars.detachedRatingsRowsIndex === globalVars.detachedRatingsRows.length) && !globalVars.noMoreRows) {
-            $('#td-add-rows').prepend(globalVars.detachedSpinner);                
+        if ((globals.detachedRatingsRowsIndex === globals.detachedRatingsRows.length) && !globals.noMoreRows) {
+            $('#td-add-rows').prepend(globals.detachedSpinner);                
             createRows('master');
         }
         else {
-            $('#tr-add-rows').before(globalVars.detachedRatingsRows[globalVars.detachedRatingsRowsIndex]);
-            if ((globalVars.detachedRatingsRowsIndex < globalVars.detachedRatingsRows.length) && !((globalVars.detachedRatingsRowsIndex === (globalVars.detachedRatingsRows.length - 1)) && globalVars.noMoreRows)) {
+            $('#tr-add-rows').before(globals.detachedRatingsRows[globals.detachedRatingsRowsIndex]);
+            if ((globals.detachedRatingsRowsIndex < globals.detachedRatingsRows.length) && !((globals.detachedRatingsRowsIndex === (globals.detachedRatingsRows.length - 1)) && globals.noMoreRows)) {
                 $('#add-rows-btn').button({disabled: false});            
             }
             else {
@@ -1021,8 +1100,8 @@ function createBtnEvents() {
     $('#table-1').on('click', '#prev-rows-btn', function() {
         window.scrollTo(0, 0);
         $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
-        globalVars.detachedRatingsRowsIndex--;
-        if (globalVars.detachedRatingsRowsIndex === 0) {
+        globals.detachedRatingsRowsIndex--;
+        if (globals.detachedRatingsRowsIndex === 0) {
             $('#tr-prev-rows').remove();
         }
         $('.ratable-tr').remove();
@@ -1030,7 +1109,7 @@ function createBtnEvents() {
             $('#td-add-rows').append('<div><button id="add-rows-btn">More</button></div>');
             $('#add-rows-btn').button({disabled: true}).css({'border-color': 'orange', 'color': 'orange'});
         }
-        $('#tr-add-rows').before(globalVars.detachedRatingsRows[globalVars.detachedRatingsRowsIndex]);
+        $('#tr-add-rows').before(globals.detachedRatingsRows[globals.detachedRatingsRowsIndex]);
         $('#add-rows-btn').button({disabled: false}).css({'border-color': 'orange', 'color': 'orange'});
     });
 }

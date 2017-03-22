@@ -24,7 +24,6 @@ and open the template in the editor.
 }
 
 .input-group {
-    /*width: 250px;*/
     background-color: white;
     border: 1px solid;
     border-radius: 4px;
@@ -120,10 +119,6 @@ td {
 .spinner {
     padding-bottom: 10px;
     color: orange;
-}
-
-.td-star {
-    /*min-width: 205px;*/
 }
 
 svg {

@@ -111,30 +111,34 @@ class ReviewController extends Controller
                 $data = ['review' => $review->review, 'anonymous' => $anonymous, 'headline' => $review->headline, 'userId' => Auth::id(), 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
             }
         }
-        else if ($request->input('userId') === 'useSkip') {
+        else if ($request->input('userId') === 'all') {
             $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
-            $review = Review::where('ratable_id', $ratableId)->skip($request->input('skip'))->first();
-            if ($review) {
-                if ($review->anonymous) {
-                    $user = "";
-                    $userId = '';
+            $reviews = Review::where('ratable_id', $ratableId)->get();
+            $reviewsArr = [];
+            if ($reviews) {
+                foreach($reviews as $review) {
+                    if ($review->anonymous) {
+                        $user = "";
+                        $userId = '';
+                    }
+                    else {
+                        $user = User::where('id', $review->user_id)->value('name');
+                        $userId = $review->user_id;
+                    }
+                    $rating = Rating::where([
+                        ['user_id', '=', $review->user_id],
+                        ['ratable_id', '=', $ratableId],
+                        ['anonymous', '=', false]
+                    ])->first();
+                    if ($rating) {
+                        $rating = $rating->rating;
+                    }
+                    else {
+                        $rating = 0;
+                    }
+                    $reviewsArr[] = ['review' => $review->review, 'headline' => $review->headline, 'userId' => $userId, 'user' => $user, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];                    
                 }
-                else {
-                    $user = User::where('id', $review->user_id)->value('name');
-                    $userId = $review->user_id;
-                }
-                $rating = Rating::where([
-                    ['user_id', '=', $review->user_id],
-                    ['ratable_id', '=', $ratableId],
-                    ['anonymous', '=', false]
-                ])->first();
-                if ($rating) {
-                    $rating = $rating->rating;
-                }
-                else {
-                    $rating = 0;
-                }
-                $data = ['review' => $review->review, 'headline' => $review->headline, 'userId' => $userId, 'user' => $user, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+                $data = ['reviews' => $reviewsArr];
             }
         }
         else {
