@@ -664,6 +664,7 @@ function createEditReviewIconEvents(json, ratableName) {
     $('#table-2').on('click', '.fa-eraser', function() {
         $('#table-2 i').tooltip('hide');
         eraseReview();
+        $('#tr-review-form').next().remove();
         $('#tr-review-form').hide();                        
         $('#table-2 tbody').append('<tr><td style="color:red;">' +
                 '<i class="fa fa-check"></i> Your review has been removed. ' +
@@ -727,7 +728,7 @@ function createEditReviewFormEvent() {
 
 function eraseReview() {
     $('#table-2').on('submit', '.eraser-form', function() {
-        var id = $('#star-table').find('input[name="id"]').first().val().toString();
+        var id = $('#table-1 .anon-form input[name="id"]').first().val().toString();
         $.ajax('review/' + id, {data: $(this).serialize(), method: "DELETE"}); 
         return false;
     });

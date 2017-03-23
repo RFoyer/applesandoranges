@@ -15,4 +15,8 @@ class UserController extends Controller
     public function show($id) {
         return view('user');        
     }
+    
+    public function destroy($id) {
+        //must destory ratings/reviews data too!!!
+    }
 }
