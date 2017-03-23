@@ -11,6 +11,8 @@
 |
 */
 
+Auth::routes();
+
 Route::get('/', 'HomeController@index');
 
 Route::get('table/{table}', 'TableController@show');
@@ -28,8 +30,6 @@ Route::post('review', 'ReviewController@store');
 Route::post('review/{id}', "ReviewController@update");
 
 Route::delete('review/{id}', "ReviewController@destroy");
-
-Auth::routes();
 
 Route::get('search', 'SearchFormSubmitController@show');
 

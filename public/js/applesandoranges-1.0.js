@@ -40,6 +40,8 @@ function fillTables() {
     }
     else if ((path === '/login') || 
             (path === '/register') || 
+            (path === '/password/reset') || 
+            (path === '/password/email') || 
             (path === '/ratable/create') || 
             (path === '/ratable/create/success')) {
         //
