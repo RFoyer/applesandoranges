@@ -80,5 +80,8 @@
         </div>
     </div>
 </div>
+<div style="text-align:center;">
+    <h4>*Important policy note: <em>People</em> should not be proposed as Apples and Oranges ratables.</h4>
+</div>
 @endsection
 @endif
