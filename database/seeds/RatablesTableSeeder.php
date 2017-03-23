@@ -67,7 +67,7 @@ class RatablesTableSeeder extends Seeder
         ]);
         DB::table('ratables')->insert([
             'name' => 'Downton Abbey',
-            'desc' => 'Historical period dramam tv series (2010-2015) set in the fictional Yorkshire country estate of Downton Abbey between 1912 and 1925.',
+            'desc' => 'Historical period drama tv series (2010-2015) set in the fictional Yorkshire country estate of Downton Abbey between 1912 and 1925.',
             'class' => 'tv-series',
             'img_src' => 'https://upload.wikimedia.org/wikipedia/en/c/c4/Downton_Abbey_Title_Card.jpg',
             'img_use_rationale_src' => 'https://en.wikipedia.org/wiki/File:Downton_Abbey_Title_Card.jpg',
