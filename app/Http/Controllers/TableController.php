@@ -125,7 +125,7 @@ class TableController extends Controller
                 $rating = number_format(0, 1);
                 $numberOfRatings = 0;
             }
-            $data = ['id' => $ratable->id, 'name' => $ratable->name, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'isApproved' => $ratable->approved, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];
+            $data = ['id' => $ratable->id, 'name' => $ratable->name, 'style' => $ratable->style, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'isApproved' => $ratable->approved, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];
         }        
         
         return response()->json($data);

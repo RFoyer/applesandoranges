@@ -447,6 +447,14 @@ function createRatableTable1Rows(json) {
     var mapMarkerTooltip = '';
     var eraserIcon = '';
     var eraserTooltip = '';
+    var styleBefore = '';
+    var styleAfter = '';
+    if (json.style.length) {
+        var str = json.style.replace(/\\\"/g, '"');
+        var style = JSON.parse(str);
+        styleBefore = style.before;
+        styleAfter = style.after;
+    }
     if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';
@@ -494,8 +502,8 @@ function createRatableTable1Rows(json) {
     }
     $('#table-1 tbody').append('<tr>' +
             imgTd +
-            '<td style="overflow:hidden;">' +
-                '<div><h3>' + json.name + '</h3></div>' +
+            '<td style="overflow:hidden;vertical-align:top;">' +
+                '<div><h3>' + styleBefore + json.name + styleAfter + '</h3></div>' +
                 '<div style="float:left;width:100%;">' + 
                     approvalPending + 
                 '</div>' +
@@ -904,7 +912,7 @@ function createUserRatingsRows(json, btnAction) {
                 createSmallReadOnlyStars(json.ratings[i + globals.ratingsIndex].rating) +
                 '</td>' +
                 '<td><span><a class="ratings-data-a" ' +
-                    'href="/' + json.ratings[i + globals.ratingsIndex].ratable + '">' +
+                    'href="' + encodeURI(json.ratings[i + globals.ratingsIndex].ratable) + '">' +
                     json.ratings[i + globals.ratingsIndex].ratable + '</a>' +
                     anonymousIcon + '</span>' +
                 '</td></tr>');
@@ -963,7 +971,7 @@ function createUserReviewsRows(json, btnAction) {
                         anonymousTooltip +'></i>';
             }
             $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon +
-                ' <a href="/' + json.reviews[i + globals.reviewsIndex].ratable + '">' +
+                ' <a href="' + encodeURI(json.reviews[i + globals.reviewsIndex].ratable) + '">' +
                     json.reviews[i + globals.reviewsIndex].ratable + '</a>: ' +
                 json.reviews[i + globals.reviewsIndex].date + ' - ' +
                 json.reviews[i + globals.reviewsIndex].headline + ' - ' + 
@@ -1094,8 +1102,16 @@ function createTable1Tr(json) {
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
+        var styleBefore = '';
+        var styleAfter = '';
+        if (json.style.length) {
+            var str = json.style.replace(/\\\"/g, '"');
+            var style = JSON.parse(str);
+            styleBefore = style.before;
+            styleAfter = style.after;
+        }
         var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' +
-                json.desc + '" href="' + json.name + '">' + json.name + '</a>';
+                json.desc + '" href="' + encodeURI(json.name) + '">' + styleBefore + json.name + styleAfter + '</a>';
         if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';
@@ -1144,7 +1160,14 @@ function createTable1Tr(json) {
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
-        var anchor = '<a href="' + json.name + '">' + json.name + '</a>';
+        var styleBefore = '';
+        var styleAfter = '';
+        if (json.style.length) {
+            JSON.parse(json.style);
+            styleBefore = json.style.before;
+            styleAfter = json.style.after;
+        }
+        var anchor = '<a href="' + encodeURI(json.name) + '">' + styleBefore + json.name + styleAfter + '</a>';
         if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';
