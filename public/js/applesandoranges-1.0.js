@@ -447,12 +447,9 @@ function createRatableTable1Rows(json) {
     var mapMarkerTooltip = '';
     var eraserIcon = '';
     var eraserTooltip = '';
-    var styleBefore = '';
-    var styleAfter = '';
+    var nameWithStyle = json.name;
     if (json.style.length) {
-        var style = JSON.parse(json.style.replace(/\\\"/g, '"'));
-        styleBefore = style.before;
-        styleAfter = style.after;
+        nameWithStyle = getNameWithStyle(json);
     }
     if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
@@ -502,7 +499,7 @@ function createRatableTable1Rows(json) {
     $('#table-1 tbody').append('<tr>' +
             imgTd +
             '<td style="overflow:hidden;vertical-align:top;">' +
-                '<div><h3>' + styleBefore + json.name + styleAfter + '</h3></div>' +
+                '<div><h3>' + nameWithStyle + '</h3></div>' +
                 '<div style="float:left;width:100%;">' + 
                     approvalPending + 
                 '</div>' +
@@ -523,6 +520,21 @@ function createRatableTable1Rows(json) {
     $('[data-toggle="tooltip"]').tooltip({container: 'body'});
     $('[data-toggle="tooltip"]').tooltip();
     $('.spinner').first().remove();
+}
+
+function getNameWithStyle(json) {
+    var i;
+    var style = JSON.parse(json.style.replace(/\\\"/g, '"'))
+    var keys = Object.keys(style);
+    var nameWithStyleArr = json.name.split('');
+    var addToInd = 0;
+    for (i = 0; i < keys.length; i++){
+        if (keys[i] <= json.name.length) {
+            nameWithStyleArr = nameWithStyleArr.slice(0, parseInt(keys[i], 10) + addToInd).concat(style[keys[i]].split('')).concat(nameWithStyleArr.slice(parseInt(keys[i], 10) + addToInd));
+            addToInd += style[keys[i]].length;
+        }        
+    }
+    return nameWithStyleArr.join('');
 }
 
 function createRatableReviewsRows(ratableName) {
@@ -1101,15 +1113,12 @@ function createTable1Tr(json) {
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
-        var styleBefore = '';
-        var styleAfter = '';
+        var nameWithStyle = json.name;
         if (json.style.length) {
-            var style = JSON.parse(json.style.replace(/\\\"/g, '"'));
-            styleBefore = style.before;
-            styleAfter = style.after;
+            nameWithStyle = getNameWithStyle(json);
         }
         var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' +
-                json.desc + '" href="' + encodeURI(json.name) + '">' + styleBefore + json.name + styleAfter + '</a>';
+                json.desc + '" href="' + encodeURI(json.name) + '">' + nameWithStyle + '</a>';
         if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';
@@ -1158,14 +1167,11 @@ function createTable1Tr(json) {
         var anonymousIcon = '';
         var secretEmpty = '';
         var mapMarker = '';
-        var styleBefore = '';
-        var styleAfter = '';
+        var nameWithStyle = json.name;
         if (json.style.length) {
-            var style = JSON.parse(json.style.replace(/\\\"/g, '"'));
-            styleBefore = style.before;
-            styleAfter = style.after;
+            nameWithStyle = getNameWithStyle(json);
         }
-        var anchor = '<a href="' + encodeURI(json.name) + '">' + styleBefore + json.name + styleAfter + '</a>';
+        var anchor = '<a href="' + encodeURI(json.name) + '">' + nameWithStyle + '</a>';
         if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';

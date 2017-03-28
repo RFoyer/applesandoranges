@@ -48,9 +48,9 @@ class RatableController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => ['required', 'unique:ratables', 'max:45', 'regex:/^[\w\s\.,?!\(\)"\']+$/'],
+            'name' => ['required', 'unique:ratables', 'max:45', 'regex:/^[\w\s\.,?!:;\(\)"\']+$/'],
             'location' => 'max:60',
-            'desc' => ['required', 'max:450', 'regex:/^[\w\s\.,?!\(\)"\']+$/']
+            'desc' => ['required', 'max:450', 'regex:/^[\w\s\.,?!:;\(\)"\']+$/']
         ]);
         
         if (Auth::check()) {

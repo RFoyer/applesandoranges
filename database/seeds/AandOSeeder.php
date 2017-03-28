@@ -16,6 +16,8 @@ class AandOSeeder extends Seeder
         $ratable->img_src = '/images/a-and-o.jpg';
         $ratable->save();*/
         
+        
+        
         /*$ratable = Ratable::where('name', 'Downton Abbey')->first();
         $ratable->desc = 'Historical period drama tv series (2010-2015) set in the fictional Yorkshire country estate of Downton Abbey between 1912 and 1925.';
         $ratable->save();*/
@@ -48,64 +50,74 @@ class AandOSeeder extends Seeder
         $ratable->name = 'Stairway to Heaven';
         $ratable->save();*/
         
+        
+        
         /*$ratable = Ratable::where('name', 'Mona Lisa')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","9":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Captain Underpants')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","18":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Moby-Dick')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","9":"</em>"}';
         $ratable->save(); 
                 
         $ratable = Ratable::where('name', 'Pride and Prejudice')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","19":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Star Wars: The Force Awakens')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","28":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Batman v Superman: Dawn of Justice')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","34":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'House of Cards (U.S. TV series)')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","14":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Vikings (TV series)')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","7":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'The Americans (2013 TV series)')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","13":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Downton Abbey')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","13":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'New American Bible Revised Edition')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","34":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Avatar (2009 film)')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","6":"</em>"}';
         $ratable->save();
         
         $ratable = Ratable::where('name', 'Sense and Sensibility')->first();
-        $ratable->style = '{"before":"<em>","after":"</em>"}';
+        $ratable->style = '{"0":"<em>","21":"</em>"}';
+        $ratable->save();
+        
+        $ratable = Ratable::where('name', 'Breaking Bad')->first();
+        $ratable->style = '{"0":"<em>","12":"</em>"}';
         $ratable->save();*/
+        
+        
         
         /*$ratable = Ratable::where('name', 'The Internet')->first();
         $ratable->desc = "The global system of interconnected computer networks that use the Internet protocol suite (TCP/IP) to link devices worldwide.";
         $ratable->save();*/
         
-        $ratable = Ratable::where('name', 'Stairway to Heaven')->first();
-        $ratable->style = '{"before":"&quot;","after":"&quot;"}';
-        $ratable->save();
+        
+        
+        /*$ratable = Ratable::where('name', 'Stairway to Heaven')->first();
+        $ratable->style = '{"0":"&quot;","18":"&quot;"}';
+        $ratable->save();*/
     }
 }
