@@ -450,8 +450,7 @@ function createRatableTable1Rows(json) {
     var styleBefore = '';
     var styleAfter = '';
     if (json.style.length) {
-        var str = json.style.replace(/\\\"/g, '"');
-        var style = JSON.parse(str);
+        var style = JSON.parse(json.style.replace(/\\\"/g, '"'));
         styleBefore = style.before;
         styleAfter = style.after;
     }
@@ -1105,8 +1104,7 @@ function createTable1Tr(json) {
         var styleBefore = '';
         var styleAfter = '';
         if (json.style.length) {
-            var str = json.style.replace(/\\\"/g, '"');
-            var style = JSON.parse(str);
+            var style = JSON.parse(json.style.replace(/\\\"/g, '"'));
             styleBefore = style.before;
             styleAfter = style.after;
         }
@@ -1163,9 +1161,9 @@ function createTable1Tr(json) {
         var styleBefore = '';
         var styleAfter = '';
         if (json.style.length) {
-            JSON.parse(json.style);
-            styleBefore = json.style.before;
-            styleAfter = json.style.after;
+            var style = JSON.parse(json.style.replace(/\\\"/g, '"'));
+            styleBefore = style.before;
+            styleAfter = style.after;
         }
         var anchor = '<a href="' + encodeURI(json.name) + '">' + styleBefore + json.name + styleAfter + '</a>';
         if (globals.isGuest) {
