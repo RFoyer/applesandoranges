@@ -15,7 +15,7 @@ class SearchAutocompleteController extends Controller
             if ($q->img_src === "#") {
                         $q->img_src = "https://upload.wikimedia.org/wikipedia/commons/7/71/Arrow_east.svg";
                     }
-            array_push($response, ['value' => $q->name, 'img' => $q->img_src, 'id' => $q->id]);            
+            array_push($response, ['name' => $q->name, 'style' => $q->style, 'img_src' => $q->img_src, 'id' => $q->id]);            
         }
         return response()->json($response);        
     }

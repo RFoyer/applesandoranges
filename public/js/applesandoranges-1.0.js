@@ -213,9 +213,13 @@ function createAutocomplete() {
     $('#search-box').autocomplete({
         source: '/autocomplete'        
     }).autocomplete('instance')._renderItem = function(ul, item) {
+        var nameWithStyle = item.name;
+        if (item.style) {
+            nameWithStyle = getNameWithStyle(item);
+        }
         return $("<li>").append('<div>' +
-                '<img class="search-img" width="60" src="' + item.img + '">' + 
-                item.value + '</div>').appendTo(ul);
+                '<img class="search-img" width="60" src="' + item.img_src + '">' + 
+                nameWithStyle + '</div>').appendTo(ul);
     };
 }
 
@@ -448,7 +452,7 @@ function createRatableTable1Rows(json) {
     var eraserIcon = '';
     var eraserTooltip = '';
     var nameWithStyle = json.name;
-    if (json.style.length) {
+    if (json.style) {
         nameWithStyle = getNameWithStyle(json);
     }
     if (globals.isGuest) {
@@ -1114,7 +1118,7 @@ function createTable1Tr(json) {
         var secretEmpty = '';
         var mapMarker = '';
         var nameWithStyle = json.name;
-        if (json.style.length) {
+        if (json.style) {
             nameWithStyle = getNameWithStyle(json);
         }
         var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' +
@@ -1168,7 +1172,7 @@ function createTable1Tr(json) {
         var secretEmpty = '';
         var mapMarker = '';
         var nameWithStyle = json.name;
-        if (json.style.length) {
+        if (json.style) {
             nameWithStyle = getNameWithStyle(json);
         }
         var anchor = '<a href="' + encodeURI(json.name) + '">' + nameWithStyle + '</a>';
