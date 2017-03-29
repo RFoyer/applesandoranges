@@ -31,7 +31,7 @@ class TableController extends Controller
             $ratable = Ratable::where('approved', false)->skip((int)$request->input('skip'))->first();
         }
         else if ($table === 'home') {
-            $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower(urldecode($request->input('name')))]);
+            $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($request->input('name'))]);
             foreach ($rat as $r) {
                 $ratable = $r;
             }

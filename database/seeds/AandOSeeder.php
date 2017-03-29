@@ -119,5 +119,12 @@ class AandOSeeder extends Seeder
         /*$ratable = Ratable::where('name', 'Stairway to Heaven')->first();
         $ratable->style = '{"0":"&quot;","18":"&quot;"}';
         $ratable->save();*/
+        
+        /*$ratable = Ratable::where('id', 62)->first();
+        $ratable->delete();
+        
+        $ratable = Ratable::where('id', 57)->first();
+        $ratable->delete();*/
+        
     }
 }

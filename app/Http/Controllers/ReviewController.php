@@ -51,7 +51,7 @@ class ReviewController extends Controller
             $newReview = $request->input('review');
             $isAnonymous = $request->input('anonymous');
             $newHeadline = $request->input('headline');
-            $ratableId = Ratable::where('name', html_entity_decode($request->input('ratable')))->value('id');
+            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
             if (isset($ratableId)) {
                 $oldReview = Review::where([
                     ['user_id', '=', Auth::id()],
@@ -83,7 +83,7 @@ class ReviewController extends Controller
     {
         $data = [];
         if ($request->input('userId') === 'useAuthId') {
-            $ratableId = Ratable::where('name', html_entity_decode($request->input('ratable')))->value('id');
+            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
             $review = Review::where([
                 ['user_id', '=', Auth::id()],
                 ['ratable_id', '=', $ratableId]
@@ -114,7 +114,7 @@ class ReviewController extends Controller
             }
         }
         else if ($request->input('userId') === 'all') {
-            $ratableId = Ratable::where('name', html_entity_decode($request->input('ratable')))->value('id');
+            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
             $reviews = Review::where('ratable_id', $ratableId)->get();
             $reviewsArr = [];
             if ($reviews) {

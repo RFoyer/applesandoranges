@@ -124,10 +124,10 @@ function fillRatableTables() {
             '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
     $('#ratings-data').after(globals.detachedSpinner);
     $('#reviews-data').after(globals.detachedSpinner);
-    $.getJSON('/table/home?name=' + encodeURIComponent(location.pathname.slice(1)), function(json) {
+    $.getJSON('/table/home?name=' + location.pathname.slice(1), function(json) {
         if (json.name) {
             createRatableTable1Rows(json);
-            createRatableReviewsRows(decodeURI(json.name));
+            createRatableReviewsRows(json.name);
         }
         else {
             $('.spinner').remove();
@@ -551,7 +551,7 @@ function getNameWithStyle(json) {
 
 function createRatableReviewsRows(ratableName) {
     readyRatableTable2(ratableName);
-    $.getJSON('review?userId=all&ratable=' + encodeURIComponent(ratableName), function(json) {
+    $.getJSON('review?userId=all&ratable=' + ratableName, function(json) {
         if (json.reviews) {
             createRatableTable3BtnEvents(json);
             createRatableTable3Rows(json, 'none');
@@ -937,7 +937,7 @@ function createUserRatingsRows(json, btnAction) {
                 createSmallReadOnlyStars(json.ratings[i + globals.ratingsIndex].rating) +
                 '</td>' +
                 '<td><span><a class="ratings-data-a" ' +
-                    'href="/' + encodeURI(json.ratings[i + globals.ratingsIndex].ratable) + '">' +
+                    'href="/' + json.ratings[i + globals.ratingsIndex].ratable + '">' +
                     json.ratings[i + globals.ratingsIndex].ratable + '</a>' +
                     anonymousIcon + '</span>' +
                 '</td></tr>');
@@ -998,7 +998,7 @@ function createUserReviewsRows(json, btnAction) {
                         anonymousTooltip +'></i>';
             }
             $('#reviews-data .tr-spinner').before('<tr><td>' + anonymousIcon +
-                ' <a href="/' + encodeURI(json.reviews[i + globals.reviewsIndex].ratable) + '">' +
+                ' <a href="/' + json.reviews[i + globals.reviewsIndex].ratable + '">' +
                     json.reviews[i + globals.reviewsIndex].ratable + '</a>: ' +
                 json.reviews[i + globals.reviewsIndex].date + ' - ' +
                 json.reviews[i + globals.reviewsIndex].headline + ' - ' + 
@@ -1139,7 +1139,7 @@ function createTable1Tr(json) {
             nameWithStyle = getNameWithStyle(json);
         }
         var anchor = '<a data-toggle="tooltip" data-placement="bottom" title="' +
-                json.desc + '" href="' + encodeURI(json.name) + '">' + nameWithStyle + '</a>';
+                json.desc + '" href="/' + json.name + '">' + nameWithStyle + '</a>';
         if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';
@@ -1192,7 +1192,7 @@ function createTable1Tr(json) {
         if (json.style) {
             nameWithStyle = getNameWithStyle(json);
         }
-        var anchor = '<a href="' + encodeURI(json.name) + '">' + nameWithStyle + '</a>';
+        var anchor = '<a href="' + json.name + '">' + nameWithStyle + '</a>';
         if (globals.isGuest) {
             loginTooltip = 'data-toggle="tooltip" data-placement="top" ' +
                     'title="Please login to rate items."';
