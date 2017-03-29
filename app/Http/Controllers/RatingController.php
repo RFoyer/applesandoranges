@@ -7,8 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Ratable;
 use App\User;
 use App\Rating;
-
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
+
 
 class RatingController extends Controller
 {
@@ -64,7 +65,7 @@ class RatingController extends Controller
                 $rtg->anonymous = $newAnonymous;
                 $rtg->rating = $newRating;
                 $rtg->save();
-            }            
+            }
         }
     }
 
@@ -105,7 +106,7 @@ class RatingController extends Controller
                 ['ratable_id', '=', $ratableId]
                 ])->first();
             if ($rating) {
-                if ($request->input('rating')) {
+                if (Input::has('rating')) {
                     $rating->rating = $request->input('rating') + 1;
                     $anonymous = false;
                     if ($request->input('anonymous') === "true") {
@@ -114,7 +115,7 @@ class RatingController extends Controller
                     $rating->anonymous = $anonymous;
                     $rating->save();
                 }
-                else if ($request->input('anonymous')) {
+                else if (Input::has('anonymous')) {
                     $anonymous = false;
                     if ($request->input('anonymous') === "true") {
                         $anonymous = true;

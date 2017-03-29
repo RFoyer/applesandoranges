@@ -51,23 +51,25 @@ class ReviewController extends Controller
             $newReview = $request->input('review');
             $isAnonymous = $request->input('anonymous');
             $newHeadline = $request->input('headline');
-            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
-            $oldReview = Review::where([
-                ['user_id', '=', Auth::id()],
-                ['ratable_id', '=', $ratableId]
-                ])->first();
-            if ($oldReview) {
-                $this->update($request, $ratableId);               
+            $ratableId = Ratable::where('name', html_entity_decode($request->input('ratable')))->value('id');
+            if (isset($ratableId)) {
+                $oldReview = Review::where([
+                    ['user_id', '=', Auth::id()],
+                    ['ratable_id', '=', $ratableId]
+                    ])->first();
+                if ($oldReview) {
+                    $this->update($request, $ratableId);               
+                }
+                else {
+                    $review = new Review;
+                    $review->user_id = Auth::id();
+                    $review->ratable_id = $ratableId;
+                    $review->anonymous = $isAnonymous;
+                    $review->headline = $newHeadline;
+                    $review->review = $newReview;
+                    $review->save();
+                }
             }
-            else {
-                $review = new Review;
-                $review->user_id = Auth::id();
-                $review->ratable_id = $ratableId;
-                $review->anonymous = $isAnonymous;
-                $review->headline = $newHeadline;
-                $review->review = $newReview;
-                $review->save();
-            }            
         }
     }
 
@@ -81,7 +83,7 @@ class ReviewController extends Controller
     {
         $data = [];
         if ($request->input('userId') === 'useAuthId') {
-            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
+            $ratableId = Ratable::where('name', html_entity_decode($request->input('ratable')))->value('id');
             $review = Review::where([
                 ['user_id', '=', Auth::id()],
                 ['ratable_id', '=', $ratableId]
@@ -108,11 +110,11 @@ class ReviewController extends Controller
                 else {
                     $rating = 0;
                 }
-                $data = ['review' => $review->review, 'anonymous' => $anonymous, 'headline' => $review->headline, 'userId' => Auth::id(), 'user' => Auth::user()->name, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+                $data = ['review' => htmlspecialchars($review->review), 'anonymous' => $anonymous, 'headline' => htmlspecialchars($review->headline), 'userId' => Auth::id(), 'user' => htmlspecialchars(Auth::user()->name), 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
             }
         }
         else if ($request->input('userId') === 'all') {
-            $ratableId = Ratable::where('name', $request->input('ratable'))->value('id');
+            $ratableId = Ratable::where('name', html_entity_decode($request->input('ratable')))->value('id');
             $reviews = Review::where('ratable_id', $ratableId)->get();
             $reviewsArr = [];
             if ($reviews) {
@@ -136,7 +138,7 @@ class ReviewController extends Controller
                     else {
                         $rating = 0;
                     }
-                    $reviewsArr[] = ['review' => $review->review, 'headline' => $review->headline, 'userId' => $userId, 'user' => $user, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];                    
+                    $reviewsArr[] = ['review' => htmlspecialchars($review->review), 'headline' => htmlspecialchars($review->headline), 'userId' => $userId, 'user' => htmlspecialchars($user), 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];                    
                 }
                 $data = ['reviews' => $reviewsArr];
             }
@@ -158,7 +160,7 @@ class ReviewController extends Controller
                 else {
                     $rating = 0;
                 }
-                $data = ['review' => $review->review, 'headline' => $review->headline, 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
+                $data = ['review' => htmlspecialchars($review->review), 'headline' => htmlspecialchars($review->headline), 'date' => date('F j, Y', strtotime((string)$review->updated_at)), 'rating' => $rating];
             }
         }
         return response()->json($data);

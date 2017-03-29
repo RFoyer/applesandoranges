@@ -31,7 +31,7 @@ class TableController extends Controller
             $ratable = Ratable::where('approved', false)->skip((int)$request->input('skip'))->first();
         }
         else if ($table === 'home') {
-            $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($request->input('name'))]);
+            $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower(urldecode($request->input('name')))]);
             foreach ($rat as $r) {
                 $ratable = $r;
             }
@@ -50,7 +50,7 @@ class TableController extends Controller
                 $numberOfApprovedRatables = Ratable::where('creator_id', $user->id)->where('approved', true)->count();
                 //$numberOfPendingRatables = diff between last two
                 //$numberOfRejectedRatables
-                array_push($data, ['name' => $user->name,
+                array_push($data, ['name' => htmlspecialchars($user->name),
                     'email' => $user->email,
                     'id' => $user->id,
                     'numberOfRatings' => (empty($numberOfRatings)) ? 0 : $numberOfRatings,
@@ -83,12 +83,12 @@ class TableController extends Controller
                 $ratings = [];
                 $reviews = [];
                 foreach ($userRatings as $r) {
-                    $ratings[] = ['rating' => $r->rating, 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
+                    $ratings[] = ['rating' => $r->rating, 'anonymous' => $r->anonymous, 'ratable' => htmlspecialchars(Ratable::where('id', $r->ratable_id)->value('name'))];
                 }
                 foreach ($userReviews as $r) {
-                    $reviews[] = ['review' => $r->review, 'headline' => $r->headline, 'date' => date('F j, Y', strtotime((string)$r->updated_at)), 'anonymous' => $r->anonymous, 'ratable' => Ratable::where('id', $r->ratable_id)->value('name')];
+                    $reviews[] = ['review' => htmlspecialchars($r->review), 'headline' => htmlspecialchars($r->headline), 'date' => date('F j, Y', strtotime((string)$r->updated_at)), 'anonymous' => $r->anonymous, 'ratable' => htmlspecialchars(Ratable::where('id', $r->ratable_id)->value('name'))];
                 }
-                $data = ['username' => $user->name, 'ratings' => $ratings, 'reviews' => $reviews];        
+                $data = ['username' => htmlspecialchars($user->name), 'ratings' => $ratings, 'reviews' => $reviews];        
             }
         }
         if (isset($ratable)) {
@@ -125,8 +125,8 @@ class TableController extends Controller
                 $rating = number_format(0, 1);
                 $numberOfRatings = 0;
             }
-            $data = ['id' => $ratable->id, 'name' => $ratable->name, 'style' => $ratable->style, 'img_src' => $ratable->img_src, 'desc' => $ratable->desc, 'isApproved' => $ratable->approved, 'region' => $region, 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];
-        }        
+            $data = ['id' => $ratable->id, 'name' => htmlspecialchars($ratable->name), 'style' => $ratable->style, 'img_src' => $ratable->img_src, 'desc' => htmlspecialchars($ratable->desc), 'isApproved' => $ratable->approved, 'region' => htmlspecialchars($region), 'userRating' => $userRating, 'isAnonymous' => $isAnonymous, 'rating' => $rating, 'numberOfRatings' => $numberOfRatings];
+        }
         
         return response()->json($data);
     }

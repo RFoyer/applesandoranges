@@ -21,7 +21,10 @@ class RatableController extends Controller
      */
     public function index($path)
     {
-        $ratable = Ratable::where('name', $path)->first();
+        $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($path)]);
+        foreach ($rat as $r) {
+            $ratable = $r;
+        }
         $view = "notFound";
         if (isset($ratable)) {
             $view = 'ratable';
@@ -48,9 +51,9 @@ class RatableController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => ['required', 'unique:ratables', 'max:45', 'regex:/^[\w\s\.,?!:;\(\)"\']+$/'],
-            'location' => 'max:60',
-            'desc' => ['required', 'max:450', 'regex:/^[\w\s\.,?!:;\(\)"\']+$/']
+            'name' => ['required', 'unique:ratables', 'max:45'],
+            'location' => ['max:60'],
+            'desc' => ['required', 'max:450']
         ]);
         
         if (Auth::check()) {
