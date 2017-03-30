@@ -37,7 +37,7 @@ Route::get('autocomplete', 'SearchAutocompleteController@show');
 
 Route::get('ratable/create', 'RatableController@create');
 
-Route::post('ratable/create/success', 'RatableController@store');
+Route::post('ratable/create', 'RatableController@store');
 
 //Route::get('admin', function(){return view('home');});
 

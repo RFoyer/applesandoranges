@@ -22,7 +22,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Propose New Ratable</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/ratable/create/success') }}">
+                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/ratable/create') }}">
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
