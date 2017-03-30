@@ -47,4 +47,4 @@ Route::get('user/{id}', 'UserController@show');
 
 Route::get('contributors', "ContributorsController@index");
 
-Route::get('/{path}', "RatableController@index");
+Route::get('/{name}', "RatableController@index");

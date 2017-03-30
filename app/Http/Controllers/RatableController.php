@@ -19,9 +19,9 @@ class RatableController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($path)
+    public function index($name)
     {
-        $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($path)]);
+        $rat = DB::select('select * from ratables where lower(name) like ? limit 1', [strtolower($name)]);
         foreach ($rat as $r) {
             $ratable = $r;
         }
